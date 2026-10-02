@@ -1,6 +1,6 @@
 import AVFoundation
 
-nonisolated enum AudioInputKind: Sendable, Equatable {
+nonisolated enum AudioInputKind: String, Sendable, Equatable, Codable {
     case builtInMicrophone
     case wiredHeadset
     case bluetooth

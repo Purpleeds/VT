@@ -9,7 +9,7 @@ nonisolated struct PitchSessionStats: Sendable, Equatable {
     private(set) var minimumFrequency: Double?
     private(set) var maximumFrequency: Double?
 
-    mutating func add(_ frame: PitchFrame, target: PitchTargetZone) {
+    mutating func add(_ frame: VoiceFrame, target: PitchTargetZone) {
         guard frame.status == .voiced, let frequency = frame.filteredFrequency else { return }
         voicedFrameCount += 1
         frequencySum += frequency

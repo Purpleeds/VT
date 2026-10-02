@@ -1,9 +1,28 @@
+import Foundation
 import SwiftUI
 
 struct MoreView: View {
+    @Environment(LiveVoiceMonitor.self) private var monitor
+    @State private var isShowingCalibration = false
+
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    Button {
+                        isShowingCalibration = true
+                    } label: {
+                        LabeledContent {
+                            Text(calibrationSummary)
+                        } label: {
+                            Label("Microphone Calibration", systemImage: "mic.and.signal.meter")
+                        }
+                    }
+                    .foregroundStyle(.primary)
+                } header: {
+                    Text("Setup")
+                }
+
                 Section {
                     Label("Vocal Health Center", systemImage: "heart.text.square")
                     Label("Tools", systemImage: "wrench.and.screwdriver")
@@ -32,6 +51,14 @@ struct MoreView: View {
                 }
             }
             .navigationTitle("More")
+            .sheet(isPresented: $isShowingCalibration) {
+                MicCalibrationView(monitor: monitor)
+            }
         }
+    }
+
+    private var calibrationSummary: String {
+        guard let calibration = monitor.calibration else { return "Not done" }
+        return calibration.date.formatted(date: .abbreviated, time: .omitted)
     }
 }

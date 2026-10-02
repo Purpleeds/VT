@@ -2,7 +2,7 @@ import SwiftUI
 
 /// The live scrolling pitch graph, driven by the display's refresh rate.
 struct LivePitchGraph: View {
-    @Environment(LivePitchMonitor.self) private var monitor
+    @Environment(LiveVoiceMonitor.self) private var monitor
     /// Draws raw YIN estimates as dots (used on the debug screen).
     var showsRawEstimates = false
 

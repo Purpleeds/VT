@@ -13,6 +13,14 @@ struct SignalLevelTests {
         #expect(abs(SignalLevel.decibels(fromAmplitude: rms) - (-9.03)) < 0.01)
     }
 
+    @Test("Peak level is the largest absolute sample")
+    func peak() {
+        #expect(SignalLevel.peak([0.1, -0.8, 0.5]) == Double(Float(0.8)))
+        #expect(SignalLevel.peak([]) == 0)
+        let sine = TestSignal.sine(frequency: 200, count: 4800, amplitude: 0.5)
+        #expect(abs(SignalLevel.decibels(fromAmplitude: SignalLevel.peak(sine)) - (-6.02)) < 0.05)
+    }
+
     @Test("Silence and empty input")
     func silence() {
         #expect(SignalLevel.rms([]) == 0)

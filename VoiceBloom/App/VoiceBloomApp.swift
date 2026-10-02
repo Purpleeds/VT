@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct VoiceBloomApp: App {
-    @State private var monitor = LivePitchMonitor()
+    @State private var monitor = LiveVoiceMonitor()
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {

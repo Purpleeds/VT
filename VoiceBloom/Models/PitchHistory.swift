@@ -16,7 +16,7 @@ nonisolated struct PitchGraphPoint: Sendable, Equatable {
         self.isVoiced = isVoiced
     }
 
-    init(frame: PitchFrame) {
+    init(frame: VoiceFrame) {
         time = frame.time
         switch frame.status {
         case .voiced, .octaveJumpHeld:

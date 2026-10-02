@@ -19,28 +19,38 @@ nonisolated enum MonitorStatus: Sendable, Equatable {
     var isRunning: Bool { self == .running }
 }
 
-/// Live pitch listening shared by the Practice and Debug screens.
+/// Live voice listening shared by the Practice, Debug and calibration screens.
 ///
 /// Data flow:
 /// 1. `AudioCaptureService` writes microphone samples into a lock-free ring buffer.
 /// 2. A detached background task drains the ring every few milliseconds and
-///    runs `LivePitchPipeline` (YIN + filters) off the main thread.
-/// 3. Batches of `PitchFrame`s are delivered here on the main actor, where they
-///    update the graph history, the session statistics, and the readouts.
+///    runs `VoiceAnalysisPipeline` (pitch, formants, weight, intonation) off
+///    the main thread.
+/// 3. Batches of `VoiceFrame`s are delivered here on the main actor, where they
+///    update the graph history, meters, session statistics and readouts.
 @MainActor
 @Observable
-final class LivePitchMonitor {
+final class LiveVoiceMonitor {
     private(set) var status: MonitorStatus = .idle
     /// Most recent analysis frame (refreshed ~8 times a second).
-    private(set) var latestFrame: PitchFrame?
+    private(set) var latestFrame: VoiceFrame?
     /// Pitch for the big number. Updated ~8 times a second so it's readable.
     private(set) var readoutFrequency: Double?
     /// False when the readout is showing a recent value but the voice has stopped.
     private(set) var readoutIsLive = false
-    private(set) var stats = PitchSessionStats()
+    private(set) var stats = VoiceSessionStats()
+    private(set) var resonance: ResonanceReading?
+    private(set) var weight: WeightReading?
+    private(set) var intonation: IntonationReading?
+    /// Formants of the most recent stable frame (debug screen).
+    private(set) var latestFormants: FormantMeasurement?
+    /// Weight measurement of the most recent stable frame (debug screen).
+    private(set) var latestWeight: WeightMeasurement?
     private(set) var route: AudioRouteInfo?
     private(set) var captureFormat: CaptureFormat?
     private(set) var analysisConfiguration: AnalysisConfiguration?
+    /// Sample rate used for formant and weight analysis (after decimation).
+    private(set) var spectralSampleRate: Double?
     private(set) var droppedSampleCount = 0
     /// Moving average of DSP time per frame, in seconds.
     private(set) var averageProcessingTime = 0.0
@@ -48,29 +58,60 @@ final class LivePitchMonitor {
     private(set) var historyRevision = 0
     /// User-facing explanation of the last unexpected stop, if any.
     private(set) var notice: String?
+    /// The saved mic calibration, if the user has done one.
+    private(set) var calibration: MicCalibration?
     var targetZone: PitchTargetZone = .feminine
+    /// Which vowel (or speech) the resonance meter compares against.
+    var resonanceMode: ResonanceMode = .speech {
+        didSet {
+            guard resonanceMode != oldValue else { return }
+            resonanceMeter.setMode(resonanceMode)
+            UserDefaults.standard.set(resonanceMode.rawValue, forKey: Self.resonanceModeKey)
+            publishReadouts(now: Date())
+        }
+    }
+    /// While true (during mic calibration), frames don't count toward session statistics.
+    var isCalibrating = false
 
     /// Seconds of pitch shown on the scrolling graph.
     let graphDuration = 10.0
+
+    /// True when a saved calibration matches the microphone in use.
+    var isCalibrationInUse: Bool {
+        calibration?.applies(to: route) ?? false
+    }
 
     // Per-frame state lives outside observation; the observed properties above
     // are refreshed ~8 times a second so SwiftUI isn't invalidated 94 times a second.
     // The graph reads `history` directly from its own display-synced timeline.
     @ObservationIgnored private var history = PitchHistory(capacity: 2048)
-    @ObservationIgnored private var liveStats = PitchSessionStats()
+    @ObservationIgnored private var liveStats = VoiceSessionStats()
+    @ObservationIgnored private var resonanceMeter = ResonanceMeter()
+    @ObservationIgnored private var weightMeter = WeightMeter()
+    @ObservationIgnored private var intonationMeter = IntonationMeter()
     @ObservationIgnored private var liveProcessingTime = 0.0
-    @ObservationIgnored private var newestFrame: PitchFrame?
-    @ObservationIgnored private var lastVoicedFrame: PitchFrame?
+    @ObservationIgnored private var newestFrame: VoiceFrame?
+    @ObservationIgnored private var newestFormants: FormantMeasurement?
+    @ObservationIgnored private var newestWeight: WeightMeasurement?
+    @ObservationIgnored private var lastVoicedFrame: VoiceFrame?
     @ObservationIgnored private var lastBatchArrival: Date?
     @ObservationIgnored private var lastPublish = Date.distantPast
+    @ObservationIgnored private var frameListeners: [UUID: (VoiceFrame) -> Void] = [:]
     /// The background DSP task and the main-actor task that receives its results.
     @ObservationIgnored private var analysisTasks: (producer: Task<Void, Never>, consumer: Task<Void, Never>)?
     @ObservationIgnored private var eventTask: Task<Void, Never>?
     @ObservationIgnored private var resumesAfterInterruption = false
     private let capture: AudioCaptureService
 
+    private static let resonanceModeKey = "resonanceMode"
+
     init(capture: AudioCaptureService = AudioCaptureService()) {
         self.capture = capture
+        let savedMode = UserDefaults.standard.string(forKey: Self.resonanceModeKey).flatMap(ResonanceMode.init(rawValue:))
+        resonanceMode = savedMode ?? .speech
+        resonanceMeter = ResonanceMeter(mode: savedMode ?? .speech)
+        calibration = MicCalibrationStore.load()
+
         eventTask = Task { [weak self] in
             await capture.beginObservingSystemEvents()
             let initialRoute = await capture.currentRoute()
@@ -127,17 +168,66 @@ final class LivePitchMonitor {
         publishReadouts(now: Date())
     }
 
-    /// Clears the graph and statistics for a fresh session.
+    /// Stops listening and returns to the idle state (used after calibration
+    /// when the user wasn't listening before).
+    func stop() async {
+        guard status != .idle else { return }
+        status = .idle
+        await endAnalysis()
+        await capture.stop()
+        publishReadouts(now: Date())
+    }
+
+    /// Clears the graph, meters and statistics for a fresh session.
     func resetSession() {
         history.removeAll()
-        liveStats = PitchSessionStats()
+        liveStats = VoiceSessionStats()
         stats = liveStats
+        resonanceMeter.reset()
+        weightMeter.reset()
+        intonationMeter.reset()
         newestFrame = nil
+        newestFormants = nil
+        newestWeight = nil
         latestFrame = nil
+        latestFormants = nil
+        latestWeight = nil
         lastVoicedFrame = nil
         readoutFrequency = nil
         readoutIsLive = false
+        resonance = nil
+        weight = nil
+        intonation = nil
         historyRevision += 1
+    }
+
+    // MARK: Calibration
+
+    /// Saves a calibration and starts using it right away.
+    func applyCalibration(_ newCalibration: MicCalibration) async {
+        calibration = newCalibration
+        MicCalibrationStore.save(newCalibration)
+        await restartAnalysisIfRunning()
+    }
+
+    /// Forgets the calibration and goes back to the adaptive noise floor.
+    func clearCalibration() async {
+        calibration = nil
+        MicCalibrationStore.save(nil)
+        await restartAnalysisIfRunning()
+    }
+
+    /// Calls `listener` on the main actor for every analyzed frame.
+    /// - Returns: A token for `removeFrameListener`.
+    @discardableResult
+    func addFrameListener(_ listener: @escaping (VoiceFrame) -> Void) -> UUID {
+        let id = UUID()
+        frameListeners[id] = listener
+        return id
+    }
+
+    func removeFrameListener(_ id: UUID) {
+        frameListeners[id] = nil
     }
 
     // MARK: Graph data
@@ -158,6 +248,20 @@ final class LivePitchMonitor {
 
     // MARK: Analysis
 
+    /// The noise-floor model for the next analysis run: the calibrated room
+    /// level when it matches the current mic, otherwise fully adaptive.
+    private var noiseFloorModel: NoiseFloorEstimator {
+        if let calibration, calibration.applies(to: route) {
+            return .calibrated(floorDb: calibration.noiseFloorDb)
+        }
+        return NoiseFloorEstimator()
+    }
+
+    private func restartAnalysisIfRunning() async {
+        guard status == .running, let format = captureFormat else { return }
+        await beginAnalysis(format: format)
+    }
+
     private func beginAnalysis(format: CaptureFormat) async {
         await endAnalysis()
         // The user may have paused while the previous analysis was finishing.
@@ -166,18 +270,24 @@ final class LivePitchMonitor {
         let configuration = AnalysisConfiguration(sampleRate: format.sampleRate)
         captureFormat = format
         analysisConfiguration = configuration
+        spectralSampleRate = Decimator(inputSampleRate: format.sampleRate).outputSampleRate
         // Continue the timeline after a pause, leaving a small visible gap.
         let startTime = history.latestTime.map { $0 + 0.25 } ?? 0
+        let noiseFloor = noiseFloorModel
         let ring = capture.samples
 
         let (stream, continuation) = AsyncStream.makeStream(
-            of: [PitchFrame].self,
+            of: [VoiceFrame].self,
             bufferingPolicy: .bufferingNewest(128)
         )
 
         // DSP runs on a background thread, never on the main actor.
         let producer = Task.detached(priority: .userInitiated) {
-            let pipeline = LivePitchPipeline(configuration: configuration, startTime: startTime)
+            let pipeline = VoiceAnalysisPipeline(
+                configuration: configuration,
+                startTime: startTime,
+                noiseFloor: noiseFloor
+            )
             ring.discardAll()
             while !Task.isCancelled {
                 let frames = pipeline.drain(ring)
@@ -211,16 +321,45 @@ final class LivePitchMonitor {
         await tasks.consumer.value
     }
 
-    private func ingest(_ frames: [PitchFrame]) {
+    private func ingest(_ frames: [VoiceFrame]) {
         guard let newest = frames.last else { return }
+        let countsTowardSession = !isCalibrating
+
         for frame in frames {
             history.append(PitchGraphPoint(frame: frame))
-            liveStats.add(frame, target: targetZone)
+            if countsTowardSession {
+                liveStats.pitch.add(frame, target: targetZone)
+            }
             liveProcessingTime = liveProcessingTime == 0
                 ? frame.processingDuration
                 : liveProcessingTime * 0.95 + frame.processingDuration * 0.05
             if frame.status == .voiced {
                 lastVoicedFrame = frame
+            }
+
+            if let formants = frame.formants {
+                resonanceMeter.add(formants, at: frame.time)
+                newestFormants = formants
+                if countsTowardSession {
+                    liveStats.resonance.add(resonanceMeter.score(for: formants))
+                }
+            }
+            if let measurement = frame.weight {
+                weightMeter.add(measurement, at: frame.time)
+                newestWeight = measurement
+                if countsTowardSession {
+                    liveStats.weight.add(weightMeter.score(for: measurement))
+                }
+            }
+            if let phrase = frame.completedPhrase {
+                let score = intonationMeter.add(phrase)
+                if countsTowardSession {
+                    liveStats.intonation.add(score)
+                }
+            }
+
+            for listener in frameListeners.values {
+                listener(frame)
             }
         }
         newestFrame = newest
@@ -241,12 +380,34 @@ final class LivePitchMonitor {
         if latestFrame != newestFrame {
             latestFrame = newestFrame
         }
+        if latestFormants != newestFormants {
+            latestFormants = newestFormants
+        }
+        if latestWeight != newestWeight {
+            latestWeight = newestWeight
+        }
         if averageProcessingTime != liveProcessingTime {
             averageProcessingTime = liveProcessingTime
         }
         let dropped = capture.samples.droppedSampleCount
         if dropped != droppedSampleCount {
             droppedSampleCount = dropped
+        }
+
+        // Meters are judged against audio time, so they go stale in silence
+        // but keep their last value while paused.
+        let audioNow = newestFrame?.time ?? 0
+        let newResonance = resonanceMeter.reading(now: audioNow)
+        if resonance != newResonance {
+            resonance = newResonance
+        }
+        let newWeight = weightMeter.reading(now: audioNow)
+        if weight != newWeight {
+            weight = newWeight
+        }
+        let newIntonation = intonationMeter.reading(now: audioNow)
+        if intonation != newIntonation {
+            intonation = newIntonation
         }
 
         guard let newest = newestFrame,
@@ -274,8 +435,12 @@ final class LivePitchMonitor {
     private func handle(_ event: CaptureEvent) async {
         switch event {
         case .routeChanged(let info):
-            if route != info {
-                route = info
+            guard route != info else { return }
+            let calibrationWasInUse = isCalibrationInUse
+            route = info
+            // A different kind of mic needs a different noise-floor model.
+            if calibrationWasInUse != isCalibrationInUse {
+                await restartAnalysisIfRunning()
             }
         case .interruptionBegan:
             guard status == .running else { return }

@@ -2,7 +2,9 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stage 1 of 14 is done: project setup, the audio engine, the live pitch graph, a debug screen, and pitch unit tests.
+**Status:** Stages 1–2 of 14 are done:
+- **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
+- **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 
 ---
 
@@ -72,14 +74,30 @@ git commit -m "Add Xcode project"
 
 ---
 
-## What to try on the device (Stage 1)
+## What to try on the device
 
-- **Practice tab:** tap **Start Listening** and allow the microphone. Hold an "aah" and slide your pitch up and down. The graph scrolls through the last 10 seconds, with the 180–220 Hz target zone shaded. The big numbers show your current pitch (Hz and note name) and the percentage of voiced time spent in the target zone.
-- **More ▸ Debug & Tuning:** shows raw YIN estimates (grey dots) against the filtered line, input level, the adaptive noise floor and voice gate, sample rate, frame and hop size, DSP time per frame, and dropped samples.
+Stage 2 needs no extra Xcode setup.
+
+- **Calibrate first.** Practice shows a *Calibrate your microphone* card; you can also use **More ▸ Microphone Calibration**. You stay quiet for 5 seconds, then hold a comfortable "aah". The results report room noise (quiet / some noise / too noisy) and voice level (good / too quiet / too loud). Once saved, the measured room level becomes the lowest the noise gate can go.
+- **Practice tab:**
+  - Pitch: big readouts and the 10-second graph, as in Stage 1.
+  - The **Voice** card has three 0–100 meters, each labelled at both ends:
+    - **Resonance** (Dark ↔ Bright) uses F2 and F3.
+    - **Weight** (Heavy ↔ Light) uses H1–H2 and spectral tilt.
+    - **Intonation** (Flat ↔ Melodic) uses pitch variation in your last phrase.
+  - Use the menu on the Voice card to choose what resonance is compared against: *Speech*, or a held vowel ("ee", "ih", "ay", "ah"). Formants depend heavily on the vowel, so pick the one you're holding.
+  - Intonation updates after you finish a sentence and pause.
+  - Start/Pause is pinned to the bottom of the screen.
+- **More ▸ Debug & Tuning:** F1–F3 with bandwidths, raw and formant-corrected H1–H2, spectral tilt, the last phrase's variability and rises/falls, the stored calibration values, and engine timing.
 - **Interruptions:** start listening, then trigger Siri or take a call. Listening pauses, and resumes by itself if iOS allows it. Leaving the app pauses too; tap **Resume** when you come back.
 - **Bluetooth:** the app only allows Bluetooth for *playback*, so with AirPods connected the iPhone's own mic is still used. If a Bluetooth or car microphone does end up as the input, a warning explains that resonance readings will be unreliable.
 
-The target zone is fixed at the feminine default until Settings (Stage 6). The noise floor adapts automatically until mic calibration (Stage 2).
+**Defaults and tuning:**
+- The resonance references are rounded adult averages from classic vowel studies: male averages as the starting point, female averages as the target.
+- The weight and intonation references are provisional.
+- All three get replaced by your own baseline in Stage 6 and a target-voice profile in Stage 9.
+- The pitch target zone stays at 180–220 Hz until Settings in Stage 6.
+- The calibration thresholds (quiet ≤ −60 dBFS, too noisy > −48 dBFS, voice at least 15 dB above the room) are first guesses to check on a real iPhone using the debug screen.
 
 ---
 
@@ -90,21 +108,29 @@ VoiceBloom/
   App/            App entry point and tab bar
   Audio/          AudioCaptureService (AVAudioSession + AVAudioEngine), lock-free SampleRingBuffer,
                   route detection, microphone permission
-  DSP/            AnalysisConfiguration, PitchAnalyzer (YIN), PitchTracker (octave-jump rejection,
-                  median, smoothing), SignalLevel + NoiseFloorEstimator (voice activity), SampleFramer,
-                  LivePitchPipeline (the full per-frame chain), PitchMath
-  Models/         PitchFrame, PitchTargetZone, PitchSessionStats, PitchHistory
-  Features/       Practice (LivePitchMonitor, PracticeView, pitch graph), Debug, More
+  DSP/            AnalysisConfiguration, PitchAnalyzer (YIN), PitchTracker, VoiceStabilityTracker,
+                  Decimator (anti-alias FIR → ~12 kHz), LinearPrediction (Levinson–Durbin),
+                  PolynomialRoots (Aberth), FormantAnalyzer (LPC → F1–F3), WeightAnalyzer
+                  (H1–H2, H1*–H2*, spectral tilt), IntonationAnalyzer (phrases, semitone SD,
+                  rises/falls), SignalLevel + NoiseFloorEstimator, SampleFramer,
+                  VoiceAnalysisPipeline (the full per-frame chain), PitchMath
+  Models/         VoiceFrame, PitchTargetZone, PitchSessionStats, PitchHistory,
+                  VoiceReferences (baseline/target scoring), VoiceMeters (rolling meter readings)
+  Features/       Practice (LiveVoiceMonitor, PracticeView, pitch graph, voice meters),
+                  Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
-VoiceBloomTests/  Swift Testing unit tests for all DSP code
+VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels
 ```
 
 **Audio path:**
 
 1. The microphone feeds an `AVAudioSinkNode`.
 2. On the real-time thread, the sink node copies samples into a lock-free ring buffer. That thread never locks or allocates.
-3. A background task drains the ring buffer every 5 ms and runs `LivePitchPipeline`: 2048-sample frames with a 512-sample hop, a noise gate, YIN, then the tracker.
+3. A background task drains the ring buffer every 5 ms and runs `VoiceAnalysisPipeline` on each 2048-sample frame (512-sample hop):
+   - Noise gate, then YIN pitch, then octave-jump, median and smoothing filters.
+   - On voiced, stable, clearly audible frames only: decimate to ~12 kHz, then 12-pole LPC for F1–F3, then harmonic levels (Goertzel) for H1–H2 and tilt, corrected for the formants.
+   - Phrase detection for intonation.
 4. Results arrive on the main actor in batches.
-5. The graph redraws in sync with the display through `TimelineView` and `Canvas`. The text readouts refresh about 8 times a second so they stay readable.
+5. The graph redraws in sync with the display. The meters take a median over a short window and refresh about 8 times a second.
 
 **Audio session:** category `.playAndRecord`, mode `.measurement` (no automatic gain control or voice processing), options `.defaultToSpeaker` and `.allowBluetoothA2DP`, preferred 48 kHz with 5 ms I/O buffers. Interruptions, route changes, engine configuration changes and media-services resets are all handled.

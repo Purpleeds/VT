@@ -19,6 +19,18 @@ nonisolated enum SignalLevel {
         samples.withUnsafeBufferPointer { rms($0) }
     }
 
+    /// Largest absolute sample value (1.0 = full scale).
+    static func peak(_ samples: UnsafeBufferPointer<Float>) -> Double {
+        guard let base = samples.baseAddress, !samples.isEmpty else { return 0 }
+        var result: Float = 0
+        vDSP_maxmgv(base, 1, &result, vDSP_Length(samples.count))
+        return Double(result)
+    }
+
+    static func peak(_ samples: [Float]) -> Double {
+        samples.withUnsafeBufferPointer { peak($0) }
+    }
+
     /// Converts an RMS amplitude to dBFS.
     static func decibels(fromAmplitude amplitude: Double) -> Double {
         guard amplitude > 0, amplitude.isFinite else { return silenceDb }
@@ -36,14 +48,19 @@ nonisolated enum SignalLevel {
 ///
 /// The estimate drops quickly whenever a quieter frame arrives (pauses between
 /// words reveal the true background level) and creeps upward slowly otherwise,
-/// so sustained speech can't drag it up to the voice level. Stage 2's mic
-/// calibration will seed this with a measured value.
+/// so sustained speech can't drag it up to the voice level.
+///
+/// After mic calibration, the measured room level is used as both the
+/// starting point and the lower limit: the estimate can still rise if the
+/// room gets noisier, but never drops below what calibration measured.
 nonisolated struct NoiseFloorEstimator: Sendable, Equatable {
     static let defaultFloorDb = -60.0
     static let lowestFloorDb = -100.0
     static let highestFloorDb = -25.0
 
     private(set) var floorDb: Double
+    /// The estimate never goes below this level (dBFS).
+    let minimumFloorDb: Double
     /// How fast the estimate may rise toward louder frames (dB per second).
     var riseRateDbPerSecond: Double
     /// Fraction (0...1) of the gap closed per frame when a quieter frame arrives.
@@ -51,12 +68,20 @@ nonisolated struct NoiseFloorEstimator: Sendable, Equatable {
 
     init(
         initialFloorDb: Double = NoiseFloorEstimator.defaultFloorDb,
+        minimumFloorDb: Double = NoiseFloorEstimator.lowestFloorDb,
         riseRateDbPerSecond: Double = 2,
         fallCoefficient: Double = 0.3
     ) {
-        floorDb = min(max(initialFloorDb, Self.lowestFloorDb), Self.highestFloorDb)
+        let lowest = min(max(minimumFloorDb, Self.lowestFloorDb), Self.highestFloorDb)
+        self.minimumFloorDb = lowest
+        floorDb = min(max(initialFloorDb, lowest), Self.highestFloorDb)
         self.riseRateDbPerSecond = riseRateDbPerSecond
         self.fallCoefficient = min(max(fallCoefficient, 0), 1)
+    }
+
+    /// An estimator seeded from a mic calibration.
+    static func calibrated(floorDb: Double) -> NoiseFloorEstimator {
+        NoiseFloorEstimator(initialFloorDb: floorDb, minimumFloorDb: floorDb)
     }
 
     /// - Parameters:
@@ -69,6 +94,6 @@ nonisolated struct NoiseFloorEstimator: Sendable, Equatable {
         } else {
             floorDb = min(levelDb, floorDb + riseRateDbPerSecond * max(0, elapsed))
         }
-        floorDb = min(max(floorDb, Self.lowestFloorDb), Self.highestFloorDb)
+        floorDb = min(max(floorDb, minimumFloorDb), Self.highestFloorDb)
     }
 }

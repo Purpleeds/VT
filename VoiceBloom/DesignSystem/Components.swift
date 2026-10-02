@@ -59,3 +59,27 @@ struct StatTile: View {
         .accessibilityValue(accessibilityValue ?? value)
     }
 }
+
+/// Horizontal 0...1 bar used by the voice meters and level displays.
+struct MeterBar: View {
+    /// Filled portion, 0...1.
+    let fraction: Double
+    var tint: Color = .accentColor
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        GeometryReader { proxy in
+            let clamped = min(max(fraction, 0), 1)
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(.secondary.opacity(0.2))
+                Capsule()
+                    .fill(tint)
+                    .frame(width: max(proxy.size.height, proxy.size.width * clamped))
+                    .opacity(clamped > 0 ? 1 : 0)
+            }
+        }
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.2), value: fraction)
+        .accessibilityHidden(true)
+    }
+}

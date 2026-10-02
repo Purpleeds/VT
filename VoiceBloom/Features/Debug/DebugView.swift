@@ -3,7 +3,8 @@ import SwiftUI
 
 /// Raw analysis values for tuning on a real device.
 struct DebugView: View {
-    @Environment(LivePitchMonitor.self) private var monitor
+    @Environment(LiveVoiceMonitor.self) private var monitor
+    @State private var isShowingCalibration = false
 
     var body: some View {
         List {
@@ -41,7 +42,66 @@ struct DebugView: View {
             } header: {
                 Text("Level")
             } footer: {
-                Text("Frames quieter than the voice gate (noise floor + margin) are ignored. Mic calibration in a later stage will replace the adaptive noise floor.")
+                Text("Frames quieter than the voice gate (noise floor + margin) are ignored. After calibration, the measured room level is the lowest the floor can go.")
+            }
+
+            Section {
+                LabeledContent("F1", value: formantText(formants?.f1))
+                LabeledContent("F2", value: formantText(formants?.f2))
+                LabeledContent("F3", value: formantText(formants?.f3))
+                LabeledContent("Stable frame", value: frame.map { $0.isStable ? "Yes" : "No" } ?? "—")
+                LabeledContent("Analysis rate", value: monitor.spectralSampleRate.map { "\($0.formatted(.number.precision(.fractionLength(0)))) Hz" } ?? "—")
+                LabeledContent("Resonance score", value: score(monitor.resonance?.score))
+                LabeledContent("Reference", value: referenceText)
+            } header: {
+                Text("Formants (LPC)")
+            } footer: {
+                Text("Last stable frame: centre frequency (bandwidth). LPC order 12 after decimating to ~12 kHz, with pre-emphasis and a Hamming window. The score uses the median F2/F3 over the last \(monitor.resonanceMode.averagingWindow.formatted()) s.")
+            }
+
+            Section {
+                LabeledContent("H1–H2 (raw)", value: decibelText(weightMeasurement?.h1MinusH2, unit: "dB"))
+                LabeledContent("H1*–H2* (corrected)", value: decibelText(weightMeasurement?.correctedH1MinusH2, unit: "dB"))
+                LabeledContent("Spectral tilt", value: decibelText(weightMeasurement?.spectralTilt, unit: "dB/oct"))
+                LabeledContent("Weight score", value: score(monitor.weight?.score))
+            } header: {
+                Text("Vocal weight")
+            } footer: {
+                Text("Corrected values remove the boost F1/F2/F3 give nearby harmonics (Iseli–Alwan). Higher H1–H2 and a steeper tilt read as lighter.")
+            }
+
+            Section {
+                LabeledContent("Variability", value: phrase.map { "±\($0.standardDeviationSemitones.formatted(.number.precision(.fractionLength(2)))) st" } ?? "—")
+                LabeledContent("Range", value: phrase.map { "\($0.rangeSemitones.formatted(.number.precision(.fractionLength(1)))) st" } ?? "—")
+                LabeledContent("Rises / falls", value: phrase.map { "\($0.rises) / \($0.falls)" } ?? "—")
+                LabeledContent("Voiced duration", value: phrase.map { "\($0.voicedDuration.formatted(.number.precision(.fractionLength(1)))) s" } ?? "—")
+                LabeledContent("Intonation score", value: score(monitor.intonation?.score))
+            } header: {
+                Text("Intonation (last phrase)")
+            } footer: {
+                Text("A phrase ends after a 0.35 s pause and needs at least 0.6 s of voicing. Rises and falls count movements of 2+ semitones.")
+            }
+
+            Section {
+                if let calibration = monitor.calibration {
+                    LabeledContent("Room noise floor", value: decibels(calibration.noiseFloorDb))
+                    LabeledContent("Voice level", value: decibels(calibration.voiceLevelDb))
+                    LabeledContent("Voice peak", value: decibels(calibration.voicePeakDb))
+                    LabeledContent("Microphone", value: calibration.inputName)
+                    LabeledContent("Calibrated", value: calibration.date.formatted(date: .abbreviated, time: .shortened))
+                    LabeledContent("In use", value: monitor.isCalibrationInUse ? "Yes" : "No (different mic)")
+                    Button("Clear Calibration", role: .destructive) {
+                        Task { await monitor.clearCalibration() }
+                    }
+                } else {
+                    Text("Not calibrated. The noise floor adapts automatically.")
+                        .foregroundStyle(.secondary)
+                }
+                Button(monitor.calibration == nil ? "Calibrate Microphone" : "Recalibrate") {
+                    isShowingCalibration = true
+                }
+            } header: {
+                Text("Calibration")
             }
 
             Section("Engine") {
@@ -58,9 +118,35 @@ struct DebugView: View {
         .monospacedDigit()
         .navigationTitle("Debug")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $isShowingCalibration) {
+            MicCalibrationView(monitor: monitor)
+        }
     }
 
-    private var frame: PitchFrame? { monitor.latestFrame }
+    private var frame: VoiceFrame? { monitor.latestFrame }
+    private var formants: FormantMeasurement? { monitor.latestFormants }
+    private var weightMeasurement: WeightMeasurement? { monitor.latestWeight }
+    private var phrase: PhraseIntonation? { monitor.intonation?.phrase }
+
+    private var referenceText: String {
+        let reference = monitor.resonanceMode.defaultReference
+        return "\(monitor.resonanceMode.shortTitle): F2 \(Int(reference.baselineF2))→\(Int(reference.targetF2))"
+    }
+
+    private func formantText(_ formant: Formant?) -> String {
+        guard let formant else { return "—" }
+        return "\(Int(formant.frequency.rounded())) Hz (\(Int(formant.bandwidth.rounded())))"
+    }
+
+    private func decibelText(_ value: Double?, unit: String) -> String {
+        guard let value else { return "—" }
+        return "\(value.formatted(.number.precision(.fractionLength(1)))) \(unit)"
+    }
+
+    private func score(_ value: Double?) -> String {
+        guard let value else { return "—" }
+        return "\(Int(value.rounded())) / 100"
+    }
 
     private var noteDescription: String {
         guard let frequency = frame?.displayFrequency,
@@ -117,7 +203,7 @@ struct DebugView: View {
 }
 
 private struct DebugControls: View {
-    @Environment(LivePitchMonitor.self) private var monitor
+    @Environment(LiveVoiceMonitor.self) private var monitor
 
     var body: some View {
         HStack {

@@ -6,10 +6,10 @@ import Testing
 nonisolated enum FrameFixture {
     static func frame(
         time: Double = 0,
-        status: PitchFrameStatus = .voiced,
+        status: VoiceFrameStatus = .voiced,
         frequency: Double? = 200
-    ) -> PitchFrame {
-        PitchFrame(
+    ) -> VoiceFrame {
+        VoiceFrame(
             time: time,
             status: status,
             rawFrequency: frequency,
@@ -17,8 +17,13 @@ nonisolated enum FrameFixture {
             filteredFrequency: status == .voiced ? frequency : nil,
             displayFrequency: frequency,
             levelDb: -20,
+            peakDb: -12,
             noiseFloorDb: -60,
             gateThresholdDb: -52,
+            isStable: status == .voiced,
+            formants: nil,
+            weight: nil,
+            completedPhrase: nil,
             processingDuration: 0.0001
         )
     }

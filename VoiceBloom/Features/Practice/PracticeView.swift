@@ -1,12 +1,9 @@
-import Foundation
-import SwiftUI
-import UIKit
-
-/// Live practice: current pitch, % of time in the target zone, and the
-/// scrolling pitch graph. Resonance, weight and intonation meters arrive in Stage 2.
+/// Live practice: current pitch, % of time in the target zone, the scrolling
+/// pitch graph, and the resonance, weight and intonation meters.
 struct PracticeView: View {
-    @Environment(LivePitchMonitor.self) private var monitor
-    @ScaledMetric(relativeTo: .body) private var graphHeight: CGFloat = 240
+    @Environment(LiveVoiceMonitor.self) private var monitor
+    @ScaledMetric(relativeTo: .body) private var graphHeight: CGFloat = 220
+    @State private var isShowingCalibration = false
 
     var body: some View {
         NavigationStack {
@@ -33,6 +30,12 @@ struct PracticeView: View {
                         NoticeBanner(title: "Listening paused", message: notice, systemImage: "pause.circle.fill")
                     }
 
+                    if monitor.calibration == nil {
+                        CalibrationPromptCard {
+                            isShowingCalibration = true
+                        }
+                    }
+
                     LiveReadoutPanel()
 
                     VStack(alignment: .leading, spacing: 10) {
@@ -49,9 +52,9 @@ struct PracticeView: View {
                     }
                     .cardStyle()
 
-                    SessionStatsRow()
+                    VoiceMetersCard()
 
-                    PracticeControls()
+                    SessionStatsRow()
 
                     Text("Practice should never hurt. If you feel pain, tightness, or hoarseness, stop and rest your voice.")
                         .font(.footnote)
@@ -63,19 +66,54 @@ struct PracticeView: View {
                 .padding(.bottom, 24)
             }
             .background { AppBackground() }
+            // Start/pause stays reachable without scrolling.
+            .safeAreaInset(edge: .bottom) {
+                PracticeControls()
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+            }
             .navigationTitle("Practice")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     ListeningIndicator()
                 }
             }
+            .sheet(isPresented: $isShowingCalibration) {
+                MicCalibrationView(monitor: monitor)
+            }
         }
+    }
+}
+
+/// Invites the user to calibrate before their first session.
+private struct CalibrationPromptCard: View {
+    let onCalibrate: () -> Void
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "mic.and.signal.meter")
+                .font(.title2)
+                .foregroundStyle(.tint)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Calibrate your microphone")
+                    .font(.headline)
+                Text("15 seconds for more accurate meters in your room.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 8)
+            Button("Calibrate", action: onCalibrate)
+                .buttonStyle(.glass)
+        }
+        .cardStyle()
     }
 }
 
 /// Small status label in the navigation bar (icon + text, never color alone).
 private struct ListeningIndicator: View {
-    @Environment(LivePitchMonitor.self) private var monitor
+    @Environment(LiveVoiceMonitor.self) private var monitor
 
     var body: some View {
         switch monitor.status {
@@ -100,7 +138,7 @@ private struct ListeningIndicator: View {
 
 /// The two big glanceable numbers: current pitch and % in target.
 private struct LiveReadoutPanel: View {
-    @Environment(LivePitchMonitor.self) private var monitor
+    @Environment(LiveVoiceMonitor.self) private var monitor
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ScaledMetric(relativeTo: .largeTitle) private var numberSize: CGFloat = 54
 
@@ -172,13 +210,13 @@ private struct LiveReadoutPanel: View {
         guard let frequency = monitor.readoutFrequency,
               let note = PitchMath.noteName(for: frequency)
         else {
-            return monitor.status.isRunning ? "Say a long “aah”" : " "
+            return monitor.status.isRunning ? monitor.resonanceMode.prompt : " "
         }
         return note
     }
 
     private var percentText: String {
-        guard let percent = monitor.stats.percentInTarget else { return "—" }
+        guard let percent = monitor.stats.pitch.percentInTarget else { return "—" }
         return "\(Int(percent.rounded()))%"
     }
 
@@ -190,35 +228,53 @@ private struct LiveReadoutPanel: View {
 
     private var targetAccessibilityValue: String {
         let zone = "Target zone \(monitor.targetZone.spokenDescription)"
-        guard let percent = monitor.stats.percentInTarget else { return "No voiced time yet. \(zone)" }
+        guard let percent = monitor.stats.pitch.percentInTarget else { return "No voiced time yet. \(zone)" }
         return "\(Int(percent.rounded())) percent of voiced time. \(zone)"
     }
 }
 
-/// Average, range, and voiced time for the current session.
+/// Session summary: pitch average, range and voiced time, plus the
+/// average resonance, weight and intonation scores.
 private struct SessionStatsRow: View {
-    @Environment(LivePitchMonitor.self) private var monitor
+    @Environment(LiveVoiceMonitor.self) private var monitor
 
     var body: some View {
         let stats = monitor.stats
-        HStack(spacing: 12) {
-            StatTile(
-                title: "Average",
-                value: stats.averageFrequency.map { "\(Int($0.rounded())) Hz" } ?? "—",
-                accessibilityValue: stats.averageFrequency.map { "\(Int($0.rounded())) hertz" } ?? "None yet"
-            )
-            StatTile(
-                title: "Range",
-                value: rangeText(stats),
-                accessibilityValue: rangeAccessibilityText(stats)
-            )
-            StatTile(
-                title: "Voiced time",
-                value: durationText(stats),
-                accessibilityValue: durationText(stats)
-            )
+        VStack(alignment: .leading, spacing: 12) {
+            Text("This session")
+                .font(.headline)
+            HStack(spacing: 12) {
+                StatTile(
+                    title: "Average",
+                    value: stats.pitch.averageFrequency.map { "\(Int($0.rounded())) Hz" } ?? "—",
+                    accessibilityValue: stats.pitch.averageFrequency.map { "\(Int($0.rounded())) hertz" } ?? "None yet"
+                )
+                StatTile(
+                    title: "Range",
+                    value: rangeText(stats.pitch),
+                    accessibilityValue: rangeAccessibilityText(stats.pitch)
+                )
+                StatTile(
+                    title: "Voiced time",
+                    value: durationText(stats.pitch),
+                    accessibilityValue: durationText(stats.pitch)
+                )
+            }
+            HStack(spacing: 12) {
+                StatTile(title: "Resonance", value: scoreText(stats.resonance), accessibilityValue: scoreSpoken(stats.resonance))
+                StatTile(title: "Weight", value: scoreText(stats.weight), accessibilityValue: scoreSpoken(stats.weight))
+                StatTile(title: "Intonation", value: scoreText(stats.intonation), accessibilityValue: scoreSpoken(stats.intonation))
+            }
         }
         .cardStyle()
+    }
+
+    private func scoreText(_ average: ScoreAverage) -> String {
+        average.mean.map { "\(Int($0.rounded()))" } ?? "—"
+    }
+
+    private func scoreSpoken(_ average: ScoreAverage) -> String {
+        average.mean.map { "average \(Int($0.rounded())) out of 100" } ?? "None yet"
     }
 
     private func rangeText(_ stats: PitchSessionStats) -> String {
@@ -240,13 +296,13 @@ private struct SessionStatsRow: View {
 
 /// Start / pause / resume and reset.
 private struct PracticeControls: View {
-    @Environment(LivePitchMonitor.self) private var monitor
+    @Environment(LiveVoiceMonitor.self) private var monitor
     @Environment(\.openURL) private var openURL
 
     var body: some View {
         HStack(spacing: 12) {
             primaryButton
-            if monitor.stats.voicedFrameCount > 0 {
+            if monitor.stats.pitch.voicedFrameCount > 0 {
                 Button {
                     monitor.resetSession()
                 } label: {
