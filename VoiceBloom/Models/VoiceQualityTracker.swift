@@ -280,8 +280,9 @@ nonisolated struct StrainWarning: Sendable, Equatable {
     let date: Date
 }
 
-/// Keeps the learned voice-quality norms on this device (moves into the
-/// SwiftData profile in Stage 4).
+/// Keeps the learned voice-quality norms on this device. They stay in
+/// UserDefaults rather than the SwiftData profile because they depend on this
+/// iPhone's microphone.
 @MainActor
 enum VoiceQualityNormsStore {
     private static let key = "voiceQualityNorms.v1"

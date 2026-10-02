@@ -3,24 +3,54 @@ import SwiftUI
 import UIKit
 
 /// Live practice: current pitch, % of time in the target zone, the scrolling
-/// pitch graph, and the resonance, weight and intonation meters.
+/// pitch graph, live transcript, and the resonance, weight and intonation
+/// meters. Sessions are saved automatically; "Finish" ends one and asks for
+/// the post-session check-in.
 struct PracticeView: View {
     @Environment(LiveVoiceMonitor.self) private var monitor
+    @Environment(PracticeSessionController.self) private var sessionController
     @ScaledMetric(relativeTo: .body) private var graphHeight: CGFloat = 220
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isShowingCalibration = false
     @State private var isShowingFeedbackSettings = false
     @State private var isShowingEyesFree = false
+    @State private var isConfirmingDiscard = false
+    @State private var isRestBannerDismissed = false
 
     /// Whether to show slip alerts on screen right now.
     private var visibleSlips: Set<SlipChannel> {
         monitor.feedbackSettings.visualAlerts ? monitor.activeSlips : []
     }
 
+    private var showsTranscript: Bool {
+        switch monitor.transcription.status {
+        case .off: false
+        case .waitingForAudio, .listening, .unavailable: true
+        }
+    }
+
     var body: some View {
+        @Bindable var controller = sessionController
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    if let storageWarning = sessionController.storageWarning {
+                        NoticeBanner(title: "History unavailable", message: storageWarning, systemImage: "externaldrive.badge.exclamationmark")
+                    }
+
+                    if sessionController.isRestDaySuggested, !isRestBannerDismissed {
+                        RestDayBanner {
+                            isRestBannerDismissed = true
+                        }
+                    }
+
+                    if let reminder = sessionController.checkInReminder {
+                        CheckInReminderCard(
+                            onCheckIn: { sessionController.showCheckIn(for: reminder) },
+                            onDismiss: { sessionController.dismissCheckInReminder() }
+                        )
+                    }
+
                     if let warning = monitor.route?.warningMessage {
                         NoticeBanner(
                             title: "Microphone quality",
@@ -74,6 +104,10 @@ struct PracticeView: View {
                     .cardStyle()
                     .slipHighlight(visibleSlips.contains(.pitch))
 
+                    if showsTranscript {
+                        LiveTranscriptCard()
+                    }
+
                     VoiceMetersCard()
                         .slipHighlight(visibleSlips.contains(.resonance))
 
@@ -92,14 +126,30 @@ struct PracticeView: View {
                 .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: visibleSlips)
             }
             .background { AppBackground() }
-            // Start/pause stays reachable without scrolling.
+            // Start/pause, save and finish stay reachable without scrolling.
             .safeAreaInset(edge: .bottom) {
-                PracticeControls(onEyesFree: { isShowingEyesFree = true })
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
+                VStack(spacing: 8) {
+                    if let toast = sessionController.toast {
+                        ToastView(toast: toast) {
+                            sessionController.dismissToast()
+                        }
+                        .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+                    }
+                    PracticeControls()
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: sessionController.toast)
             }
             .navigationTitle("Practice")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Eyes-Free Practice", systemImage: "eye.slash") {
+                        isShowingEyesFree = true
+                    }
+                    .disabled(monitor.status == .permissionDenied)
+                    .accessibilityHint("Practice without looking: alerts come as gentle vibrations")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     ListeningIndicator()
                 }
@@ -114,11 +164,22 @@ struct PracticeView: View {
                         Button("Calibrate Microphone", systemImage: "mic.and.signal.meter") {
                             isShowingCalibration = true
                         }
-                        Divider()
-                        Button("Reset Session", systemImage: "arrow.counterclockwise", role: .destructive) {
-                            monitor.resetSession()
+                        Button(
+                            monitor.transcription.isEnabled ? "Hide Live Transcript" : "Show Live Transcript",
+                            systemImage: "captions.bubble"
+                        ) {
+                            let isEnabled = monitor.transcription.isEnabled
+                            Task { await monitor.setTranscriptionEnabled(!isEnabled) }
                         }
-                        .disabled(monitor.stats.pitch.voicedFrameCount == 0)
+                        Divider()
+                        Button("Finish Session", systemImage: "checkmark.circle") {
+                            Task { await sessionController.finishSession() }
+                        }
+                        .disabled(!sessionController.hasSessionInProgress)
+                        Button("Discard Session", systemImage: "trash", role: .destructive) {
+                            isConfirmingDiscard = true
+                        }
+                        .disabled(!sessionController.hasSessionInProgress)
                     } label: {
                         Label("Practice options", systemImage: "ellipsis.circle")
                     }
@@ -132,6 +193,20 @@ struct PracticeView: View {
             }
             .fullScreenCover(isPresented: $isShowingEyesFree) {
                 EyesFreePracticeView()
+            }
+            .sheet(item: $controller.checkInRequest) { request in
+                CheckInSheet(request: request)
+            }
+            .confirmationDialog(
+                "Discard this session?",
+                isPresented: $isConfirmingDiscard,
+                titleVisibility: .visible
+            ) {
+                Button("Discard Session", role: .destructive) {
+                    Task { await sessionController.discardSession() }
+                }
+            } message: {
+                Text("Its statistics and any recordings saved during it will be deleted.")
             }
         }
     }
@@ -318,24 +393,53 @@ private struct SessionStatsRow: View {
     }
 }
 
-/// Start / pause / resume and reset.
+/// Start / pause / resume, "save this as a recording" and finish.
 private struct PracticeControls: View {
     @Environment(LiveVoiceMonitor.self) private var monitor
+    @Environment(PracticeSessionController.self) private var sessionController
     @Environment(\.openURL) private var openURL
-    let onEyesFree: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            primaryButton
-            if monitor.status != .permissionDenied {
-                Button(action: onEyesFree) {
-                    Label("Eyes-free", systemImage: "eye.slash")
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                primaryButton
+                secondaryButtons
+            }
+            VStack(spacing: 10) {
+                primaryButton
+                HStack(spacing: 10) {
+                    secondaryButtons
                 }
-                .buttonStyle(.glass)
-                .accessibilityHint("Practice without looking: alerts come as gentle vibrations")
             }
         }
         .controlSize(.large)
+    }
+
+    @ViewBuilder
+    private var secondaryButtons: some View {
+        if monitor.status != .permissionDenied {
+            Button {
+                Task { await sessionController.saveRecentClip() }
+            } label: {
+                if sessionController.isSavingClip {
+                    ProgressView()
+                } else {
+                    Label("Save Clip", systemImage: "record.circle")
+                }
+            }
+            .buttonStyle(.glass)
+            .disabled(!sessionController.hasSessionInProgress || sessionController.isSavingClip)
+            .accessibilityLabel("Save the last 30 seconds as a recording")
+
+            Button {
+                Task { await sessionController.finishSession() }
+            } label: {
+                Label("Finish", systemImage: "checkmark.circle")
+            }
+            .buttonStyle(.glass)
+            .disabled(!sessionController.hasSessionInProgress)
+            .accessibilityHint("Saves this session and asks how your voice felt")
+        }
     }
 
     @ViewBuilder

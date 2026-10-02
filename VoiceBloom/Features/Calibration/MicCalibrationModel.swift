@@ -209,7 +209,7 @@ final class MicCalibrationModel {
         guard !isMeasuring, wasListeningBefore == false else { return }
         await monitor.stop()
         // The calibration "aah" isn't practice: clear it from the graph and meters.
-        monitor.resetSession()
+        monitor.clearLiveReadings()
     }
 
     private func resetMeasurements() {

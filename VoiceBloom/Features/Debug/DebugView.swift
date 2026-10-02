@@ -275,8 +275,8 @@ private struct DebugControls: View {
                 .disabled(monitor.status == .starting)
             }
             Spacer()
-            Button("Reset", systemImage: "arrow.counterclockwise") {
-                monitor.resetSession()
+            Button("Clear Graph", systemImage: "arrow.counterclockwise") {
+                monitor.clearLiveReadings()
             }
         }
         .buttonStyle(.borderless)

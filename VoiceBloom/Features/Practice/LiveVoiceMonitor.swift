@@ -28,6 +28,10 @@ nonisolated enum MonitorStatus: Sendable, Equatable {
 ///    the main thread.
 /// 3. Batches of `VoiceFrame`s are delivered here on the main actor, where they
 ///    update the graph history, meters, session statistics and readouts.
+///
+/// The same background task also hands the raw audio to `AudioTap`, which
+/// keeps the last 30 seconds (for "save this as a recording") and feeds the
+/// live transcript.
 @MainActor
 @Observable
 final class LiveVoiceMonitor {
@@ -70,6 +74,15 @@ final class LiveVoiceMonitor {
     private(set) var strainWarning: StrainWarning?
     /// True while the eyes-free practice screen is open.
     private(set) var isEyesFreeActive = false
+    /// Identifies the current practice session; `resetSession()` starts a new one.
+    private(set) var sessionID = UUID()
+    /// When the current session first heard practice audio (nil until then).
+    private(set) var sessionStartDate: Date?
+    /// The live transcript (when the user turns it on).
+    let transcription: TranscriptionService
+    /// Called just before listening starts (e.g. to stop recording playback,
+    /// which would otherwise be picked up by the microphone).
+    @ObservationIgnored var willStartListening: (() -> Void)?
     /// How and when to alert the user.
     var feedbackSettings: FeedbackSettings {
         didSet {
@@ -134,21 +147,36 @@ final class LiveVoiceMonitor {
     /// this moment are left out of statistics, meters and slip detection.
     @ObservationIgnored private var feedbackQuietUntil = Date.distantPast
     @ObservationIgnored private var lastSlipAlert = Date.distantPast
+    /// Seconds of listening in this session (pauses and calibration excluded).
+    @ObservationIgnored private var activeDuration = 0.0
+    @ObservationIgnored private var slipAlertCount = 0
+    @ObservationIgnored private var strainWarningCount = 0
+    /// Per-frame values of the last ~40 s, for the statistics of a saved clip.
+    @ObservationIgnored private var frameLog = FrameLog()
+    /// Time of the newest frame. Each listening run continues this timeline,
+    /// so recent audio, frames and transcript words always line up.
+    @ObservationIgnored private var timelineEnd: Double?
     /// The background DSP task and the main-actor task that receives its results.
     @ObservationIgnored private var analysisTasks: (producer: Task<Void, Never>, consumer: Task<Void, Never>)?
     @ObservationIgnored private var eventTask: Task<Void, Never>?
     @ObservationIgnored private var resumesAfterInterruption = false
     private let capture: AudioCaptureService
     private let feedback: FeedbackOutput
+    private let audioTap: AudioTap
 
     private static let resonanceModeKey = "resonanceMode"
     /// Minimum seconds between slip alerts, however often the voice slips.
     private static let minimumAlertInterval = 4.0
+    /// Shortest clip worth saving.
+    static let minimumClipDuration = 1.0
 
     init(capture: AudioCaptureService = AudioCaptureService()) {
         let settings = FeedbackSettingsStore.load()
+        let tap = AudioTap()
         self.capture = capture
         feedback = FeedbackOutput(capture: capture)
+        audioTap = tap
+        transcription = TranscriptionService(tap: tap)
         feedbackSettings = settings
         slipDetector = SlipDetector(configuration: settings.slipConfiguration(target: .feminine))
         qualityTracker = VoiceQualityTracker(storedNorms: VoiceQualityNormsStore.load())
@@ -179,6 +207,7 @@ final class LiveVoiceMonitor {
         }
         status = .starting
         notice = nil
+        willStartListening?()
 
         guard await MicrophonePermission.request() else {
             status = .permissionDenied
@@ -227,9 +256,32 @@ final class LiveVoiceMonitor {
 
     /// Clears the graph, meters and statistics for a fresh session.
     func resetSession() {
-        history.removeAll()
+        clearLiveReadings()
         liveStats = VoiceSessionStats()
         stats = liveStats
+        recentInTarget.removeAll()
+        recentInTargetPercent = nil
+        // A new session: "normal" is re-read, so this session's warm-up can
+        // update it again.
+        qualityTracker = VoiceQualityTracker(storedNorms: VoiceQualityNormsStore.load())
+        newestQuality = nil
+        voiceQuality = nil
+        strainWarning = nil
+
+        sessionID = UUID()
+        sessionStartDate = nil
+        activeDuration = 0
+        slipAlertCount = 0
+        strainWarningCount = 0
+        frameLog.removeAll()
+        audioTap.recentAudio.removeAll()
+        transcription.reset()
+    }
+
+    /// Clears the graph, meters and readouts but keeps the session's
+    /// statistics (used after mic calibration).
+    func clearLiveReadings() {
+        history.removeAll()
         resonanceMeter.reset()
         weightMeter.reset()
         intonationMeter.reset()
@@ -245,16 +297,63 @@ final class LiveVoiceMonitor {
         resonance = nil
         weight = nil
         intonation = nil
-        recentInTarget.removeAll()
-        recentInTargetPercent = nil
-        // A new session: "normal" is re-read, so this session's warm-up can
-        // update it again.
-        qualityTracker = VoiceQualityTracker(storedNorms: VoiceQualityNormsStore.load())
-        newestQuality = nil
-        voiceQuality = nil
-        strainWarning = nil
         clearSlips()
         historyRevision += 1
+    }
+
+    // MARK: Session data
+
+    /// The current session's statistics, or nil before any practice audio.
+    func sessionSnapshot() -> SessionSnapshot? {
+        guard let sessionStartDate else { return nil }
+        return SessionSnapshot(
+            id: sessionID,
+            startDate: sessionStartDate,
+            activeDuration: activeDuration,
+            frameInterval: frameInterval,
+            stats: liveStats,
+            voiceQuality: qualityTracker.sessionSummary,
+            target: targetZone,
+            resonanceMode: resonanceMode,
+            slipAlertCount: slipAlertCount,
+            strainWarningCount: strainWarningCount
+        )
+    }
+
+    /// The last stretch of audio (up to `maximumDuration` seconds) with its
+    /// statistics and transcript, for "save this as a recording".
+    /// Returns nil when less than a second of audio is available.
+    func recentClip(maximumDuration: Double = 30) -> RecentClip? {
+        guard let audio = audioTap.recentAudio.clip(lastSeconds: maximumDuration),
+              audio.duration >= Self.minimumClipDuration
+        else { return nil }
+        let stats = ClipStats.compute(
+            records: frameLog.records,
+            from: audio.startTime,
+            through: audio.endTime,
+            target: targetZone,
+            frameInterval: frameInterval,
+            intonation: intonationMeter.reference
+        )
+        let transcript = transcription.text(from: audio.startTime, through: audio.endTime)
+        return RecentClip(audio: audio, stats: stats, transcript: transcript)
+    }
+
+    /// Turns the live transcript on or off (asks for permission the first time).
+    func setTranscriptionEnabled(_ enabled: Bool) async {
+        guard enabled else {
+            transcription.disable()
+            return
+        }
+        guard await transcription.enable() else { return }
+        if status == .running, let sampleRate = captureFormat?.sampleRate {
+            transcription.startListening(sampleRate: sampleRate)
+        }
+    }
+
+    /// Seconds between analysis frames.
+    private var frameInterval: Double {
+        (analysisConfiguration ?? AnalysisConfiguration()).hopDuration
     }
 
     // MARK: Feedback
@@ -305,6 +404,7 @@ final class LiveVoiceMonitor {
         let now = Date()
         if !slipped.isEmpty, now.timeIntervalSince(lastSlipAlert) >= Self.minimumAlertInterval {
             lastSlipAlert = now
+            slipAlertCount += 1
             deliver(.slip(slipped))
         } else if didRecover, isEyesFreeActive, slipDetector.activeSlips.isEmpty {
             deliver(.recovered)
@@ -399,9 +499,12 @@ final class LiveVoiceMonitor {
         analysisConfiguration = configuration
         spectralSampleRate = Decimator(inputSampleRate: format.sampleRate).outputSampleRate
         // Continue the timeline after a pause, leaving a small visible gap.
-        let startTime = history.latestTime.map { $0 + 0.25 } ?? 0
+        let startTime = timelineEnd.map { $0 + 0.25 } ?? 0
         let noiseFloor = noiseFloorModel
         let ring = capture.samples
+        let tap = audioTap
+        tap.begin(sampleRate: format.sampleRate, startTime: startTime)
+        transcription.startListening(sampleRate: format.sampleRate)
 
         let (stream, continuation) = AsyncStream.makeStream(
             of: [VoiceFrame].self,
@@ -417,7 +520,10 @@ final class LiveVoiceMonitor {
             )
             ring.discardAll()
             while !Task.isCancelled {
-                let frames = pipeline.drain(ring)
+                // Raw audio also goes to the recent-audio buffer and transcriber.
+                let frames = pipeline.drain(ring) { samples, time in
+                    tap.consume(samples, startTime: time)
+                }
                 if !frames.isEmpty {
                     continuation.yield(frames)
                 }
@@ -438,6 +544,7 @@ final class LiveVoiceMonitor {
     }
 
     private func endAnalysis() async {
+        transcription.stopListening()
         guard let tasks = analysisTasks else { return }
         analysisTasks = nil
         tasks.producer.cancel()
@@ -455,6 +562,10 @@ final class LiveVoiceMonitor {
         let isHearingFeedback = now < feedbackQuietUntil
         let isPractice = !isCalibrating && !isHearingFeedback
         let watchesSlips = isPractice && status == .running
+        let interval = frameInterval
+        if !isCalibrating, sessionStartDate == nil {
+            sessionStartDate = now
+        }
 
         for frame in frames {
             history.append(PitchGraphPoint(frame: frame))
@@ -463,6 +574,10 @@ final class LiveVoiceMonitor {
                 : liveProcessingTime * 0.95 + frame.processingDuration * 0.05
             if frame.status == .voiced {
                 lastVoicedFrame = frame
+            }
+            if !isCalibrating {
+                // Practice time includes moments when an alert was playing.
+                activeDuration += interval
             }
 
             if isPractice {
@@ -473,12 +588,16 @@ final class LiveVoiceMonitor {
             }
 
             var rollingResonance: Double?
+            var frameResonance: Double?
+            var frameWeight: Double?
             if !isHearingFeedback, let formants = frame.formants {
                 resonanceMeter.add(formants, at: frame.time)
                 newestFormants = formants
                 rollingResonance = resonanceMeter.reading(now: frame.time)?.score
                 if isPractice {
-                    liveStats.resonance.add(resonanceMeter.score(for: formants))
+                    let score = resonanceMeter.score(for: formants)
+                    frameResonance = score
+                    liveStats.resonance.add(score)
                     if let rollingResonance {
                         liveStats.brightResonance.add(MeterZone(score: rollingResonance) == .high)
                     }
@@ -488,8 +607,18 @@ final class LiveVoiceMonitor {
                 weightMeter.add(measurement, at: frame.time)
                 newestWeight = measurement
                 if isPractice {
-                    liveStats.weight.add(weightMeter.score(for: measurement))
+                    let score = weightMeter.score(for: measurement)
+                    frameWeight = score
+                    liveStats.weight.add(score)
                 }
+            }
+            if isPractice {
+                frameLog.append(FrameRecord(
+                    time: frame.time,
+                    pitch: frame.status == .voiced ? frame.filteredFrequency : nil,
+                    resonanceScore: frameResonance,
+                    weightScore: frameWeight
+                ))
             }
             if let phrase = frame.completedPhrase {
                 let score = intonationMeter.add(phrase)
@@ -520,6 +649,7 @@ final class LiveVoiceMonitor {
             }
         }
         newestFrame = newest
+        timelineEnd = newest.time
 
         // Slips can also clear silently (e.g. after a pause), so sync every batch.
         let slips = slipDetector.activeSlips
@@ -590,6 +720,7 @@ final class LiveVoiceMonitor {
         if evaluation.shouldWarn, feedbackSettings.strainWarnings, !isCalibrating,
            let assessment = evaluation.assessment {
             strainWarning = StrainWarning(roughnessRatio: assessment.roughnessRatio, date: now)
+            strainWarningCount += 1
             deliver(.strain)
         }
 

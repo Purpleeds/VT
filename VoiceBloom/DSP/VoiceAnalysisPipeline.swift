@@ -35,6 +35,8 @@ nonisolated final class VoiceAnalysisPipeline {
     private var noiseFloor: NoiseFloorEstimator
     private var readScratch: [Float]
     private var decimated: [Float]
+    /// Samples received so far (sets the time of the next sample).
+    private(set) var processedSampleCount = 0
 
     init(
         configuration: AnalysisConfiguration,
@@ -70,8 +72,14 @@ nonisolated final class VoiceAnalysisPipeline {
     /// Sample rate used for formant and weight analysis.
     var spectralSampleRate: Double { decimator.outputSampleRate }
 
+    /// Audio time of the next sample to arrive (same clock as `VoiceFrame.time`).
+    var nextSampleTime: Double {
+        startTime + Double(processedSampleCount) / configuration.sampleRate
+    }
+
     /// Analyzes every complete frame that the new samples make available.
     func process(_ samples: UnsafeBufferPointer<Float>) -> [VoiceFrame] {
+        processedSampleCount += samples.count
         framer.append(samples)
         var frames: [VoiceFrame] = []
         framer.forEachFrame { frame, index in
@@ -86,12 +94,25 @@ nonisolated final class VoiceAnalysisPipeline {
 
     /// Reads everything waiting in the ring buffer and analyzes it.
     func drain(_ ring: SampleRingBuffer) -> [VoiceFrame] {
+        drain(ring) { _, _ in }
+    }
+
+    /// Reads everything waiting in the ring buffer and analyzes it.
+    /// - Parameter onSamples: Called with each chunk of raw samples (and the
+    ///   audio time of its first sample) before it is analyzed, so it can also
+    ///   be recorded or transcribed.
+    func drain(
+        _ ring: SampleRingBuffer,
+        onSamples: (UnsafeBufferPointer<Float>, Double) -> Void
+    ) -> [VoiceFrame] {
         var frames: [VoiceFrame] = []
         while true {
             let count = readScratch.withUnsafeMutableBufferPointer { ring.read(into: $0) }
             guard count > 0 else { break }
             let produced = readScratch.withUnsafeBufferPointer { buffer in
-                process(UnsafeBufferPointer(rebasing: buffer[0 ..< count]))
+                let chunk = UnsafeBufferPointer(rebasing: buffer[0 ..< count])
+                onSamples(chunk, nextSampleTime)
+                return process(chunk)
             }
             frames.append(contentsOf: produced)
             if count < readScratch.count {

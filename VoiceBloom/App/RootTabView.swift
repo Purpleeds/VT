@@ -21,11 +21,7 @@ struct RootTabView: View {
                 )
             }
             Tab("Progress", systemImage: "chart.xyaxis.line") {
-                ComingSoonView(
-                    title: "Progress",
-                    systemImage: "chart.xyaxis.line",
-                    message: "Charts of your pitch, resonance, and practice time will appear here once sessions are saved."
-                )
+                SessionHistoryView()
             }
             Tab("More", systemImage: "ellipsis.circle") {
                 MoreView()

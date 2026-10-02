@@ -189,4 +189,34 @@ struct VoiceAnalysisPipelineTests {
         #expect(process(tone, with: adaptive).contains(where: \.isVoiced))
         #expect(!process(tone, with: calibrated).contains(where: \.isVoiced))
     }
+
+    @Test("Draining the ring hands every raw sample to the audio tap with its time")
+    func drainReportsSamples() {
+        let pipeline = VoiceAnalysisPipeline(configuration: configuration, startTime: 10)
+        let ring = SampleRingBuffer(minimumCapacity: 1 << 15)
+        let signal = TestSignal.sine(frequency: 200, count: 10_000)
+        ring.write(signal)
+
+        var received: [Float] = []
+        var chunkTimes: [Double] = []
+        var chunkStarts: [Int] = []
+        let frames = pipeline.drain(ring) { chunk, time in
+            chunkStarts.append(received.count)
+            chunkTimes.append(time)
+            received.append(contentsOf: chunk)
+        }
+
+        #expect(received == signal)
+        #expect(!frames.isEmpty)
+        // Each chunk's time is the time of its first sample on the frame clock.
+        for (start, time) in zip(chunkStarts, chunkTimes) {
+            #expect(abs(time - (10 + Double(start) / configuration.sampleRate)) < 1e-9)
+        }
+        #expect(abs(pipeline.nextSampleTime - (10 + 10_000 / configuration.sampleRate)) < 1e-9)
+        // The first frame is centred half a frame after the first sample.
+        if let first = frames.first {
+            let expected = 10 + Double(configuration.frameSize) / 2 / configuration.sampleRate
+            #expect(abs(first.time - expected) < 1e-9)
+        }
+    }
 }

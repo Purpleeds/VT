@@ -1,4 +1,5 @@
 import AVFoundation
+import Foundation
 
 /// Format of the audio being captured.
 nonisolated struct CaptureFormat: Sendable, Equatable {
