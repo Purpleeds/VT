@@ -2,8 +2,8 @@ import Foundation
 import SwiftUI
 
 /// Tools (SPEC sections 7 and 8): Quick Check, the Daily Sentence Journal,
-/// scenarios, the exercise library, the tone generator and mini piano, and
-/// Discreet Mode.
+/// scenarios, the exercise library, the tone generator and mini piano,
+/// Voice Preview and Discreet Mode.
 struct ToolsView: View {
     @AppStorage(DiscreetMode.key) private var discreetMode = false
 
@@ -80,6 +80,22 @@ struct ToolsView: View {
                 }
             } header: {
                 Text("Practice")
+            }
+
+            Section {
+                NavigationLink {
+                    VoicePreviewView()
+                } label: {
+                    ToolRow(
+                        title: "Voice Preview",
+                        detail: "Hear a rough approximation of your recording with a higher or lower pitch and brighter or darker resonance.",
+                        systemImage: "wand.and.stars"
+                    )
+                }
+            } header: {
+                Text("Explore")
+            } footer: {
+                Text("An approximation made with simple signal processing, not a prediction of your trained voice.")
             }
 
             Section {
