@@ -73,11 +73,11 @@ nonisolated enum SeparationFiles {
 /// Decodes any audio or video file to stereo float at 44.1 kHz, a block at a
 /// time (AVAssetReader), so long songs never sit in memory whole.
 nonisolated final class StereoAssetReader: StereoSampleSource {
-    static let sampleRate = 44_100.0
+    static let decodeRate = 44_100.0
     /// Longer files are cut here.
     static let maximumDuration = 20 * 60.0
 
-    let sampleRate = StereoAssetReader.sampleRate
+    let sampleRate = StereoAssetReader.decodeRate
     let duration: Double
     let estimatedFrameCount: Int
     let hasVideo: Bool
@@ -90,7 +90,7 @@ nonisolated final class StereoAssetReader: StereoSampleSource {
         self.output = output
         self.duration = duration
         self.hasVideo = hasVideo
-        estimatedFrameCount = Int(duration * StereoAssetReader.sampleRate)
+        estimatedFrameCount = Int(duration * StereoAssetReader.decodeRate)
     }
 
     /// - Parameter limit: Read at most this many seconds (e.g. for a quick check).
@@ -119,7 +119,7 @@ nonisolated final class StereoAssetReader: StereoSampleSource {
             AVLinearPCMIsFloatKey: true,
             AVLinearPCMIsBigEndianKey: false,
             AVLinearPCMIsNonInterleaved: false,
-            AVSampleRateKey: sampleRate,
+            AVSampleRateKey: decodeRate,
             AVNumberOfChannelsKey: 2,
         ]
         let output = AVAssetReaderAudioMixOutput(audioTracks: audioTracks, audioSettings: settings)
@@ -383,7 +383,7 @@ nonisolated enum StemMixdown {
         _ inputs: [MixInput],
         to url: URL,
         format: AudioExportFormat,
-        sampleRate: Double = StereoAssetReader.sampleRate,
+        sampleRate: Double = StereoAssetReader.decodeRate,
         isCancelled: () -> Bool = { false }
     ) throws {
         let readers = try inputs.map { input -> AudioFileStereoReader in

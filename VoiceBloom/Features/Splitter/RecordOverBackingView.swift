@@ -62,7 +62,7 @@ final class OverBackingSession {
         let take = FileManager.default.temporaryDirectory.appending(path: "take-\(UUID().uuidString).m4a", directoryHint: .notDirectory)
         let settings: [String: Any] = [
             AVFormatIDKey: kAudioFormatMPEG4AAC,
-            AVSampleRateKey: StereoAssetReader.sampleRate,
+            AVSampleRateKey: StereoAssetReader.decodeRate,
             AVNumberOfChannelsKey: 1,
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
         ]
@@ -112,7 +112,7 @@ final class OverBackingSession {
         }
         phase = .mixing
         let backing = backingURL
-        let offset = -Int((latency * StereoAssetReader.sampleRate).rounded())
+        let offset = -Int((latency * StereoAssetReader.decodeRate).rounded())
         let mix = FileManager.default.temporaryDirectory.appending(path: "mix-\(UUID().uuidString).m4a", directoryHint: .notDirectory)
         let succeeded = await Task.detached(priority: .userInitiated) {
             do {

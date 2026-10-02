@@ -68,7 +68,7 @@ final class SplitSetupModel {
             let start = try await Task.detached(priority: .userInitiated) {
                 try await StereoAssetReader.readStart(of: url, seconds: SeparationJob.assessmentSeconds)
             }.value
-            assessment = SplitAssessment.assess(start, sampleRate: StereoAssetReader.sampleRate)
+            assessment = SplitAssessment.assess(start, sampleRate: StereoAssetReader.decodeRate)
             if assessment?.isMono == true, SeparationEngineFactory.isHighQualityAvailable {
                 engine = .highQuality
             }

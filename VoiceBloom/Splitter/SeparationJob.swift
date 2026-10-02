@@ -82,7 +82,7 @@ nonisolated enum SeparationJob {
         // The Basic engine needs a real stereo image.
         if engine.kind == .basic {
             let start = try await StereoAssetReader.readStart(of: request.sourceURL, seconds: assessmentSeconds)
-            let assessment = SplitAssessment.assess(start, sampleRate: StereoAssetReader.sampleRate)
+            let assessment = SplitAssessment.assess(start, sampleRate: StereoAssetReader.decodeRate)
             if assessment.isSilent {
                 throw SeparationError.silentSource
             }
