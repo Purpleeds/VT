@@ -110,8 +110,8 @@ nonisolated enum SeparationJob {
         let quality = request.quality
         let stats = try ChunkedRunner.run(
             source: reader,
-            chunkLength: Int(engine.chunkDuration * sampleRate),
-            overlap: Int(engine.overlapDuration * sampleRate),
+            chunkLength: Int((engine.chunkDuration * sampleRate).rounded()),
+            overlap: Int((engine.overlapDuration * sampleRate).rounded()),
             outputCount: 2,
             sink: writer,
             isCancelled: { Task.isCancelled },

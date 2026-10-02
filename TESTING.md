@@ -62,6 +62,31 @@ Tip: **More ▸ Debug & Tuning** shows raw pitch, formants, the noise floor and 
   - [ ] Discreet Mode applies.
   - [ ] Leaving the screen stops playback.
 
+## 5b. Vocal splitter (More › Tools › Vocal Splitter)
+- [ ] Split a stereo studio song with **Basic**:
+  - [ ] the progress percentage and time left move;
+  - [ ] Cancel works;
+  - [ ] locking the screen briefly doesn't stop it.
+- [ ] A mono file is refused by Basic with an explanation. A plain speech recording says splitting isn't needed.
+- [ ] **Mixer:**
+  - [ ] Waveforms show; play, pause, scrub and loop work.
+  - [ ] Solo, mute, and volume up to 150 % all work.
+  - [ ] The A/B buttons switch between Original, Vocals, Backing and Mix.
+  - [ ] The noise gate and de-reverb change the vocals.
+- [ ] **Export:**
+  - [ ] Vocals, backing and your mix as M4A and as WAV open in Files.
+  - [ ] A video exported with replaced audio plays with the new sound and the same picture.
+- [ ] **Record Over Backing** (with headphones):
+  - [ ] the take lines up with the music;
+  - [ ] Save keeps the take;
+  - [ ] Export the Mix shares it.
+- [ ] Target Voice: import a song, then **Split First for Best Results**. The analysis uses the isolated vocals.
+- [ ] Settings › Split Tracks Storage lists sizes, and deleting one or all frees the space. Delete All Data removes splits.
+- [ ] **High Quality (after adding the model, README › Vocal splitter):**
+  - [ ] It splits mono files too, and sounds cleaner than Basic.
+  - [ ] **Best** takes about twice as long.
+  - [ ] Debug & Tuning shows per-chunk time and free memory.
+
 ## 6. Target Voice
 - [ ] Import an MP3/M4A from Files, and a video from Photos.
 - [ ] A file longer than 3 minutes loads its first 3 minutes.
@@ -127,3 +152,5 @@ Tip: **More ▸ Debug & Tuning** shows raw pitch, formants, the noise floor and 
   - Free signing expires after 7 days.
 - **AI scenario partner:** uses the on-device live transcript (SFSpeechRecognizer), not the newer SpeechAnalyzer API.
 - **Voice Preview** is a rough approximation; large shifts sound processed by design.
+- **High Quality splitter model:** not in the repo; the README's "Vocal splitter" section explains how to convert and add it. Without it the splitter uses Basic.
+- **Pitch Track Mode** (section 22) doesn't exist yet, so its splitter integrations (karaoke backing option, split-first prompt there) wait for it.

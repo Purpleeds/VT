@@ -120,15 +120,28 @@ nonisolated enum SeparationEngineFactory {
     }
 
     /// Whether the High Quality engine can be offered at all.
-    static var isHighQualityAvailable: Bool { false }
-
-    static var highQualityUnavailableReason: String {
-        "The High Quality engine isn’t in this build yet, so the Basic engine is used."
+    static var isHighQualityAvailable: Bool {
+        CoreMLSeparationEngine.isModelInstalled
     }
 
+    static var highQualityUnavailableReason: String {
+        HighQualityEngineError.modelMissing.errorDescription ?? ""
+    }
+
+    /// The requested engine, or Basic with the reason when High Quality
+    /// can't be used (no model, or this iPhone can't load it).
     static func make(_ preferred: SeparationEngineKind) -> Choice? {
+        if preferred == .highQuality {
+            do {
+                return Choice(engine: try CoreMLSeparationEngine.make(), fallbackReason: nil)
+            } catch {
+                guard let basic = BasicSeparationEngine() else { return nil }
+                let reason = (error as? LocalizedError)?.errorDescription ?? highQualityUnavailableReason
+                return Choice(engine: basic, fallbackReason: reason)
+            }
+        }
         guard let basic = BasicSeparationEngine() else { return nil }
-        return Choice(engine: basic, fallbackReason: preferred == .highQuality ? highQualityUnavailableReason : nil)
+        return Choice(engine: basic, fallbackReason: nil)
     }
 }
 

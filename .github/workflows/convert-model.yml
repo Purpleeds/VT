@@ -1,0 +1,44 @@
+# Converts the Open-Unmix vocals model (MIT) to Core ML on a GitHub Mac, so
+# the High Quality splitter can be added without a Mac or Python setup.
+# Run it from the Actions tab ("Run workflow"), then download the
+# "VocalSeparator" artifact and put VocalSeparator.mlpackage in Models/.
+name: Convert separation model
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Open-Unmix weights (umxhq is better; both MIT)"
+        type: choice
+        options: [umxhq, umx]
+        default: umxhq
+      precision:
+        description: "float16 is half the size and runs on the Neural Engine"
+        type: choice
+        options: [float16, float32]
+        default: float16
+
+jobs:
+  convert:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install converter
+        run: pip install "torch>=2.2,<2.6" "coremltools>=8.0" openunmix numpy
+
+      - name: Convert
+        run: python tools/convert_separator.py --model "${{ inputs.model }}" --precision "${{ inputs.precision }}"
+
+      - name: Check that Xcode can compile it
+        run: xcrun coremlcompiler compile VocalSeparator.mlpackage /tmp/compiled
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VocalSeparator
+          path: VocalSeparator.mlpackage

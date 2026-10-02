@@ -4,7 +4,7 @@ The app shows as **Chirp** on the Home Screen (light sky blue icon). The code, p
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** all 14 stages are done:
+**Status:** Stages 1–14 and 17–18 are done (Stages 15–16 and section 22, Pitch Track Mode, aren't in the spec yet):
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
@@ -19,6 +19,8 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 12:** motivation: streaks with a weekly streak freeze, achievements, a daily challenge, the balloon pitch game, an evening nudge, Home Screen and Lock Screen widgets, and Siri shortcuts.
 - **Stage 13:** privacy (app lock, app-switcher cover, a neutral app icon, neutral notification wording, backup/restore to a file, delete all data), the Vocal Health Center (articles, a 45-minute daily soft limit with break suggestions, rest suggestions) and an accessibility pass. iCloud sync is left out: it needs a paid Apple Developer account.
 - **Stage 14:** Voice Preview (a rough pitch and resonance preview of your own recording, clearly labelled as an approximation) and a final polish pass: consistent button titles, dark-mode fixes, a lighter live graph, and crash-proof number formatting.
+- **Stage 17:** the vocal / backing splitter with the Basic engine (center cancellation): splitter screen with progress and cancel, preview mixer, exports (including video with replaced audio), storage screen, Target Voice integration and Record Over Backing.
+- **Stage 18:** the High Quality splitter engine (Open-Unmix converted to Core ML, chunked and crossfaded, Fast/Best), with automatic fallback to Basic. The model isn't in the repo: see [Vocal splitter: the High Quality model](#vocal-splitter-the-high-quality-model).
 
 > **Building in Xcode yourself?** Stage 4 added a speech recognition entry and Stage 6 a Face ID entry to Info.plist: see [steps 3.4 and 3.5](#3-target-settings). The GitHub build already includes both.
 
@@ -302,6 +304,55 @@ Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition e
 
 ---
 
+## Vocal splitter: the High Quality model
+
+The app ships with the Basic engine (no model needed). The High Quality engine switches on when a converted model is bundled; without one it falls back to Basic and says so.
+
+### Which model
+
+**Recommended: [Open-Unmix](https://github.com/sigsep/open-unmix-pytorch) `umxhq`, vocals model.** MIT licence (code and the `umxhq`/`umx` weights), maintained by the sigsep research group, and it converts cleanly to Core ML. It's a 3-layer bidirectional LSTM on magnitude spectrograms, so the app does the STFT and the model only does plain layers.
+
+| Model | Licence | Vocals quality (MUSDB18 SDR, approx.) | Core ML size | Speed on iPhone | Conversion |
+|---|---|---|---|---|---|
+| **Open-Unmix umxhq** (recommended) | MIT | ~6.3 dB | ~17 MB (fp16) | Several times faster than real time on recent iPhones | Easy: the script below |
+| Demucs v4 (htdemucs) | MIT | ~9 dB (clearly better) | ~80 MB (fp16) | Close to real time, warmer phone | Hard: the STFT and complex ops live inside the model and must be split out by hand. The original repo is archived (the author maintains a fork) |
+| Spleeter 2-stems | MIT | ~6–7 dB | ~40 MB | Fast | Medium: TensorFlow 1 checkpoints. Little maintenance |
+| BS-/Mel-RoFormer | MIT code, weights vary (check each) | 10–12 dB (best) | 100–400 MB | Slow and memory-hungry on a phone | Hard |
+
+Open-Unmix is the best balance for a free, offline phone app. If you later want more quality, Demucs is the upgrade path. Drop in a second model named `VocalSeparatorBest` and the app uses it for **Best** quality. Don't use `umxl`: its weights are CC BY-NC-SA (non-commercial).
+
+Things to check yourself before relying on this:
+- These licences and maintenance notes are from my knowledge, which has a cut-off. Check the repository's LICENSE and README before using any model.
+- MUSDB18, the data the weights were trained on, is a research dataset. That's fine for personal practice. For a commercial App Store release, get advice first.
+
+### Converting it
+
+The app expects `VocalSeparator` with input `magnitude` (1, 2, 2049, frames) and output `vocals` (same shape): 44.1 kHz, 4096-point FFT, 1024 hop. `tools/convert_separator.py` produces exactly that. The app reads the frame count from the model (432 frames ≈ 10 s chunks).
+
+**Option A: no Mac or Python needed (recommended on Windows)**
+1. On GitHub, open the repo's **Actions** tab.
+2. Choose **Convert separation model**, then **Run workflow**. Keep `umxhq` and `float16`.
+3. When the run finishes (about 5–10 minutes), download the **VocalSeparator** artifact from its summary page and unzip it. You get `VocalSeparator.mlpackage`, which is a folder.
+4. Put that folder in the repo's `Models/` folder (`Models/VocalSeparator.mlpackage`), then commit and push it (about 17 MB).
+5. The normal **Build iPhone app** workflow now compiles the model and bundles it. Install the new `.ipa`.
+
+**Option B: run the script yourself** (macOS or Linux; on Windows use WSL or Google Colab)
+```
+python3 -m venv venv && source venv/bin/activate
+pip install "torch>=2.2,<2.6" "coremltools>=8.0" openunmix numpy
+python tools/convert_separator.py            # writes VocalSeparator.mlpackage
+```
+On a Mac the script also checks the Core ML model against PyTorch. Then either do Option A steps 4–5, or add the model in Xcode (below).
+
+### Adding the model in Xcode (if you build on a Mac)
+1. Drag `VocalSeparator.mlpackage` into the Xcode project navigator (for example into the `VoiceBloom` group).
+2. In the dialog, tick **Copy items if needed** and the **VoiceBloom** target. Don't tick the widget or test targets. Click **Finish**.
+3. Select the model in the navigator. The **General** tab shows its input `magnitude` and output `vocals`. Xcode compiles it to `VocalSeparator.mlmodelc` when it builds.
+4. Build and run. In **More › Tools › Vocal Splitter**, the engine picker defaults to **High Quality**, and Fast/Best appears.
+5. Optional: convert a second model with `--name VocalSeparatorBest` (for example `--precision float32`) and add it the same way. **Best** then uses it; otherwise Best runs a second, channel-swapped pass and averages the two.
+
+If the model is missing, has the wrong shape, or the iPhone can't load it, splitting falls back to Basic with a note saying why. If the Neural Engine or GPU can't run it, the engine retries on the CPU.
+
 ## Architecture (so far)
 
 ```
@@ -339,6 +390,11 @@ VoiceBloom/
                   PitchGameEngine + scores, MotivationCenter (refresh achievements, widgets, nudge)
   Health/         BreakAdvisor (soft limit, breaks), VocalHealthSummary (week of check-ins/strain),
                   HealthLibrary (Vocal Health Center articles)
+  Splitter/       SeparationService protocol, ChunkedRunner (10 s chunks, 1 s crossfades),
+                  SpectralTransform (vDSP STFT), BasicSeparationEngine (center cancellation),
+                  SpectrogramMaskEngine + CoreMLMagnitudePredictor (High Quality), VocalCleanup,
+                  SplitAssessment, SplitterAudioFiles (decode, write, mixdown, video audio swap),
+                  SeparationJob/SeparationStore, StemMix (mixer state)
   Shared/         WidgetSnapshot (App Group data) and LaunchIntents (App Intents), also in the widget
   Scenarios/      ScenarioCatalog (Scenarios.json models, script text), ScenarioScoring (turn scores,
                   consistency, summary), ScenarioResultStore, ScenarioSessionModel

@@ -21,6 +21,17 @@ targets:
     platform: iOS
     sources:
       - VoiceBloom
+      # Stage 18: the High Quality splitter model, compiled from
+      # Models/*.mlpackage by the build workflow (optional: without it the
+      # app uses the Basic engine).
+      - path: Models/VocalSeparator.mlmodelc
+        type: folder
+        optional: true
+        buildPhase: resources
+      - path: Models/VocalSeparatorBest.mlmodelc
+        type: folder
+        optional: true
+        buildPhase: resources
     dependencies:
       - target: VoiceBloomWidget
     entitlements:

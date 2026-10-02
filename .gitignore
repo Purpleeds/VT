@@ -20,3 +20,6 @@ DerivedData/
 
 # IPA packaging (CI)
 /Payload/
+
+# Compiled Core ML models (built from Models/*.mlpackage in CI)
+Models/*.mlmodelc/

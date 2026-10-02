@@ -13,6 +13,7 @@ on:
       - "VoiceBloomTests/**"
       - "VoiceBloomWidget/**"
       - "project.yml"
+      - "Models/**"
       - ".github/workflows/build-ipa.yml"
 
 # A newer push cancels the older run.
@@ -34,6 +35,12 @@ jobs:
 
       - name: Generate the Xcode project
         run: |
+          # Compile the High Quality splitter model if it's in the repo.
+          for model in VocalSeparator VocalSeparatorBest; do
+            if [ -d "Models/$model.mlpackage" ]; then
+              xcrun coremlcompiler compile "Models/$model.mlpackage" Models/
+            fi
+          done
           brew install xcodegen
           xcodegen generate
 
@@ -88,6 +95,12 @@ jobs:
 
       - name: Generate the Xcode project
         run: |
+          # Compile the High Quality splitter model if it's in the repo.
+          for model in VocalSeparator VocalSeparatorBest; do
+            if [ -d "Models/$model.mlpackage" ]; then
+              xcrun coremlcompiler compile "Models/$model.mlpackage" Models/
+            fi
+          done
           brew install xcodegen
           xcodegen generate
 
