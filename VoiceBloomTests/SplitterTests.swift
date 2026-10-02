@@ -379,8 +379,10 @@ struct StemMixTests {
         #expect(StemExport.inputs(content: .vocals, vocals: vocals, backing: backing, settings: settings) == [MixInput(url: vocals, gain: 1)])
         #expect(StemExport.inputs(content: .backing, vocals: vocals, backing: nil, settings: settings).isEmpty)
         #expect(StemMixdown.softLimit(0.5) == 0.5)
-        #expect(StemMixdown.softLimit(3) < 1)
-        #expect(StemMixdown.softLimit(-3) > -1)
+        #expect(StemMixdown.softLimit(3) <= 1)
+        #expect(StemMixdown.softLimit(-3) >= -1)
+        #expect(StemMixdown.softLimit(0.95) < 0.95)
+        #expect(StemMixdown.softLimit(0.95) > 0.9)
     }
 }
 
