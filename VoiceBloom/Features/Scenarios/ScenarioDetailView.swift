@@ -13,6 +13,7 @@ struct ScenarioDetailView: View {
     @Query(sort: \UserProfile.createdAt) private var profiles: [UserProfile]
     @Query private var results: [ScenarioResult]
     @AppStorage(PartnerVoice.enabledKey) private var speaksPartner = true
+    @AppStorage("scenarios.aiPartner") private var usesAIPartner = false
 
     @State private var difficulty: ScenarioDifficulty = .easy
     @State private var activeModel: ScenarioSessionModel?
@@ -57,6 +58,21 @@ struct ScenarioDetailView: View {
                     Label("Read the other person’s lines aloud", systemImage: "speaker.wave.2")
                 }
                 .font(.subheadline)
+
+                if coachEngine.isAI {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Toggle(isOn: $usesAIPartner) {
+                            Label("AI partner", systemImage: "sparkles")
+                        }
+                        .font(.subheadline)
+                        Text(coachEngine.sendsTextOffDevice
+                            ? "Gemini writes the other person’s lines from your transcribed replies (text only, never audio)."
+                            : "Apple Intelligence writes the other person’s lines from your transcribed replies, on this iPhone.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
 
                 Button {
                     requestStart()
@@ -149,6 +165,10 @@ struct ScenarioDetailView: View {
 
     // MARK: Actions
 
+    private var coachEngine: CoachEngine {
+        CoachRouter.engine(enabled: profiles.first?.aiCoachEnabled ?? false)
+    }
+
     private func requestStart() {
         if sessionController.minutesPracticedToday() >= PracticeSessionController.dailySoftCapMinutes {
             isShowingSoftCap = true
@@ -168,7 +188,9 @@ struct ScenarioDetailView: View {
             monitor: monitor,
             target: profile?.targetZone ?? monitor.targetZone,
             references: profile?.personalReferences ?? .none,
-            speaksPartner: speaksPartner
+            speaksPartner: speaksPartner,
+            usesAIPartner: usesAIPartner && coachEngine.isAI,
+            coachEnabled: profile?.aiCoachEnabled ?? false
         )
     }
 }

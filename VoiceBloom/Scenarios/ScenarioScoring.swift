@@ -109,6 +109,7 @@ struct ScenarioResultStore {
         difficulty: ScenarioDifficulty,
         turns: [ScenarioTurnScore],
         transcript: String,
+        usedAIPartner: Bool = false,
         now: Date = Date()
     ) throws -> ScenarioResult {
         let result = ScenarioResult(scenarioID: scenarioID, difficulty: difficulty)
@@ -117,7 +118,7 @@ struct ScenarioResultStore {
         result.turnScores = turns
         result.transcript = transcript
         result.overallScore = ScenarioScoring.summary(turns).overall
-        result.usedAIPartner = false
+        result.usedAIPartner = usedAIPartner
         try context.save()
         return result
     }

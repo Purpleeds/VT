@@ -56,10 +56,12 @@ struct ScenarioSessionView: View {
             }
             .interactiveDismissDisabled()
             .task {
+                await model.prepare()
                 await model.presentTurn()
             }
             .onDisappear {
                 model.stopAudio()
+                Task { await model.finishTranscription() }
             }
         }
     }
@@ -95,8 +97,15 @@ struct ScenarioSessionView: View {
 
     @ViewBuilder
     private func turnContent(_ turn: ScenarioTurn) -> some View {
-        if let line = turn.partner {
-            PartnerBubble(name: model.level.partner, line: line, isSpeaking: model.partnerVoice.isSpeaking) {
+        if model.isWritingLine {
+            HStack(spacing: 8) {
+                ProgressView()
+                Text("\(model.level.partner) is thinking…")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        } else if let line = model.partnerLine {
+            PartnerBubble(name: model.level.partner, line: line, isSpeaking: model.partnerVoice.isSpeaking, isAI: model.usesAIPartner) {
                 Task { await model.replayPartner() }
             }
         }
@@ -119,7 +128,14 @@ struct ScenarioSessionView: View {
             Text(turn.prompt)
                 .font(.title3.weight(.semibold))
                 .fixedSize(horizontal: false, vertical: true)
-            if let suggestion = turn.suggestion {
+            if let hint = model.partnerHint {
+                Label("Idea: \(hint)", systemImage: "lightbulb")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            // AI lines can go anywhere, so the scripted reply only fits the first turn.
+            if let suggestion = turn.suggestion, !model.usesAIPartner || model.index == 0 {
                 Text(suggestion)
                     .font(.title3)
                     .italic()
@@ -286,6 +302,7 @@ private struct PartnerBubble: View {
     let name: String
     let line: String
     let isSpeaking: Bool
+    var isAI = false
     let onReplay: () -> Void
 
     var body: some View {
@@ -295,7 +312,7 @@ private struct PartnerBubble: View {
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
-                Text(name)
+                Text(isAI ? "\(name) · AI" : name)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Text(line)

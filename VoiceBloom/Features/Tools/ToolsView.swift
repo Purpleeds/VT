@@ -43,6 +43,15 @@ struct ToolsView: View {
                     )
                 }
                 NavigationLink {
+                    PracticeTextView()
+                } label: {
+                    ToolRow(
+                        title: "Practice Texts",
+                        detail: "Fresh passages for the sounds you want to work on, then read one aloud.",
+                        systemImage: "text.book.closed"
+                    )
+                }
+                NavigationLink {
                     ExerciseLibraryView()
                 } label: {
                     ToolRow(

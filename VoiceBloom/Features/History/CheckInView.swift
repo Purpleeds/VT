@@ -68,6 +68,8 @@ private struct CheckInForm: View {
             VStack(alignment: .leading, spacing: 28) {
                 SessionSummaryLine(session: session)
 
+                CoachFeedbackCard(session: session, generatesAutomatically: true, linksToExercise: false)
+
                 VStack(alignment: .leading, spacing: 12) {
                     Text("How did your throat feel?")
                         .font(.title3.weight(.semibold))

@@ -2,7 +2,7 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–10 of 14 are done:
+**Status:** Stages 1–11 of 14 are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
@@ -12,6 +12,7 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 7:** the 16-week lesson plan (all content in `Lessons.json`), guided sessions (warm-up, main practice, carryover, cool-down) in Quick/Standard/Deep lengths, unlock rules, and maintenance mode.
 - **Stage 8:** Tools: the searchable exercise library, a reference tone generator with a mini piano, the Daily Sentence Journal with a timeline, Quick Check, and Discreet Mode.
 - **Stage 9:** Target Voice: import audio or video from Files or Photos, trim it on a waveform, quality warnings, a Target Voice Profile, automatic targets, Compare to Target, shadowing, and several saved profiles.
+- **Stage 11:** the AI Coach: Apple's on-device model, optional Gemini with your own key, or simple built-in tips; post-session feedback, an AI scenario partner, weekly review, practice texts and Ask the Coach.
 - **Stage 10:** scenario practice: 11 everyday situations at Easy, Medium and Hard with pre-written scripts, each turn scored, results saved for the Progress radar.
 
 > **Building in Xcode yourself?** Stage 4 added a speech recognition entry and Stage 6 a Face ID entry to Info.plist: see [steps 3.4 and 3.5](#3-target-settings). The GitHub build already includes both.
@@ -122,6 +123,14 @@ git commit -m "Add Xcode project"
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Stage 11** (AI Coach; **More ▸ Settings ▸ AI Coach** to turn it off or pick the coach):
+- **Which coach:** Apple Intelligence on the iPhone when it's available (free, private, no key). Only if it isn't, and you paste your own free Gemini key (get one at aistudio.google.com), Gemini is used; it receives text only (stats, the words you said in scenarios, chat messages), never audio. Otherwise, and whenever an AI answer fails, the built-in rule-based coach answers. Settings shows which coach is in use and why on-device AI isn't available.
+- **Post-session feedback:** the check-in sheet and each session's page show a summary, 2–3 tips and one exercise to try, based on the session and the trend over your last 5 sessions.
+- **Weekly review** (Lessons tab): move on, stay with the week, extra practice for a weak skill, or rest after sore-throat check-ins.
+- **Practice Texts** (More ▸ Tools): fresh passages for bright vowels, S/SH, questions, long sentences, names and numbers or everyday talk, which you can read aloud and get scored on.
+- **Ask the Coach** (More): a short, supportive chat about voice training. It never encourages pushing through pain; anything about pain or lasting hoarseness gets the advice to stop and see a speech-language pathologist. Conversations aren't saved.
+- **AI scenario partner:** in a scenario, switch on **AI partner**: the other person's lines are written from what you actually said (transcribed on the iPhone; speech recognition permission needed).
 
 **Stage 10** (**More ▸ Tools ▸ Scenarios**, also linked from week 14):
 - **11 scenarios**, each at **Easy** (short turns with a line to read), **Medium** (your own words, with prompts) and **Hard** (longer, unscripted, with surprises): ordering coffee, a phone call and voicemail, introducing yourself, asking a shop assistant, a complaint or return, a ~2-minute casual chat, reading a story with expression, a 1–2 minute presentation, emotional reactions, calling across a room, and end-of-day tired voice. All scripts are original and live in `VoiceBloom/Content/Scenarios.json`.
@@ -274,6 +283,9 @@ VoiceBloom/
                   LessonProgressStore, GuidedSessionModel, GuidedSessionCoordinator
   Tools/          Exercise library search and filters, piano layout, tone-generator maths,
                   journal timeline (scrubber, streaks, highlights), Quick Check comparison
+  Coach/          AICoachService protocol, FoundationModelsCoach (@Generable answers), GeminiCoach
+                  (REST, key in Keychain), RuleBasedCoach, CoachSafety (rules, pain detection),
+                  CoachPrompts, CoachRouter (choice + fallback), CoachContextBuilder
   Scenarios/      ScenarioCatalog (Scenarios.json models, script text), ScenarioScoring (turn scores,
                   consistency, summary), ScenarioResultStore, ScenarioSessionModel
   TargetVoice/    AudioFileDecoder (AVAssetReader), TargetClipAnalyzer (offline pipeline run),

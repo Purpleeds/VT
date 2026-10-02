@@ -25,6 +25,11 @@ struct MoreView: View {
 
                 Section {
                     NavigationLink {
+                        CoachChatView()
+                    } label: {
+                        Label("Ask the Coach", systemImage: "bubble.left.and.text.bubble.right")
+                    }
+                    NavigationLink {
                         ToolsView()
                     } label: {
                         Label("Tools", systemImage: "wrench.and.screwdriver")

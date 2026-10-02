@@ -48,6 +48,8 @@ struct LessonsView: View {
                     CurrentWeekCard(week: week, catalog: catalog, progress: progress[week.week], isUnlocked: true)
                 }
 
+                WeeklyReviewCard()
+
                 if maintenanceUnlocked {
                     NavigationLink {
                         MaintenanceView(catalog: catalog)

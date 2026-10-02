@@ -212,12 +212,21 @@ private struct SettingsForm: View {
                         Text(provider.title).tag(provider)
                     }
                 }
+                LabeledContent("Coach in use", value: activeEngine.title)
+                if aiProvider != .ruleBased, let reason = FoundationModelsCoach.unavailableReason {
+                    Text(reason)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
                 if aiProvider == .automatic {
                     SecureField(hasGeminiKey ? "Gemini key saved (enter to replace)" : "Optional Gemini API key", text: $geminiKey)
                         .textContentType(.password)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .onSubmit(saveGeminiKey)
+                    if !geminiKey.isEmpty {
+                        Button("Save key", action: saveGeminiKey)
+                    }
                     if hasGeminiKey {
                         Button("Remove Gemini key", role: .destructive) {
                             KeychainStore.set(nil, account: KeychainStore.geminiAPIKeyAccount)
@@ -233,13 +242,24 @@ private struct SettingsForm: View {
         }
     }
 
+    private var activeEngine: CoachEngine {
+        // Read `hasGeminiKey` so the row updates when the key changes.
+        _ = hasGeminiKey
+        return CoachEngine.choose(
+            enabled: profile.aiCoachEnabled,
+            provider: aiProvider,
+            onDeviceAvailable: FoundationModelsCoach.isAvailable,
+            hasGeminiKey: hasGeminiKey
+        )
+    }
+
     private var aiFooter: String {
         guard profile.aiCoachEnabled else {
             return "With the AI Coach off you still get simple built-in tips."
         }
         switch aiProvider {
         case .automatic:
-            return "Uses Apple’s on-device model when your iPhone supports it. Only if it doesn’t, and you add your own free Gemini key, are text stats and transcripts (never audio) sent to Google. The key is kept in the Keychain on this iPhone."
+            return "Uses Apple’s on-device model when your iPhone supports it. Only if it doesn’t, and you add your own free Gemini key (from aistudio.google.com), are text stats, transcripts and chat messages sent to Google; audio never is. The key is kept in the Keychain on this iPhone. Turn the AI Coach off to stop all AI features."
         case .onDeviceOnly:
             return "Only Apple’s on-device model is used. Nothing leaves your iPhone."
         case .ruleBased:

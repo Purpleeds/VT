@@ -69,6 +69,14 @@ struct SessionDetailView: View {
                 Text("Rough indicators from your phone’s microphone, not a medical diagnosis.")
             }
 
+            if session.isFinished {
+                Section {
+                    CoachFeedbackCard(session: session)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                }
+            }
+
             Section("Check-in") {
                 if let comfort = session.comfort {
                     LabeledContent("Throat") {

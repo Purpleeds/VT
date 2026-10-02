@@ -54,6 +54,18 @@ final class ScenarioSessionModel: Identifiable {
     private(set) var isSaved = false
     var speaksPartner: Bool
 
+    /// AI scenario partner (SPEC section 10): the coach writes the other
+    /// person's lines from what you actually said.
+    let usesAIPartner: Bool
+    let coachEnabled: Bool
+    /// AI-written lines and reply hints by turn.
+    private(set) var aiLines: [Int: String] = [:]
+    private(set) var aiHints: [Int: String] = [:]
+    /// What you said each turn (transcribed on the iPhone).
+    private(set) var userReplies: [Int: String] = [:]
+    private(set) var isWritingLine = false
+    @ObservationIgnored private var transcriptionWasOn = false
+
     init(
         scenario: Scenario,
         difficulty: ScenarioDifficulty,
@@ -61,7 +73,9 @@ final class ScenarioSessionModel: Identifiable {
         monitor: LiveVoiceMonitor,
         target: PitchTargetZone,
         references: PersonalReferences,
-        speaksPartner: Bool
+        speaksPartner: Bool,
+        usesAIPartner: Bool = false,
+        coachEnabled: Bool = false
     ) {
         self.scenario = scenario
         self.difficulty = difficulty
@@ -69,7 +83,83 @@ final class ScenarioSessionModel: Identifiable {
         self.target = target
         self.references = references
         self.speaksPartner = speaksPartner
+        self.usesAIPartner = usesAIPartner
+        self.coachEnabled = coachEnabled
         recorder = VoiceTakeRecorder(monitor: monitor)
+    }
+
+    /// The other person's line this turn (AI-written or scripted).
+    var partnerLine: String? {
+        if usesAIPartner, let line = aiLines[index] {
+            return line
+        }
+        return turn?.partner
+    }
+
+    /// Reply hint from the AI partner, if any.
+    var partnerHint: String? { usesAIPartner ? aiHints[index] : nil }
+
+    /// Turns on live transcription for the AI partner.
+    func prepare() async {
+        guard usesAIPartner else { return }
+        let monitor = recorder.monitor
+        transcriptionWasOn = monitor.transcription.isEnabled
+        if !transcriptionWasOn {
+            await monitor.setTranscriptionEnabled(true)
+        }
+    }
+
+    /// Puts transcription back the way it was.
+    func finishTranscription() async {
+        guard usesAIPartner, !transcriptionWasOn else { return }
+        transcriptionWasOn = true
+        await recorder.monitor.setTranscriptionEnabled(false)
+    }
+
+    /// Asks the coach for this turn's line (the first turn uses the script).
+    private func writePartnerLine() async {
+        guard usesAIPartner, index > 0, aiLines[index] == nil, let turn else { return }
+        isWritingLine = true
+        defer { isWritingLine = false }
+        let history = (0..<index).map { turnIndex in
+            PartnerExchange(
+                partner: aiLines[turnIndex] ?? level.turns[turnIndex].partner ?? "",
+                user: userReplies[turnIndex]
+            )
+        }
+        let request = PartnerRequest(
+            scenarioTitle: scenario.title,
+            setting: level.setting,
+            partnerRole: level.partner,
+            difficulty: difficulty.title,
+            turnIndex: index,
+            totalTurns: level.turns.count,
+            history: history,
+            scriptedLine: turn.partner,
+            scriptedPrompt: turn.prompt
+        )
+        let turnIndex = index
+        guard let outcome = await CoachRouter.run(enabled: coachEnabled, { service in
+            try await service.partnerLine(request)
+        }), turnIndex == index else { return }
+        aiLines[turnIndex] = outcome.value.line
+        if let hint = outcome.value.hint {
+            aiHints[turnIndex] = hint
+        }
+    }
+
+    /// The conversation as text, for the saved result.
+    var aiTranscript: String {
+        scores.keys.sorted().map { turnIndex in
+            let partner = aiLines[turnIndex] ?? level.turns[turnIndex].partner
+            var lines: [String] = []
+            if let partner {
+                lines.append("\(level.partner): \(partner)")
+            }
+            lines.append("You: \(userReplies[turnIndex] ?? "(not transcribed)")")
+            return lines.joined(separator: "\n")
+        }
+        .joined(separator: "\n")
     }
 
     var turn: ScenarioTurn? {
@@ -96,10 +186,11 @@ final class ScenarioSessionModel: Identifiable {
 
     /// Shows the current turn and reads the other person's line aloud.
     func presentTurn() async {
-        guard let turn else { return }
+        guard turn != nil else { return }
         stage = .partner
         errorMessage = nil
-        if speaksPartner, let line = turn.partner {
+        await writePartnerLine()
+        if speaksPartner, let line = partnerLine {
             let text = ScenarioScript.spokenText(line)
             if !text.isEmpty {
                 await partnerVoice.speak(text, monitor: recorder.monitor)
@@ -119,7 +210,7 @@ final class ScenarioSessionModel: Identifiable {
     }
 
     func replayPartner() async {
-        guard stage == .ready || stage == .scored, let line = turn?.partner else { return }
+        guard stage == .ready || stage == .scored, let line = partnerLine else { return }
         await partnerVoice.speak(ScenarioScript.spokenText(line), monitor: recorder.monitor)
     }
 
@@ -141,6 +232,13 @@ final class ScenarioSessionModel: Identifiable {
         }
         guard index == turnIndex, stage == .recording else { return }
 
+        if usesAIPartner, let audio = recorder.audio {
+            // Give the recognizer a moment to finish the last words.
+            try? await Task.sleep(for: .milliseconds(700))
+            if let said = recorder.monitor.transcription.text(from: audio.startTime, through: audio.endTime) {
+                userReplies[turnIndex] = said
+            }
+        }
         if let result = recorder.result {
             lastTurnHadVoice = result.hasVoice
             if result.hasVoice {
@@ -189,7 +287,8 @@ final class ScenarioSessionModel: Identifiable {
             scenarioID: scenario.id,
             difficulty: difficulty,
             turns: turns,
-            transcript: ScenarioScript.transcript(level: level, completedTurns: scores.keys.sorted()),
+            transcript: usesAIPartner ? aiTranscript : ScenarioScript.transcript(level: level, completedTurns: scores.keys.sorted()),
+            usedAIPartner: usesAIPartner,
             now: now
         )
         isSaved = true
