@@ -280,6 +280,7 @@ private struct JournalContent: View {
     }
 
     private func delete(_ entry: DailyJournalEntry) {
+        entryToDelete = nil
         if let recording = entry.recording, sessionController.player.playingID == recording.id {
             sessionController.player.stop()
         }

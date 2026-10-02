@@ -219,18 +219,23 @@ final class PracticeSessionController {
     /// Plays a recording (or stops it if it's already playing).
     /// Listening pauses first so the microphone doesn't analyze the playback.
     func togglePlayback(of recording: Recording) async {
-        if player.playingID == recording.id {
+        await togglePlayback(url: recording.fileURL, id: recording.id)
+    }
+
+    /// Plays an audio file (a recording or a target voice clip), or stops it.
+    func togglePlayback(url: URL?, id: UUID) async {
+        if player.playingID == id {
             player.stop()
             return
         }
         await monitor.pause(.user)
-        guard let url = recording.fileURL,
+        guard let url,
               FileManager.default.fileExists(atPath: url.path(percentEncoded: false))
         else {
             showToast("This recording’s audio file is missing.", isError: true)
             return
         }
-        player.play(url: url, id: recording.id)
+        player.play(url: url, id: id)
     }
 
     /// Plays recordings back to back ("Then vs Now"), after pausing listening.

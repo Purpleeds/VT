@@ -2,7 +2,7 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–8 of 14 are done:
+**Status:** Stages 1–9 of 14 are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
@@ -11,6 +11,7 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 6:** first-launch onboarding (9 steps, with the placement test and the Day 1 baseline recording) and the Settings screen.
 - **Stage 7:** the 16-week lesson plan (all content in `Lessons.json`), guided sessions (warm-up, main practice, carryover, cool-down) in Quick/Standard/Deep lengths, unlock rules, and maintenance mode.
 - **Stage 8:** Tools: the searchable exercise library, a reference tone generator with a mini piano, the Daily Sentence Journal with a timeline, Quick Check, and Discreet Mode.
+- **Stage 9:** Target Voice: import audio or video from Files or Photos, trim it on a waveform, quality warnings, a Target Voice Profile, automatic targets, Compare to Target, shadowing, and several saved profiles.
 
 > **Building in Xcode yourself?** Stage 4 added a speech recognition entry and Stage 6 a Face ID entry to Info.plist: see [steps 3.4 and 3.5](#3-target-settings). The GitHub build already includes both.
 
@@ -120,6 +121,17 @@ git commit -m "Add Xcode project"
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Stage 9** (**Target Voice** tab):
+- **Import:** **From Files** (MP3, M4A, WAV, MP4, MOV) or **From Photos** (videos). The sound is extracted on the iPhone (`AVAssetReader`, mixed to mono); up to the first 3 minutes are loaded. Nothing is uploaded, and only the part you keep is saved.
+- **Trim:** drag the two handles on the waveform (or use the Start/End steppers, or VoiceOver's adjust gesture) to pick 10–60 seconds of one person talking. **Play selection** to check it (listening pauses first).
+- **Analyze:** runs the same analysis as live practice over the selection and warns about **more than one voice** (phrases clustering at clearly different pitches), **music or singing** (long steady notes, or sound with no pauses), **background noise** (voice less than 12 dB above the quiet moments), **not much speech**, **distortion**, and selections shorter than 10 s or longer than 60 s.
+- **Profile:** average pitch (with note), pitch range, a pitch histogram, average F1/F2/F3, a weight estimate (H1–H2) and intonation variability.
+- **Save** with a name; **Set my targets from this voice** (on by default) sets your pitch range to the voice's typical pitch ±2 semitones and your F2/F3, H1–H2 and intonation targets from it, kept within the ranges Settings allows. You can still change everything in **Settings ▸ Voice targets** (manual override). A profile's page shows the before → after changes before applying them again.
+- **Several profiles:** each one can be opened, listened to, renamed, deleted, or made the active one (one at a time).
+- **Compare to Target:** read a 15-second passage; you get a % match for pitch (overlap of the two pitch histograms), resonance (F2/F3), weight (H1–H2) and intonation, an overall match, and charts overlaying both pitch histograms and the formants.
+- **Shadowing:** the saved clip is split into short phrases. **Listen, then repeat**: the phrase plays, then you say it back. Both pitch contours appear on one chart with a "melody match" (shape, ignoring pitch level and speed) and how many semitones higher or lower you were. **Hear yourself** plays your attempt.
+- Every Target Voice screen reminds you that the target is a guide, not something to copy exactly.
 
 **Stage 8** (**More ▸ Tools**):
 - **Quick Check:** read one sentence for 10 seconds. You get pitch, % in target, resonance, weight and intonation, each with the change since your last check (green when it moved the right way; for pitch, "right" means toward your target zone). It's saved as a "Quick Check" session (so it shows in Progress) with its recording; tap **Listen** to hear it.
@@ -254,6 +266,10 @@ VoiceBloom/
                   LessonProgressStore, GuidedSessionModel, GuidedSessionCoordinator
   Tools/          Exercise library search and filters, piano layout, tone-generator maths,
                   journal timeline (scrubber, streaks, highlights), Quick Check comparison
+  TargetVoice/    AudioFileDecoder (AVAssetReader), TargetClipAnalyzer (offline pipeline run),
+                  ClipQualityChecker (music, noise, several speakers), ShadowingSegmenter,
+                  TrimSelection, WaveformSummary, TargetComparison (% match), TargetSuggestion
+                  (automatic targets), ContourComparison, TargetVoiceStore
   Persistence/    SwiftData schema (VoiceBloomSchemaV1: UserProfile, PracticeSession, Recording,
                   LessonProgress, TargetVoiceProfile, ScenarioResult, Achievement, DailyJournalEntry),
                   migration plan, enums stored as raw strings, VoiceBloomDatabase (opens the store)
@@ -273,7 +289,8 @@ VoiceBloom/
                   Onboarding (9 steps, placement test, baseline recording), Settings,
                   Lessons (lesson list, week detail, exercise detail, maintenance, guided session player),
                   Tools (hub, exercise library, tone generator + mini piano, journal, Quick Check,
-                  Discreet Mode),
+                  Discreet Mode), TargetVoice (list + import, trim editor, profile, Compare to
+                  Target, shadowing),
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
 VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels

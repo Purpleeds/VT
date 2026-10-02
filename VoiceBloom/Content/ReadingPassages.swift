@@ -23,6 +23,11 @@ nonisolated enum ReadingPassages {
     /// The 10-second Quick Check sentence.
     static let quickCheck = "Hi there! I’m just checking in on my voice today, and it feels light, bright and easy."
 
+    /// Read aloud for Compare to Target (about 15 seconds).
+    static let compare = """
+    On rainy afternoons I like to curl up with a blanket, a mug of cocoa and a good mystery. Every so often I look up to watch the drops racing down the window, then I smile and turn the page.
+    """
+
     /// The default Daily Sentence Journal sentence.
     static let journalSentence = "Today I’m speaking gently, and my voice is growing a little every day."
 }

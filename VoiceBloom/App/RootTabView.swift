@@ -15,11 +15,7 @@ struct RootTabView: View {
                 LessonsView()
             }
             Tab("Target Voice", systemImage: "person.wave.2") {
-                ComingSoonView(
-                    title: "Target Voice",
-                    systemImage: "person.wave.2",
-                    message: "Soon you’ll be able to import a voice clip you like and compare your voice to it."
-                )
+                TargetVoiceView()
             }
             Tab("Progress", systemImage: "chart.xyaxis.line") {
                 ProgressDashboardView()
