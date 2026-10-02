@@ -24,9 +24,16 @@ struct MoreView: View {
                 }
 
                 Section {
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                }
+
+                Section {
                     Label("Vocal Health Center", systemImage: "heart.text.square")
                     Label("Tools", systemImage: "wrench.and.screwdriver")
-                    Label("Settings", systemImage: "gearshape")
                 } header: {
                     Text("Coming soon")
                 }

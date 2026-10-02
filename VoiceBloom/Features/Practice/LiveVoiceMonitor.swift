@@ -101,13 +101,16 @@ final class LiveVoiceMonitor {
     var resonanceMode: ResonanceMode = .speech {
         didSet {
             guard resonanceMode != oldValue else { return }
-            resonanceMeter.setMode(resonanceMode)
+            resonanceMeter.setMode(resonanceMode, reference: personalReferences.resonance(for: resonanceMode))
             UserDefaults.standard.set(resonanceMode.rawValue, forKey: Self.resonanceModeKey)
             publishReadouts(now: Date())
         }
     }
     /// While true (during mic calibration), frames don't count toward session statistics.
     var isCalibrating = false
+    /// The user's baseline and targets for resonance, weight and intonation
+    /// (from the Day 1 recording and Settings).
+    private(set) var personalReferences = PersonalReferences.none
 
     /// Seconds of pitch shown on the scrolling graph.
     let graphDuration = 10.0
@@ -301,6 +304,17 @@ final class LiveVoiceMonitor {
         historyRevision += 1
     }
 
+    /// Scores resonance, weight and intonation against the user's own
+    /// baseline and targets from now on.
+    func applyReferences(_ references: PersonalReferences) {
+        guard references != personalReferences else { return }
+        personalReferences = references
+        resonanceMeter.setReference(references.resonance(for: resonanceMode))
+        weightMeter.reference = references.weight
+        intonationMeter.reference = references.intonation
+        publishReadouts(now: Date())
+    }
+
     // MARK: Session data
 
     /// The current session's statistics, or nil before any practice audio.
@@ -337,6 +351,11 @@ final class LiveVoiceMonitor {
         )
         let transcript = transcription.text(from: audio.startTime, through: audio.endTime)
         return RecentClip(audio: audio, stats: stats, transcript: transcript)
+    }
+
+    /// The last `seconds` of microphone audio (up to 30 s), e.g. a take to save.
+    func recentAudio(lastSeconds seconds: Double) -> AudioClip? {
+        audioTap.recentAudio.clip(lastSeconds: seconds)
     }
 
     /// Turns the live transcript on or off (asks for permission the first time).

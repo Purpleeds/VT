@@ -5,6 +5,7 @@ import SwiftUI
 /// Debug-screen buttons for trying features without real data.
 struct DebugTestingSection: View {
     @Environment(\.modelContext) private var modelContext
+    @Query(sort: \UserProfile.createdAt) private var profiles: [UserProfile]
     @State private var isWorking = false
     @State private var message: String?
     @State private var hasSampleData = SampleDataGenerator.hasSampleData
@@ -31,6 +32,11 @@ struct DebugTestingSection: View {
                 .disabled(isWorking)
             }
 
+            Button("Show onboarding again", systemImage: "arrow.uturn.backward.circle") {
+                profiles.first?.hasCompletedOnboarding = false
+                try? modelContext.save()
+            }
+
             if let message {
                 Text(message)
                     .font(.footnote)
@@ -39,7 +45,7 @@ struct DebugTestingSection: View {
         } header: {
             Text("Testing tools")
         } footer: {
-            Text("Sample history adds about 90 days of improving sessions, check-ins, scenario scores and two synthetic recordings for “Then vs Now”, so the Progress tab can be tried out. Only the sample items are removed; your real sessions are never touched.")
+            Text("Sample history adds about 90 days of improving sessions, check-ins, scenario scores and two synthetic recordings for “Then vs Now”, so the Progress tab can be tried out. Only the sample items are removed; your real sessions are never touched. “Show onboarding again” replays first-launch setup without deleting anything.")
         }
     }
 

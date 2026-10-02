@@ -2,14 +2,15 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–5 of 14 are done:
+**Status:** Stages 1–6 of 14 are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
 - **Stage 4:** SwiftData storage, automatic session saving, "save this as a recording" with playback, live on-device transcripts, and the post-session check-in with rest-day advice.
 - **Stage 5:** the Progress tab: trend charts, practice calendar, check-in history, scenario radar, Then vs Now, weekly summary, CSV export and a shareable progress image.
+- **Stage 6:** first-launch onboarding (9 steps, with the placement test and the Day 1 baseline recording) and the Settings screen.
 
-> **Updating from Stage 3?** Stage 4 needs one new Info.plist entry: see [step 3.4](#3-target-settings). Without it the app still runs, but the live transcript can't be turned on.
+> **Building in Xcode yourself?** Stage 4 added a speech recognition entry and Stage 6 a Face ID entry to Info.plist: see [steps 3.4 and 3.5](#3-target-settings). The GitHub build already includes both.
 
 ---
 
@@ -76,7 +77,11 @@ Select the blue **VoiceBloom** project in the navigator.
    - Key: **Privacy - Speech Recognition Usage Description** (`NSSpeechRecognitionUsageDescription`)
    - Value: `VoiceBloom can show a live transcript of what you say while you practice. Speech is recognized on your iPhone and never leaves it.`
 
-No capabilities are needed for Stage 4: SwiftData is set up in code, and data stays on the device (iCloud sync is a later, optional stage).
+5. Add one more row:
+   - Key: **Privacy - Face ID Usage Description** (`NSFaceIDUsageDescription`)
+   - Value: `VoiceBloom can lock with Face ID so your practice stays private.`
+
+No capabilities are needed: SwiftData is set up in code, data stays on the device (iCloud sync is a later, optional stage), and reminders are local notifications.
 
 ### 4. Run on your iPhone
 
@@ -113,6 +118,20 @@ git commit -m "Add Xcode project"
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Stage 6:**
+- **Onboarding** appears on first launch only (**More ▸ Debug & Tuning ▸ Show onboarding again** replays it without deleting anything). Nine steps:
+  1. Welcome: what pitch, resonance, vocal weight and intonation are.
+  2. Health notice: training should never hurt.
+  3. Microphone and (optional) speech recognition permission.
+  4. Mic calibration (or skip).
+  5. Goal: Feminine 180–220 Hz, Androgynous 150–180 Hz, or a custom range.
+  6. Experience level. *Some training* and *Experienced* offer the **placement test**: match 5 reference tones (listen, then hum each back within ±10 Hz), hold a bright "ee" for 6 s, and read a passage. The result recommends a starting week (1, 3, 7, 10 or 12) and unlocks it and the weeks before it for the lessons in Stage 7.
+  7. Daily goal (10/15/20/30 min), usual session length, and an optional daily reminder (worded neutrally: "Time for practice").
+  8. **Baseline recording:** read an original passage, then talk freely for 30 s. Saved as your "Day 1" recordings (they feed Then vs Now), and your own pitch, F2/F3, H1–H2 and intonation become the starting point (0) that the resonance, weight and intonation scores count up from.
+  9. Optional Face ID lock and AI Coach.
+- **Settings** (**More ▸ Settings**): goal and pitch range, resonance/weight/intonation targets (or defaults), pitch shown as Hz, note names or both (the Practice readout follows it), slip alerts, re-run calibration/placement/baseline, daily goal, reminder, session length, AI Coach (on/off, which coach, an optional Gemini key kept in the Keychain), Face ID lock, **Delete all data**, and the theme (system/light/dark). iCloud sync and backup show "Coming soon" (Stage 13).
+- **Face ID lock:** when on, the app locks whenever it goes to the background and asks for Face ID (or your passcode) when you return.
 
 **Stage 5:**
 - **No data yet?** Open **More ▸ Debug & Tuning ▸ Generate sample history**. It adds ~90 days of slowly improving sessions, check-ins (a few "Sore"), scenario scores and two synthetic recordings, all marked so **Remove sample history** deletes only them.
@@ -205,6 +224,9 @@ VoiceBloom/
                   SlipDetector (+ time-in-target tallies), VoiceQualityTracker (norms, strain)
   Feedback/       FeedbackSettings, FeedbackCues (haptic patterns + chimes as data),
                   HapticsService (Core Haptics), FeedbackOutput
+  Services/       NotificationService (daily reminder), KeychainStore, AppLock (Face ID), AppPreferences,
+                  BaselineStore, PlacementStore, DataEraser
+  Content/        Original reading passages
   Persistence/    SwiftData schema (VoiceBloomSchemaV1: UserProfile, PracticeSession, Recording,
                   LessonProgress, TargetVoiceProfile, ScenarioResult, Achievement, DailyJournalEntry),
                   migration plan, enums stored as raw strings, VoiceBloomDatabase (opens the store)
@@ -220,6 +242,7 @@ VoiceBloom/
                   Practice (LiveVoiceMonitor, PracticeView, pitch graph, voice meters, % in target,
                   slip/strain banners, voice comfort card, transcript card, Alerts & Feedback,
                   eyes-free practice), History (session list, session detail, check-in),
+                  Onboarding (9 steps, placement test, baseline recording), Settings,
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
 VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels

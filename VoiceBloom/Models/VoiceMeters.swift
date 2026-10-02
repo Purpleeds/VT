@@ -63,17 +63,25 @@ nonisolated struct ResonanceMeter: Sendable {
     private var f2Window: RollingWindow
     private var f3Window: RollingWindow
 
-    init(mode: ResonanceMode = .speech) {
+    /// - Parameter reference: Personal reference values (defaults to the
+    ///   mode's standard reference).
+    init(mode: ResonanceMode = .speech, reference: ResonanceReference? = nil) {
         self.mode = mode
-        reference = mode.defaultReference
+        self.reference = reference ?? mode.defaultReference
         f2Window = RollingWindow(duration: mode.averagingWindow)
         f3Window = RollingWindow(duration: mode.averagingWindow)
     }
 
     /// Switching mode changes the reference values and clears old values.
-    mutating func setMode(_ newMode: ResonanceMode) {
-        guard newMode != mode else { return }
-        self = ResonanceMeter(mode: newMode)
+    mutating func setMode(_ newMode: ResonanceMode, reference: ResonanceReference? = nil) {
+        let newReference = reference ?? newMode.defaultReference
+        guard newMode != mode || newReference != self.reference else { return }
+        self = ResonanceMeter(mode: newMode, reference: newReference)
+    }
+
+    /// New reference values (e.g. after the baseline recording); keeps the window.
+    mutating func setReference(_ newReference: ResonanceReference) {
+        reference = newReference
     }
 
     mutating func add(_ formants: FormantMeasurement, at time: Double) {

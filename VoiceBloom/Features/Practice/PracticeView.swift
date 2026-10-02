@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 import SwiftUI
 import UIKit
 
@@ -266,6 +267,9 @@ private struct ListeningIndicator: View {
 /// The two big glanceable numbers: current pitch and % in target.
 private struct LiveReadoutPanel: View {
     @Environment(LiveVoiceMonitor.self) private var monitor
+    @Query(sort: \UserProfile.createdAt) private var profiles: [UserProfile]
+
+    private var units: DisplayUnits { profiles.first?.displayUnits ?? .both }
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ScaledMetric(relativeTo: .largeTitle) private var numberSize: CGFloat = 54
 
@@ -286,16 +290,18 @@ private struct LiveReadoutPanel: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(pitchText)
+                Text(units == .noteNames ? noteOnlyText : pitchText)
                     .font(.system(size: numberSize, weight: .semibold, design: .rounded))
                     .monospacedDigit()
-                Text("Hz")
-                    .font(.title3.weight(.medium))
-                    .foregroundStyle(.secondary)
+                if units != .noteNames {
+                    Text("Hz")
+                        .font(.title3.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
             }
             .lineLimit(1)
             .minimumScaleFactor(0.5)
-            Text(noteText)
+            Text(units == .both ? noteText : promptText)
                 .font(.headline)
                 .foregroundStyle(.secondary)
         }
@@ -314,6 +320,17 @@ private struct LiveReadoutPanel: View {
     private var pitchText: String {
         guard let frequency = monitor.readoutFrequency else { return "—" }
         return "\(Int(frequency.rounded()))"
+    }
+
+    /// The note name as the big number ("Note names" display setting).
+    private var noteOnlyText: String {
+        guard let frequency = monitor.readoutFrequency else { return "—" }
+        return PitchMath.noteName(for: frequency) ?? "—"
+    }
+
+    /// Below the big number when it alone shows the pitch.
+    private var promptText: String {
+        monitor.status.isRunning && monitor.readoutFrequency == nil ? monitor.resonanceMode.prompt : " "
     }
 
     private var noteText: String {

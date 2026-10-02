@@ -14,6 +14,11 @@ on:
       - "project.yml"
       - ".github/workflows/build-ipa.yml"
 
+# A newer push cancels the older run.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: macos-26

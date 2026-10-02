@@ -5,6 +5,7 @@ import SwiftUI
 struct VoiceBloomApp: App {
     @State private var monitor: LiveVoiceMonitor
     @State private var player: RecordingPlayer
+    @State private var appLock = AppLock()
     /// Nil only if no data store at all could be opened.
     @State private var sessionController: PracticeSessionController?
     private let container: ModelContainer?
@@ -34,10 +35,11 @@ struct VoiceBloomApp: App {
     var body: some Scene {
         WindowGroup {
             if let sessionController, let container {
-                RootTabView()
+                AppRootView()
                     .environment(monitor)
                     .environment(player)
                     .environment(sessionController)
+                    .environment(appLock)
                     .modelContainer(container)
             } else {
                 DataUnavailableView()
@@ -49,6 +51,7 @@ struct VoiceBloomApp: App {
                 // Save and stop the microphone cleanly when leaving the app.
                 // The user resumes with one tap when they come back.
                 player.stop()
+                appLock.lockIfEnabled()
                 Task {
                     if let sessionController {
                         await sessionController.enterBackground()

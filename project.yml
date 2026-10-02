@@ -37,6 +37,7 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "VoiceBloom listens to your voice while you practice to measure pitch and resonance. Audio is analyzed on your iPhone and never leaves it."
         INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "VoiceBloom can show a live transcript of what you say while you practice. Speech is recognized on your iPhone and never leaves it."
+        INFOPLIST_KEY_NSFaceIDUsageDescription: "VoiceBloom can lock with Face ID so your practice stays private."
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
   VoiceBloomTests:

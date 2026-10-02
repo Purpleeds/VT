@@ -58,6 +58,14 @@ nonisolated enum SessionLength: String, CaseIterable, Identifiable, Sendable, Co
         case .deep: 25
         }
     }
+
+    var title: String {
+        switch self {
+        case .quick: "Quick"
+        case .standard: "Standard"
+        case .deep: "Deep"
+        }
+    }
 }
 
 nonisolated enum DisplayUnits: String, CaseIterable, Identifiable, Sendable, Codable {
@@ -66,6 +74,14 @@ nonisolated enum DisplayUnits: String, CaseIterable, Identifiable, Sendable, Cod
     case both
 
     var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .hertz: "Hz"
+        case .noteNames: "Note names"
+        case .both: "Both"
+        }
+    }
 }
 
 nonisolated enum AppTheme: String, CaseIterable, Identifiable, Sendable, Codable {
@@ -74,6 +90,14 @@ nonisolated enum AppTheme: String, CaseIterable, Identifiable, Sendable, Codable
     case dark
 
     var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .system: "System"
+        case .light: "Light"
+        case .dark: "Dark"
+        }
+    }
 }
 
 /// What kind of practice a session was.
