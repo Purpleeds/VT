@@ -62,11 +62,15 @@ struct TranscriptAccumulatorTests {
         transcript.apply(chunk(request: 1, "the quick brown fox", wordsStartingAt: 10))
         // Words at 70.0, 70.5
         transcript.apply(chunk(request: 2, "jumps over", wordsStartingAt: 70))
-        #expect(transcript.text(from: 10.5, through: 11.2) == "quick brown")
+        let result1 = transcript.text(from: 10.5, through: 11.2)
+        #expect(result1 == "quick brown")
         // A word starting just before the clip (by < 0.1 s) is kept.
-        #expect(transcript.text(from: 10.55, through: 10.6) == "quick")
-        #expect(transcript.text(from: 11.2, through: 70.2) == "fox jumps")
-        #expect(transcript.text(from: 20, through: 30) == nil)
+        let result2 = transcript.text(from: 10.55, through: 10.6)
+        #expect(result2 == "quick")
+        let result3 = transcript.text(from: 11.2, through: 70.2)
+        #expect(result3 == "fox jumps")
+        let result4 = transcript.text(from: 20, through: 30)
+        #expect(result4 == nil)
     }
 
     @Test("Reset clears everything")

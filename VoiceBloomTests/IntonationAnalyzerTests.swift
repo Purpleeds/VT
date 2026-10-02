@@ -112,10 +112,12 @@ struct IntonationAnalyzerTests {
             _ = analyzer.process(time: Double(index) * frameInterval, frequency: 180)
         }
         #expect(analyzer.isInPhrase)
-        let phrase = try #require(analyzer.finishPhrase())
+        let result1 = analyzer.finishPhrase()
+        let phrase = try #require(result1)
         #expect(abs(phrase.voicedDuration - 100 * frameInterval) < 1e-9)
         #expect(!analyzer.isInPhrase)
-        #expect(analyzer.finishPhrase() == nil)
+        let result2 = analyzer.finishPhrase()
+        #expect(result2 == nil)
     }
 
     @Test("Movement counting uses hysteresis")
@@ -137,10 +139,14 @@ struct VoiceStabilityTrackerTests {
     @Test("Needs three steady voiced frames")
     func needsThreeFrames() {
         var tracker = VoiceStabilityTracker()
-        #expect(!tracker.process(200))
-        #expect(!tracker.process(201))
-        #expect(tracker.process(200))
-        #expect(tracker.process(202))
+        let result3 = tracker.process(200)
+        #expect(!result3)
+        let result4 = tracker.process(201)
+        #expect(!result4)
+        let result5 = tracker.process(200)
+        #expect(result5)
+        let result6 = tracker.process(202)
+        #expect(result6)
     }
 
     @Test("Unvoiced frames and pitch jumps reset stability")
@@ -148,13 +154,19 @@ struct VoiceStabilityTrackerTests {
         var tracker = VoiceStabilityTracker()
         _ = tracker.process(200)
         _ = tracker.process(200)
-        #expect(tracker.process(200))
-        #expect(!tracker.process(nil))
-        #expect(!tracker.process(200))
-        #expect(!tracker.process(200))
-        #expect(tracker.process(200))
+        let result7 = tracker.process(200)
+        #expect(result7)
+        let result8 = tracker.process(nil)
+        #expect(!result8)
+        let result9 = tracker.process(200)
+        #expect(!result9)
+        let result10 = tracker.process(200)
+        #expect(!result10)
+        let result11 = tracker.process(200)
+        #expect(result11)
         // A 2-semitone jump within the window is not stable.
-        #expect(!tracker.process(224.5))
+        let result12 = tracker.process(224.5)
+        #expect(!result12)
     }
 
     @Test("Slow glides still count as stable")

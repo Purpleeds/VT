@@ -52,7 +52,8 @@ struct PitchSessionStatsTests {
         #expect(try #require(stats.averageFrequency) == 187.5)
         #expect(stats.minimumFrequency == 150)
         #expect(stats.maximumFrequency == 210)
-        #expect(abs(stats.voicedDuration(frameInterval: 0.01) - 0.04) < 1e-12)
+        let result1 = stats.voicedDuration(frameInterval: 0.01)
+        #expect(abs(result1 - 0.04) < 1e-12)
     }
 
     @Test("Target zone edges are inclusive")
@@ -93,10 +94,12 @@ struct PitchHistoryTests {
         for time in 0..<10 {
             history.append(PitchGraphPoint(frame: FrameFixture.frame(time: Double(time))))
         }
-        #expect(history.points(from: 3, through: 6).map(\.time) == [3, 4, 5, 6])
+        let result2 = history.points(from: 3, through: 6)
+        #expect(result2.map(\.time) == [3, 4, 5, 6])
         history.removeAll()
         #expect(history.isEmpty)
-        #expect(history.points(from: 0, through: 100).isEmpty)
+        let result3 = history.points(from: 0, through: 100)
+        #expect(result3.isEmpty)
     }
 
     @Test("Unvoiced frames leave a gap in the line; held jumps keep the previous value")

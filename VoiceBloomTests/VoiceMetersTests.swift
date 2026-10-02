@@ -104,15 +104,18 @@ struct VoiceMetersTests {
     func resonanceMeter() throws {
         var meter = ResonanceMeter(mode: .ee)
         let reference = ResonanceMode.ee.defaultReference
-        #expect(meter.reading(now: 0) == nil)
+        let result1 = meter.reading(now: 0)
+        #expect(result1 == nil)
         meter.add(formants(f2: reference.targetF2, f3: reference.targetF3), at: 0.0)
         meter.add(formants(f2: reference.targetF2, f3: reference.targetF3), at: 0.1)
         // One outlier frame doesn't move the median.
         meter.add(formants(f2: 900, f3: 2_000), at: 0.2)
-        let live = try #require(meter.reading(now: 0.25))
+        let result2 = meter.reading(now: 0.25)
+        let live = try #require(result2)
         #expect(abs(live.score - 100) < 1e-9)
         #expect(live.isLive)
-        let stale = try #require(meter.reading(now: 3.0))
+        let result3 = meter.reading(now: 3.0)
+        let stale = try #require(result3)
         #expect(!stale.isLive)
     }
 
@@ -123,7 +126,8 @@ struct VoiceMetersTests {
         meter.setMode(.ee)
         #expect(meter.mode == .ee)
         #expect(meter.reference == ResonanceMode.ee.defaultReference)
-        #expect(meter.reading(now: 0) == nil)
+        let result4 = meter.reading(now: 0)
+        #expect(result4 == nil)
     }
 
     @Test("Weight meter uses corrected H1–H2 when available")
@@ -131,10 +135,12 @@ struct VoiceMetersTests {
         var meter = WeightMeter()
         let measurement = WeightMeasurement(h1MinusH2: 0, correctedH1MinusH2: 11, spectralTilt: -8)
         meter.add(measurement, at: 0)
-        let reading = try #require(meter.reading(now: 0.1))
+        let result5 = meter.reading(now: 0.1)
+        let reading = try #require(result5)
         #expect(reading.h1MinusH2 == 11)
         #expect(abs(reading.score - 100) < 1e-9)
-        #expect(abs(meter.score(for: measurement) - 100) < 1e-9)
+        let result6 = meter.score(for: measurement)
+        #expect(abs(result6 - 100) < 1e-9)
     }
 
     @Test("Intonation meter scores the last phrase and goes stale")
@@ -146,12 +152,15 @@ struct VoiceMetersTests {
         )
         let score = meter.add(phrase)
         #expect(score == 100)
-        let recent = try #require(meter.reading(now: 3))
+        let result7 = meter.reading(now: 3)
+        let recent = try #require(result7)
         #expect(recent.isRecent)
-        let old = try #require(meter.reading(now: 20))
+        let result8 = meter.reading(now: 20)
+        let old = try #require(result8)
         #expect(!old.isRecent)
         meter.reset()
-        #expect(meter.reading(now: 3) == nil)
+        let result9 = meter.reading(now: 3)
+        #expect(result9 == nil)
     }
 
     @Test("Score average")
