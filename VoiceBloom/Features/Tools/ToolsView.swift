@@ -1,8 +1,9 @@
 import Foundation
 import SwiftUI
 
-/// Tools (SPEC section 8): Quick Check, the Daily Sentence Journal, the
-/// exercise library, the tone generator and mini piano, and Discreet Mode.
+/// Tools (SPEC sections 7 and 8): Quick Check, the Daily Sentence Journal,
+/// scenarios, the exercise library, the tone generator and mini piano, and
+/// Discreet Mode.
 struct ToolsView: View {
     @AppStorage(DiscreetMode.key) private var discreetMode = false
 
@@ -32,6 +33,15 @@ struct ToolsView: View {
             }
 
             Section {
+                NavigationLink {
+                    ScenarioListView()
+                } label: {
+                    ToolRow(
+                        title: "Scenarios",
+                        detail: "Order coffee, make a call, give a talk: real-life practice at three levels, scored turn by turn.",
+                        systemImage: "theatermasks"
+                    )
+                }
                 NavigationLink {
                     ExerciseLibraryView()
                 } label: {

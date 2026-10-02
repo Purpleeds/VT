@@ -144,7 +144,7 @@ struct GuidedSessionView: View {
                         .cardStyle()
                 }
                 if exercise.kind == .scenario {
-                    Text("Practice a scenario from Tools › Scenarios, or talk through an everyday situation of your own for this step.")
+                    Text("Practice a scenario from More › Tools › Scenarios, or talk through an everyday situation of your own for this step.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

@@ -19,7 +19,7 @@ struct ScenarioRadarChart: View {
                         values.value(axis).map { "\(axis.title) \(Int($0.rounded()))" }
                     }.joined(separator: ", "))
             } else {
-                EmptyChartMessage(message: "Practice a scenario (Stage 10) to see your pitch, resonance, weight, intonation and consistency here.")
+                EmptyChartMessage(message: "Practice a scenario (More › Tools › Scenarios) to see your pitch, resonance, weight, intonation and consistency here.")
             }
         }
     }

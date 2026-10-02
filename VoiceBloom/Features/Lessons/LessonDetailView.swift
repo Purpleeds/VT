@@ -77,7 +77,14 @@ struct LessonDetailView: View {
                         .disabled(!isUnlocked)
                     }
                     if week.goal.kind == .scenarios {
-                        Text("Practice scenarios in Tools › Scenarios; each one counts.")
+                        NavigationLink {
+                            ScenarioListView()
+                        } label: {
+                            Label("Open Scenarios", systemImage: "theatermasks")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.glass)
+                        Text("Every scenario you finish this week counts (also in More › Tools › Scenarios).")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }

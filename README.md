@@ -2,7 +2,7 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–9 of 14 are done:
+**Status:** Stages 1–10 of 14 are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
@@ -12,6 +12,7 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 7:** the 16-week lesson plan (all content in `Lessons.json`), guided sessions (warm-up, main practice, carryover, cool-down) in Quick/Standard/Deep lengths, unlock rules, and maintenance mode.
 - **Stage 8:** Tools: the searchable exercise library, a reference tone generator with a mini piano, the Daily Sentence Journal with a timeline, Quick Check, and Discreet Mode.
 - **Stage 9:** Target Voice: import audio or video from Files or Photos, trim it on a waveform, quality warnings, a Target Voice Profile, automatic targets, Compare to Target, shadowing, and several saved profiles.
+- **Stage 10:** scenario practice: 11 everyday situations at Easy, Medium and Hard with pre-written scripts, each turn scored, results saved for the Progress radar.
 
 > **Building in Xcode yourself?** Stage 4 added a speech recognition entry and Stage 6 a Face ID entry to Info.plist: see [steps 3.4 and 3.5](#3-target-settings). The GitHub build already includes both.
 
@@ -121,6 +122,12 @@ git commit -m "Add Xcode project"
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Stage 10** (**More ▸ Tools ▸ Scenarios**, also linked from week 14):
+- **11 scenarios**, each at **Easy** (short turns with a line to read), **Medium** (your own words, with prompts) and **Hard** (longer, unscripted, with surprises): ordering coffee, a phone call and voicemail, introducing yourself, asking a shop assistant, a complaint or return, a ~2-minute casual chat, reading a story with expression, a 1–2 minute presentation, emotional reactions, calling across a room, and end-of-day tired voice. All scripts are original and live in `VoiceBloom/Content/Scenarios.json`.
+- Each scenario page shows the setting, who you're talking to, the length, tips and your past results. **Read the other person's lines aloud** uses the iPhone's built-in (on-device) voice; the microphone ignores it, and in Discreet Mode it only speaks through headphones.
+- **Practice:** the other person's line appears (and is read aloud), then your prompt, a line to say on Easy, and a cue like "Excited" or "Call out". **Start speaking** records up to the turn's time (tap **Done** to finish early). Each turn is scored for **pitch** (time in your target), **resonance**, **weight**, **intonation** and **consistency** (how much of the turn held your target voice without slipping more than a semitone below the zone). **Try again** replaces a turn's score.
+- **Results:** an overall score, the five averages, your strongest measure and a tip for the weakest. **Save and finish** stores a `ScenarioResult` (it fills the skills radar on the Progress tab and counts toward week 14's goal) and the practice session (then the check-in). The scenario list shows your best score per difficulty.
 
 **Stage 9** (**Target Voice** tab):
 - **Import:** **From Files** (MP3, M4A, WAV, MP4, MOV) or **From Photos** (videos). The sound is extracted on the iPhone (`AVAssetReader`, mixed to mono); up to the first 3 minutes are loaded. Nothing is uploaded, and only the part you keep is saved.
@@ -261,11 +268,14 @@ VoiceBloom/
                   HapticsService (Core Haptics), FeedbackOutput
   Services/       NotificationService (daily reminder), KeychainStore, AppLock (Face ID), AppPreferences,
                   BaselineStore, PlacementStore, DataEraser
-  Content/        Original reading passages, Lessons.json (the 16-week plan + maintenance)
+  Content/        Original reading passages, Lessons.json (the 16-week plan + maintenance),
+                  Scenarios.json (11 scenarios × Easy/Medium/Hard)
   Lessons/        LessonCatalog (JSON models), SessionPlanner, unlock rules and goal evaluation,
                   LessonProgressStore, GuidedSessionModel, GuidedSessionCoordinator
   Tools/          Exercise library search and filters, piano layout, tone-generator maths,
                   journal timeline (scrubber, streaks, highlights), Quick Check comparison
+  Scenarios/      ScenarioCatalog (Scenarios.json models, script text), ScenarioScoring (turn scores,
+                  consistency, summary), ScenarioResultStore, ScenarioSessionModel
   TargetVoice/    AudioFileDecoder (AVAssetReader), TargetClipAnalyzer (offline pipeline run),
                   ClipQualityChecker (music, noise, several speakers), ShadowingSegmenter,
                   TrimSelection, WaveformSummary, TargetComparison (% match), TargetSuggestion
@@ -290,7 +300,7 @@ VoiceBloom/
                   Lessons (lesson list, week detail, exercise detail, maintenance, guided session player),
                   Tools (hub, exercise library, tone generator + mini piano, journal, Quick Check,
                   Discreet Mode), TargetVoice (list + import, trim editor, profile, Compare to
-                  Target, shadowing),
+                  Target, shadowing), Scenarios (list, detail, full-screen practice),
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
 VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels

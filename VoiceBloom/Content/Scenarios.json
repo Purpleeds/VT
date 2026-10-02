@@ -1,0 +1,1364 @@
+{
+  "version": 1,
+  "scenarios": [
+    {
+      "id": "coffee-order",
+      "title": "Ordering coffee or food",
+      "systemImage": "cup.and.saucer",
+      "summary": "Order at a café counter, answer the barista’s questions and pay.",
+      "focus": "Short, quick answers are where old habits sneak back. Keep each one light and bright.",
+      "levels": {
+        "easy": {
+          "setting": "A quiet café on a weekday morning. No line, no rush.",
+          "partner": "Barista",
+          "goal": "Say each suggested line in your target voice, slowly and clearly.",
+          "tips": [
+            "Take a breath before each line and start on your target pitch.",
+            "Smile slightly while you order: it brightens resonance."
+          ],
+          "turns": [
+            {
+              "prompt": "Order a drink.",
+              "seconds": 6,
+              "partner": "Hi there! What can I get started for you?",
+              "suggestion": "Hi! Could I get a medium latte, please?"
+            },
+            {
+              "prompt": "Choose a milk.",
+              "seconds": 5,
+              "partner": "Sure thing. Any milk preference?",
+              "suggestion": "Oat milk would be great, thanks."
+            },
+            {
+              "prompt": "Add a pastry.",
+              "seconds": 6,
+              "partner": "Anything to eat with that?",
+              "suggestion": "Yes, I’d love a blueberry muffin too."
+            },
+            {
+              "prompt": "Give your name and spell it.",
+              "seconds": 7,
+              "partner": "Lovely. Can I get a name for the order?",
+              "suggestion": "Sure, it’s Alex. A, L, E, X."
+            },
+            {
+              "prompt": "Pay and thank them.",
+              "seconds": 5,
+              "partner": "That’ll be seven fifty. Tap whenever you’re ready.",
+              "suggestion": "Perfect, here you go. Have a lovely day!"
+            }
+          ]
+        },
+        "medium": {
+          "setting": "A busy lunchtime café. The barista talks fast and there’s music playing.",
+          "partner": "Barista",
+          "goal": "Answer in your own words, keeping your voice steady through the surprises.",
+          "tips": [
+            "Keep answers short: one breath per answer.",
+            "When something changes (no oat milk!), pause, smile, then answer."
+          ],
+          "turns": [
+            {
+              "prompt": "Order a drink with two details (size, temperature or flavor).",
+              "seconds": 8,
+              "partner": "Hi! What are we having today?"
+            },
+            {
+              "prompt": "Decide what to do instead.",
+              "seconds": 8,
+              "partner": "We’re actually out of oat milk. Is almond okay, or would you like something else?"
+            },
+            {
+              "prompt": "Ask a question about the food, then decide.",
+              "seconds": 10,
+              "partner": "Want anything from the food case? The soup today is tomato basil."
+            },
+            {
+              "prompt": "Answer and add one small request (a lid, extra napkins, a straw).",
+              "seconds": 7,
+              "partner": "For here or to go?"
+            },
+            {
+              "prompt": "Say your name and spell it.",
+              "seconds": 7,
+              "partner": "Name for the cup?"
+            },
+            {
+              "prompt": "Thank them and make a bit of small talk (the music, the weather, your day).",
+              "seconds": 10,
+              "partner": "All set! It’ll be up at the end of the counter in a few minutes."
+            }
+          ]
+        },
+        "hard": {
+          "setting": "A crowded café. The barista mishears you and there’s a line behind you.",
+          "partner": "Barista",
+          "goal": "Stay light and bright while correcting, waiting and improvising under pressure.",
+          "tips": [
+            "Correcting someone often drops the voice. Keep the correction friendly and high.",
+            "If you feel rushed, slow down: speed makes the voice heavier."
+          ],
+          "turns": [
+            {
+              "prompt": "Order a drink and a hot food item in one go.",
+              "seconds": 10,
+              "partner": "Next! Sorry, what can I get you?"
+            },
+            {
+              "prompt": "Politely correct the order, clearly and without dropping your pitch.",
+              "seconds": 10,
+              "partner": "Sorry, it’s loud in here. Did you say a large mocha?",
+              "cue": "Speak up, keep it light"
+            },
+            {
+              "prompt": "You’re in a hurry. Ask for something quicker instead.",
+              "seconds": 10,
+              "partner": "Ah, got it. The panini takes about ten minutes, is that okay?"
+            },
+            {
+              "prompt": "Accept or decline, and ask a follow-up question.",
+              "seconds": 8,
+              "partner": "Okay. Oh, we have a deal today: add a cookie for a dollar?"
+            },
+            {
+              "prompt": "Be patient and friendly; fill the pause with small talk.",
+              "seconds": 12,
+              "partner": "Your total’s eleven twenty. Ugh, sorry, the card machine is slow today."
+            },
+            {
+              "prompt": "Reassure them it’s fine and say goodbye warmly.",
+              "seconds": 8,
+              "partner": "Here’s your receipt. And sorry about the mix-up!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "phone-call",
+      "title": "Answering a phone call and leaving a voicemail",
+      "systemImage": "phone",
+      "summary": "Answer a call, handle a quick conversation, then leave a clear voicemail.",
+      "focus": "Phones strip out low frequencies, so a bright, forward resonance carries well. Smile while you talk.",
+      "levels": {
+        "easy": {
+          "setting": "A friend calls to confirm dinner plans.",
+          "partner": "Friend",
+          "goal": "Say each suggested line warmly, as if you’re smiling into the phone.",
+          "tips": [
+            "“Hello?” is a rising question: let it lift.",
+            "Hold the phone a hand’s width away, like a real call."
+          ],
+          "turns": [
+            {
+              "prompt": "Answer the phone.",
+              "seconds": 6,
+              "partner": "(The phone rings.)",
+              "suggestion": "Hello? Oh, hi! It’s so good to hear from you!"
+            },
+            {
+              "prompt": "Confirm the plan.",
+              "seconds": 6,
+              "partner": "Hey! Are we still on for dinner on Friday?",
+              "suggestion": "Yes, absolutely! Seven o’clock still works for me."
+            },
+            {
+              "prompt": "Agree and add a detail.",
+              "seconds": 7,
+              "partner": "Great. Should I book the Italian place?",
+              "suggestion": "That sounds perfect. Could you ask for a table by the window?"
+            },
+            {
+              "prompt": "Say goodbye.",
+              "seconds": 5,
+              "partner": "Will do. See you then!",
+              "suggestion": "See you Friday. Bye for now!"
+            },
+            {
+              "prompt": "Leave a short voicemail.",
+              "seconds": 10,
+              "partner": "(Later, you call another friend. It goes to voicemail.) Hi, you’ve reached Jordan. Leave a message!",
+              "suggestion": "Hi Jordan, it’s me. Just calling to say hello. Call me back when you can. Bye!"
+            }
+          ]
+        },
+        "medium": {
+          "setting": "A dentist’s office calls about your appointment.",
+          "partner": "Receptionist",
+          "goal": "Handle a polite, practical call in your own words, then leave a complete voicemail.",
+          "tips": [
+            "Repeating details back (“Wednesday at two?”) is great intonation practice.",
+            "Numbers and dates tend to come out flat. Give them some melody."
+          ],
+          "turns": [
+            {
+              "prompt": "Answer politely, as you would with an unknown number.",
+              "seconds": 6,
+              "partner": "(The phone rings. You don’t know the number.)"
+            },
+            {
+              "prompt": "Confirm it, or ask to change it.",
+              "seconds": 8,
+              "partner": "Hi, this is Maple Dental calling to confirm your appointment on Tuesday at ten."
+            },
+            {
+              "prompt": "Pick one and repeat the details back to check.",
+              "seconds": 10,
+              "partner": "We have openings on Wednesday at two or Thursday at nine."
+            },
+            {
+              "prompt": "Give a date clearly (any date is fine).",
+              "seconds": 7,
+              "partner": "Great. Can I just confirm your date of birth?"
+            },
+            {
+              "prompt": "Ask one question (parking, what to bring) and thank them.",
+              "seconds": 10,
+              "partner": "You’re all set! Anything else I can help with?"
+            },
+            {
+              "prompt": "Leave a voicemail: who you are, why you’re calling, and how to reach you.",
+              "seconds": 20,
+              "partner": "(Later, you call your workplace. It goes to voicemail.) You’ve reached the front desk. Please leave a message after the tone."
+            }
+          ]
+        },
+        "hard": {
+          "setting": "A delivery driver calls on a bad line about a missed parcel.",
+          "partner": "Courier",
+          "goal": "Be clear on a bad line without getting louder and lower, then leave a full voicemail.",
+          "tips": [
+            "On a bad line, slow down and articulate rather than pushing volume.",
+            "Addresses and tracking numbers: chunk them into small groups with a lift at the end of each."
+          ],
+          "turns": [
+            {
+              "prompt": "Answer warmly but carefully.",
+              "seconds": 6,
+              "partner": "(The phone rings. It’s an unknown number.)"
+            },
+            {
+              "prompt": "Confirm clearly, a little slower than usual.",
+              "seconds": 8,
+              "partner": "Hi, sorry, you’re breaking up. Is this the person expecting a parcel?",
+              "cue": "Bad line: clear, not lower"
+            },
+            {
+              "prompt": "Give an address (made up is fine), including the house number and postcode.",
+              "seconds": 15,
+              "partner": "We tried to deliver today but no one answered. Can you give me the full address?"
+            },
+            {
+              "prompt": "Negotiate a better time window, politely.",
+              "seconds": 12,
+              "partner": "Okay, we can come back tomorrow between eight and six, or you can pick it up from the depot."
+            },
+            {
+              "prompt": "Describe a safe spot clearly.",
+              "seconds": 12,
+              "partner": "I can’t promise a time, sorry. Is there a safe place to leave it?"
+            },
+            {
+              "prompt": "Leave a complete voicemail: your name, a tracking number, the problem and what you agreed.",
+              "seconds": 25,
+              "partner": "(The call drops. You call back and get voicemail.) Hi, you’ve reached Speedy Parcels. Leave your name, tracking number and a message."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "introduction",
+      "title": "Introducing yourself to someone new",
+      "systemImage": "hand.wave",
+      "summary": "Say hello, share a little about yourself, and keep the conversation going.",
+      "focus": "Your name is the phrase you’ll say most often. Practice it until your target voice is automatic.",
+      "levels": {
+        "easy": {
+          "setting": "A friendly neighbor at the community garden.",
+          "partner": "Neighbor",
+          "goal": "Introduce yourself with the suggested lines, using your own name if you like.",
+          "tips": [
+            "Say your name with a small lift, like you’re offering it.",
+            "Friendly, unhurried pace."
+          ],
+          "turns": [
+            {
+              "prompt": "Introduce yourself.",
+              "seconds": 5,
+              "partner": "Hi! I don’t think we’ve met. I’m Priya.",
+              "suggestion": "Hi Priya, nice to meet you! I’m Alex."
+            },
+            {
+              "prompt": "Answer.",
+              "seconds": 6,
+              "partner": "Have you lived around here long?",
+              "suggestion": "Not long. I moved in about three months ago."
+            },
+            {
+              "prompt": "Say why you’re here.",
+              "seconds": 6,
+              "partner": "Oh, nice! What brings you to the garden?",
+              "suggestion": "I’d love to learn how to grow tomatoes."
+            },
+            {
+              "prompt": "Say goodbye.",
+              "seconds": 5,
+              "partner": "Ha, me too. I should get going, but it was lovely to meet you!",
+              "suggestion": "You too! See you around the garden."
+            }
+          ]
+        },
+        "medium": {
+          "setting": "Meeting a new coworker at a team lunch.",
+          "partner": "Coworker",
+          "goal": "Introduce yourself in your own words and keep the conversation flowing.",
+          "tips": [
+            "Ask a question back each time: questions keep the melody lively.",
+            "If you hear your voice drop, reset on the next sentence."
+          ],
+          "turns": [
+            {
+              "prompt": "Introduce yourself and your role (real or made up).",
+              "seconds": 8,
+              "partner": "Hey, I don’t think we’ve met. I’m Marcus, I just joined the design team."
+            },
+            {
+              "prompt": "Answer and add one detail about your work.",
+              "seconds": 10,
+              "partner": "Nice! How long have you been here?"
+            },
+            {
+              "prompt": "Give a recommendation with a reason.",
+              "seconds": 10,
+              "partner": "Any tips for a newbie? Where’s the good coffee around here?"
+            },
+            {
+              "prompt": "Talk about a hobby.",
+              "seconds": 12,
+              "partner": "Good to know. What do you get up to outside work?"
+            },
+            {
+              "prompt": "Respond and suggest a day.",
+              "seconds": 8,
+              "partner": "That sounds fun. We should grab lunch sometime."
+            }
+          ]
+        },
+        "hard": {
+          "setting": "A loud networking event. People keep joining the conversation.",
+          "partner": "Event guest",
+          "goal": "Introduce yourself several times without slipping, and keep things lively.",
+          "tips": [
+            "Repeating your introduction is a great test: the second one should match the first.",
+            "In noise, project with breath and brightness, not weight."
+          ],
+          "turns": [
+            {
+              "prompt": "Introduce yourself and explain why you came.",
+              "seconds": 12,
+              "partner": "Hi, sorry to jump in! I’m Dana. What brings you here tonight?"
+            },
+            {
+              "prompt": "Describe your work or studies so a stranger understands.",
+              "seconds": 15,
+              "partner": "Oh, interesting. And what do you actually do, day to day?"
+            },
+            {
+              "prompt": "Introduce yourself to Leo, briefly.",
+              "seconds": 8,
+              "partner": "(Someone else walks up.) Oh, this is my friend Leo. Leo, this is…",
+              "cue": "Same name, same voice"
+            },
+            {
+              "prompt": "Explain, with a little humor.",
+              "seconds": 10,
+              "partner": "Leo: Nice to meet you! Wait, how do you two know each other?"
+            },
+            {
+              "prompt": "Share contact details (made up) and say you’d like to follow up.",
+              "seconds": 12,
+              "partner": "Dana: We should keep in touch. What’s the best way to reach you?"
+            },
+            {
+              "prompt": "Recommend something with enthusiasm.",
+              "seconds": 15,
+              "partner": "Leo: Before you go, any good recommendations? A book, a show, anything."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "shop-help",
+      "title": "Asking a shop assistant for help",
+      "systemImage": "bag",
+      "summary": "Find what you need by asking questions and describing what you’re looking for.",
+      "focus": "Questions naturally rise at the end. Let your melody lift instead of staying flat.",
+      "levels": {
+        "easy": {
+          "setting": "A small bookshop. The assistant is at the counter.",
+          "partner": "Shop assistant",
+          "goal": "Use the suggested questions, letting each one rise at the end.",
+          "tips": [
+            "Questions should lift at the end.",
+            "Keep “thank you” bright: it’s a phrase you’ll say a lot."
+          ],
+          "turns": [
+            {
+              "prompt": "Ask for a section.",
+              "seconds": 6,
+              "partner": "Hello! Can I help you find anything?",
+              "suggestion": "Yes, please. Where can I find the cookbooks?"
+            },
+            {
+              "prompt": "Thank them and ask one more question.",
+              "seconds": 7,
+              "partner": "They’re just over there, by the window.",
+              "suggestion": "Thank you! Do you have anything on baking bread?"
+            },
+            {
+              "prompt": "Ask the price.",
+              "seconds": 5,
+              "partner": "We do. There’s a lovely one on sourdough.",
+              "suggestion": "Oh, great. How much is it?"
+            },
+            {
+              "prompt": "Decide to buy it.",
+              "seconds": 6,
+              "partner": "It’s twenty-two dollars.",
+              "suggestion": "Perfect, I’ll take it. Thanks for your help!"
+            }
+          ]
+        },
+        "medium": {
+          "setting": "A clothing store. You need a gift for a friend.",
+          "partner": "Shop assistant",
+          "goal": "Describe what you want and compare options in your own words.",
+          "tips": [
+            "Describing things uses lots of words in a row: keep the resonance bright to the end of each sentence.",
+            "Use “hmm” and “oh” in your target voice too."
+          ],
+          "turns": [
+            {
+              "prompt": "Explain that you need a gift and who it’s for.",
+              "seconds": 10,
+              "partner": "Hi there, are you looking for anything in particular?"
+            },
+            {
+              "prompt": "Describe your friend’s style.",
+              "seconds": 10,
+              "partner": "Lovely. Do you know their size or style?"
+            },
+            {
+              "prompt": "Ask a question that helps you compare.",
+              "seconds": 10,
+              "partner": "We have these scarves, or this cardigan comes in three colors."
+            },
+            {
+              "prompt": "Decide and explain why.",
+              "seconds": 10,
+              "partner": "The cardigan is wool, so hand-wash only. The scarf is machine washable."
+            },
+            {
+              "prompt": "Accept, and ask about returns in case it doesn’t fit.",
+              "seconds": 10,
+              "partner": "Would you like it gift-wrapped?"
+            }
+          ]
+        },
+        "hard": {
+          "setting": "A busy hardware store. You don’t know the name of the thing you need.",
+          "partner": "Store worker",
+          "goal": "Explain something tricky clearly, ask for advice, and check you understood.",
+          "tips": [
+            "Explaining while thinking is hard. Short phrases with a breath between them help.",
+            "Summarizing at the end is a long sentence: keep the last words as bright as the first."
+          ],
+          "turns": [
+            {
+              "prompt": "Describe a part you need without knowing its name (for example, a bracket that holds up a shelf).",
+              "seconds": 15,
+              "partner": "Yep, what do you need?"
+            },
+            {
+              "prompt": "Answer and add details (size, weight it needs to hold).",
+              "seconds": 12,
+              "partner": "Hmm, like an L-bracket? Or a shelf pin? What’s the shelf made of?"
+            },
+            {
+              "prompt": "Ask a question that helps you decide; mention what the room looks like.",
+              "seconds": 12,
+              "partner": "We’re out of the white ones. We’ve got silver or black."
+            },
+            {
+              "prompt": "Explain your situation and ask for advice.",
+              "seconds": 15,
+              "partner": "Honestly, if it’s heavy you’ll want wall anchors too. Do you have a drill?"
+            },
+            {
+              "prompt": "Summarize what you’re buying to check you understood, then thank them.",
+              "seconds": 15,
+              "partner": "Okay, aisle fourteen for the anchors, and the brackets are right here. Anything else?"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "complaint",
+      "title": "Making a complaint or returning an item",
+      "systemImage": "arrow.uturn.backward.circle",
+      "summary": "Return something or raise a problem, calmly and firmly.",
+      "focus": "Firm doesn’t mean heavy. Stay light and bright even when you push back.",
+      "levels": {
+        "easy": {
+          "setting": "A friendly store with a simple returns desk.",
+          "partner": "Returns clerk",
+          "goal": "Use the suggested lines, polite and clear.",
+          "tips": [
+            "Polite and clear is enough: no need to sound tough.",
+            "Keep your pitch up on “I’d like to…”: it often drops."
+          ],
+          "turns": [
+            {
+              "prompt": "Say you’d like to return something.",
+              "seconds": 6,
+              "partner": "Hi, how can I help?",
+              "suggestion": "Hi, I’d like to return this lamp, please."
+            },
+            {
+              "prompt": "Explain.",
+              "seconds": 6,
+              "partner": "Of course. What’s wrong with it?",
+              "suggestion": "It doesn’t turn on, even with a new bulb."
+            },
+            {
+              "prompt": "Answer.",
+              "seconds": 6,
+              "partner": "Sorry about that. Do you have the receipt?",
+              "suggestion": "Yes, here it is. I bought it last week."
+            },
+            {
+              "prompt": "Choose.",
+              "seconds": 5,
+              "partner": "Would you like a refund or an exchange?",
+              "suggestion": "A refund would be great, thank you."
+            }
+          ]
+        },
+        "medium": {
+          "setting": "A restaurant. Your meal arrives cold.",
+          "partner": "Server",
+          "goal": "Raise a problem politely in your own words and stay friendly.",
+          "tips": [
+            "Start soft (“Sorry, I think there’s a problem”), then be clear.",
+            "Friendly doesn’t need to be quiet: keep enough breath behind your words."
+          ],
+          "turns": [
+            {
+              "prompt": "Politely say there’s a problem.",
+              "seconds": 8,
+              "partner": "How is everything tasting?"
+            },
+            {
+              "prompt": "Explain the problem clearly.",
+              "seconds": 10,
+              "partner": "Oh no, I’m so sorry. What’s wrong with it?"
+            },
+            {
+              "prompt": "Choose, and ask how long it will take.",
+              "seconds": 10,
+              "partner": "I can have the kitchen heat it up, or bring you something else."
+            },
+            {
+              "prompt": "Accept or decline, staying friendly.",
+              "seconds": 8,
+              "partner": "About ten minutes. Can I get you anything while you wait?"
+            },
+            {
+              "prompt": "Thank them warmly.",
+              "seconds": 8,
+              "partner": "(Later) Here you go. And I’ve taken dessert off your bill."
+            }
+          ]
+        },
+        "hard": {
+          "setting": "An electronics store. The manager doesn’t want to give a refund.",
+          "partner": "Store manager",
+          "goal": "Push back firmly and politely without your voice getting heavy or low.",
+          "tips": [
+            "Under pressure, voices drop and thicken. Take a breath and reset before each answer.",
+            "Firmness comes from clear words and pauses, not from a lower pitch."
+          ],
+          "turns": [
+            {
+              "prompt": "Explain the problem: one side stopped working after two weeks.",
+              "seconds": 12,
+              "partner": "I understand you want to return these headphones?"
+            },
+            {
+              "prompt": "Calmly say you didn’t, and explain how you used them.",
+              "seconds": 12,
+              "partner": "Did you drop them, maybe? We don’t cover damage."
+            },
+            {
+              "prompt": "Push back politely: you reported the problem by email on day twelve.",
+              "seconds": 15,
+              "partner": "Our policy is store credit only after fourteen days. It’s been sixteen."
+            },
+            {
+              "prompt": "Say you can show it, and restate what you’d like.",
+              "seconds": 12,
+              "partner": "Hmm. Do you have that email?"
+            },
+            {
+              "prompt": "Negotiate: accept, or ask for a different model, with a reason.",
+              "seconds": 15,
+              "partner": "Fine. I can do a replacement, but not a refund."
+            },
+            {
+              "prompt": "Thank them and close the conversation graciously.",
+              "seconds": 8,
+              "partner": "Okay, I’ll process that now. Sorry for the hassle."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "friend-chat",
+      "title": "Casual chat with a friend",
+      "systemImage": "bubble.left.and.bubble.right",
+      "summary": "About two minutes of relaxed, open-ended conversation.",
+      "focus": "Relaxed talk is the real test. Notice when your voice drifts and gently bring it back.",
+      "levels": {
+        "easy": {
+          "setting": "Catching up with a close friend on the couch. Each turn has a line to get you started; keep going in your own words if you like.",
+          "partner": "Friend",
+          "goal": "Talk for about two minutes in total, starting from the suggested lines.",
+          "tips": [
+            "Relaxed doesn’t mean old voice: keep a little smile in it.",
+            "If you lose your target voice, pause, breathe, and restart the sentence."
+          ],
+          "turns": [
+            {
+              "prompt": "Tell them about your week.",
+              "seconds": 20,
+              "partner": "So, how was your week?",
+              "suggestion": "Pretty good! Work was busy, but I finally finished a big project."
+            },
+            {
+              "prompt": "Describe something fun you did.",
+              "seconds": 20,
+              "partner": "Nice! Did you do anything fun?",
+              "suggestion": "I went to the farmers market on Saturday and bought way too many peaches."
+            },
+            {
+              "prompt": "Make a plan.",
+              "seconds": 20,
+              "partner": "Ha! What are you going to do with them all?",
+              "suggestion": "I think I’ll bake a pie. Want to come over and help eat it?"
+            },
+            {
+              "prompt": "Recommend a show.",
+              "seconds": 20,
+              "partner": "Obviously yes. Seen anything good on TV lately?",
+              "suggestion": "I just started a cozy mystery series. It’s silly, but I love it."
+            },
+            {
+              "prompt": "Wrap up the chat.",
+              "seconds": 15,
+              "partner": "I’ll check it out. Anyway, I should head off soon.",
+              "suggestion": "It was so nice to catch up. Let’s do this again soon!"
+            }
+          ]
+        },
+        "medium": {
+          "setting": "A video call with a friend you haven’t seen in a while. No suggested lines.",
+          "partner": "Friend",
+          "goal": "Talk naturally for about two minutes, keeping your voice consistent.",
+          "tips": [
+            "Longer turns test consistency: check in with your resonance halfway through.",
+            "Let your melody follow your feelings: news is exciting!"
+          ],
+          "turns": [
+            {
+              "prompt": "Share a piece of news.",
+              "seconds": 25,
+              "partner": "It’s been ages! What’s new with you?"
+            },
+            {
+              "prompt": "Go into detail: what happened and how you felt.",
+              "seconds": 25,
+              "partner": "Wait, tell me more about that!"
+            },
+            {
+              "prompt": "Give your opinion with reasons.",
+              "seconds": 25,
+              "partner": "Okay, my turn. I’m thinking about getting a dog. Good idea or bad idea?"
+            },
+            {
+              "prompt": "Talk about something coming up.",
+              "seconds": 25,
+              "partner": "Fair. So what are you looking forward to this month?"
+            },
+            {
+              "prompt": "Wrap up and make a plan to talk again.",
+              "seconds": 15,
+              "partner": "Love that. Let’s not leave it so long next time."
+            }
+          ]
+        },
+        "hard": {
+          "setting": "A long chat at a café. Keep talking naturally for two minutes or more.",
+          "partner": "Friend",
+          "goal": "Open-ended conversation: stories, opinions and jokes, all in your target voice.",
+          "tips": [
+            "Stories and opinions bring out your natural habits. That’s exactly what you’re practicing.",
+            "Laughing counts: keep laughs light and high."
+          ],
+          "turns": [
+            {
+              "prompt": "Tell the story with details.",
+              "seconds": 35,
+              "partner": "Tell me about the best trip you’ve ever taken."
+            },
+            {
+              "prompt": "Explain your dream destination.",
+              "seconds": 30,
+              "partner": "That sounds amazing. If you could go anywhere next, where would it be?"
+            },
+            {
+              "prompt": "Argue your side, with humor and a lively melody.",
+              "seconds": 20,
+              "partner": "Okay, controversial question: pineapple on pizza?"
+            },
+            {
+              "prompt": "Reflect thoughtfully.",
+              "seconds": 30,
+              "partner": "Ha! Totally unrelated, but what’s something you’ve changed your mind about recently?"
+            },
+            {
+              "prompt": "Wrap up and make plans.",
+              "seconds": 20,
+              "partner": "Mm, that makes sense. Anyway, what are you up to this weekend?"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "story-reading",
+      "title": "Reading a story aloud with expression",
+      "systemImage": "book",
+      "summary": "Read an original story aloud, bringing the characters and moods to life.",
+      "focus": "Expression lives in intonation. Let pitch rise and fall with the story instead of reading on one note.",
+      "levels": {
+        "easy": {
+          "setting": "A bedtime story for a child. Short, simple sentences.",
+          "partner": "Listener",
+          "goal": "Read each part with the mood shown.",
+          "tips": [
+            "Exaggerate the melody a little: storytelling can be bigger than everyday talk.",
+            "Breathe at the full stops."
+          ],
+          "turns": [
+            {
+              "prompt": "Read the first part warmly.",
+              "seconds": 15,
+              "suggestion": "Once upon a time, a little fox named Pip lived at the edge of a sunny meadow. Every morning, Pip said hello to the bees and the birds.",
+              "cue": "Warm"
+            },
+            {
+              "prompt": "Read with curiosity.",
+              "seconds": 15,
+              "suggestion": "One day, Pip found a shiny blue stone by the river. “What could this be?” Pip wondered, turning it over and over.",
+              "cue": "Curious"
+            },
+            {
+              "prompt": "Make it exciting!",
+              "seconds": 15,
+              "suggestion": "Suddenly, the stone began to glow! The bees buzzed, the birds sang, and the whole meadow sparkled with light.",
+              "cue": "Excited"
+            },
+            {
+              "prompt": "End softly, like a lullaby.",
+              "seconds": 15,
+              "suggestion": "Pip smiled, curled up under the old oak tree, and fell fast asleep, dreaming of glowing stones and starry skies.",
+              "cue": "Soft"
+            }
+          ]
+        },
+        "medium": {
+          "setting": "Reading to a class. The story has a narrator and two characters.",
+          "partner": "Listener",
+          "goal": "Give each character a different mood while keeping your own target voice.",
+          "tips": [
+            "Characters can differ in speed and melody without leaving your target range.",
+            "Quoted speech often sounds better slightly higher and livelier."
+          ],
+          "turns": [
+            {
+              "prompt": "Narrator: set the scene.",
+              "seconds": 15,
+              "suggestion": "The lighthouse keeper, Mrs. Odell, had not had a visitor in eleven years. So when the knock came, she nearly dropped her teacup.",
+              "cue": "Narrator"
+            },
+            {
+              "prompt": "Mrs. Odell: surprised and a little suspicious.",
+              "seconds": 12,
+              "suggestion": "“Who’s there?” she called. “It’s nearly midnight, and the storm is coming in!”",
+              "cue": "Suspicious"
+            },
+            {
+              "prompt": "The visitor: young, out of breath, relieved.",
+              "seconds": 14,
+              "suggestion": "“Please, ma’am! My boat came loose and I saw your light. You’re the only reason I made it to shore!”",
+              "cue": "Breathless"
+            },
+            {
+              "prompt": "Mrs. Odell: softening, kind.",
+              "seconds": 12,
+              "suggestion": "She opened the door wide. “Well then, you’d better come in and dry off. I’ll put the kettle on.”",
+              "cue": "Kind"
+            },
+            {
+              "prompt": "Narrator: a warm ending.",
+              "seconds": 14,
+              "suggestion": "And that was how the lighthouse got its first guest in eleven years, and Mrs. Odell got a friend.",
+              "cue": "Warm"
+            }
+          ]
+        },
+        "hard": {
+          "setting": "A longer passage with changing moods. Change your expression with each part without losing your target voice.",
+          "partner": "Listener",
+          "goal": "Big mood changes, longer passages, steady voice.",
+          "tips": [
+            "Mystery and tension pull voices down and dark. Keep them hushed but bright.",
+            "Laughter and delight are great moments to let your melody soar."
+          ],
+          "turns": [
+            {
+              "prompt": "Mysterious and slow.",
+              "seconds": 20,
+              "suggestion": "Nobody in the village of Harrow ever went into the Whispering Woods after dark. The trees there were older than the oldest stories, and on still nights, people swore they could hear them talking.",
+              "cue": "Mysterious"
+            },
+            {
+              "prompt": "Brave and determined.",
+              "seconds": 15,
+              "suggestion": "But Elena was tired of stories. “If the trees can talk,” she said, lacing up her boots, “then tonight, I’m going to listen.”",
+              "cue": "Determined"
+            },
+            {
+              "prompt": "Nervous and quiet, building tension.",
+              "seconds": 18,
+              "suggestion": "The path grew narrow. An owl hooted. Something rustled behind her, and Elena froze, her heart pounding so loudly she was sure the whole forest could hear it.",
+              "cue": "Tense"
+            },
+            {
+              "prompt": "Surprised, then delighted.",
+              "seconds": 20,
+              "suggestion": "Then a voice, soft as falling leaves, said, “Hello, Elena. We’ve been waiting for someone curious enough to visit.” Elena laughed out loud. The trees weren’t scary at all. They were lonely!",
+              "cue": "Delighted"
+            },
+            {
+              "prompt": "A warm, thoughtful ending.",
+              "seconds": 16,
+              "suggestion": "From then on, Elena visited every Sunday, and she told the village the trees’ stories, which were far better than anything they had imagined.",
+              "cue": "Warm"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "presentation",
+      "title": "Giving a 1–2 minute presentation",
+      "systemImage": "megaphone",
+      "summary": "Present a short talk to a group: from a full script up to an improvised talk with questions.",
+      "focus": "Speaking to a room tempts you to push lower and heavier. Get louder with breath, not weight.",
+      "levels": {
+        "easy": {
+          "setting": "A friendly group, about one minute, with a full script.",
+          "partner": "Audience",
+          "goal": "Read the script to the room: clear, warm and projected.",
+          "tips": [
+            "Imagine your voice reaching the back wall on a stream of air.",
+            "Pause between points; pauses sound confident."
+          ],
+          "turns": [
+            {
+              "prompt": "Open and introduce your topic.",
+              "seconds": 15,
+              "partner": "(The room goes quiet. It’s your turn.)",
+              "suggestion": "Good morning, everyone! Today I’d like to tell you about my favorite hobby: growing herbs on a tiny balcony.",
+              "cue": "Projected"
+            },
+            {
+              "prompt": "First point.",
+              "seconds": 15,
+              "suggestion": "First, you don’t need much space. A few pots on a sunny ledge can grow basil, mint and parsley all summer long."
+            },
+            {
+              "prompt": "Second point.",
+              "seconds": 15,
+              "suggestion": "Second, it saves money. One basil plant costs about the same as a single packet of fresh basil, and it keeps on giving."
+            },
+            {
+              "prompt": "Close and thank them.",
+              "seconds": 15,
+              "suggestion": "So if you’ve ever wanted to try gardening, start small and start with herbs. Thank you so much for listening!"
+            }
+          ]
+        },
+        "medium": {
+          "setting": "A team meeting, about a minute and a half, from an outline.",
+          "partner": "Team",
+          "goal": "Speak from bullet points and answer a question.",
+          "tips": [
+            "Signpost (“First… Next… Finally…”) and lift your melody on each signpost.",
+            "Answering questions on the spot is where voices slip. Breathe first."
+          ],
+          "turns": [
+            {
+              "prompt": "Open: greet the team and say what you’ll cover (a project update).",
+              "seconds": 15,
+              "partner": "(Your team meeting. Everyone’s looking at you.)",
+              "cue": "Projected"
+            },
+            {
+              "prompt": "What went well this month: give two examples.",
+              "seconds": 20
+            },
+            {
+              "prompt": "One challenge, and how you’re handling it.",
+              "seconds": 20
+            },
+            {
+              "prompt": "What happens next, with a date.",
+              "seconds": 15
+            },
+            {
+              "prompt": "Answer the question honestly and positively.",
+              "seconds": 20,
+              "partner": "Thanks! Any questions? Yes, Sam? “How confident are you about that date?”"
+            }
+          ]
+        },
+        "hard": {
+          "setting": "A community meeting. Two minutes on a topic you care about, then a tough question.",
+          "partner": "Audience",
+          "goal": "Improvise a persuasive two-minute talk and handle a challenging question.",
+          "tips": [
+            "Persuading makes voices push. Let conviction show in your melody, not in weight.",
+            "For the tough question: pause, thank them, then answer."
+          ],
+          "turns": [
+            {
+              "prompt": "Open with a hook: a question, a surprising fact or a short story.",
+              "seconds": 20,
+              "partner": "(A community meeting. You’ve been asked to speak about something you care about.)",
+              "cue": "Projected"
+            },
+            {
+              "prompt": "Make your main argument, with an example.",
+              "seconds": 30
+            },
+            {
+              "prompt": "Address an objection people might have.",
+              "seconds": 25
+            },
+            {
+              "prompt": "Close with a clear call to action.",
+              "seconds": 20
+            },
+            {
+              "prompt": "Answer the tough question calmly, then thank everyone.",
+              "seconds": 25,
+              "partner": "(Someone in the audience raises a hand.) “I like the idea, but who’s going to pay for it?”"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "emotional-reactions",
+      "title": "Emotional reactions",
+      "systemImage": "face.smiling",
+      "summary": "React with excitement, surprise, annoyance and laughter: big feelings, same voice.",
+      "focus": "Strong emotions are where voices slip. Laughing, groaning and gasping should all stay in your new voice.",
+      "levels": {
+        "easy": {
+          "setting": "A friend shares news, one piece at a time. Say the reaction shown.",
+          "partner": "Friend",
+          "goal": "Say each suggested reaction with the emotion shown.",
+          "tips": [
+            "Gasps and laughs are made with the same light, bright setup as your speech.",
+            "It’s okay to exaggerate: this is practice."
+          ],
+          "turns": [
+            {
+              "prompt": "React with excitement.",
+              "seconds": 6,
+              "partner": "Guess what? I got the job!",
+              "suggestion": "No way! That’s amazing! I’m so happy for you!",
+              "cue": "Excited"
+            },
+            {
+              "prompt": "React with surprise.",
+              "seconds": 6,
+              "partner": "And they want me to start on Monday.",
+              "suggestion": "Wait, this Monday? Wow, that’s so soon!",
+              "cue": "Surprised"
+            },
+            {
+              "prompt": "Sympathetic, and a little amused.",
+              "seconds": 6,
+              "partner": "Also, I spilled coffee all over my new shirt this morning.",
+              "suggestion": "Oh no! Of course you did. That’s such a you thing to do!",
+              "cue": "Amused"
+            },
+            {
+              "prompt": "Laugh, then react.",
+              "seconds": 6,
+              "partner": "And then I tripped over the cat on the way out.",
+              "suggestion": "Ha ha ha! Is the cat okay? Are you okay?",
+              "cue": "Laughing"
+            },
+            {
+              "prompt": "Annoyed on their behalf.",
+              "seconds": 6,
+              "partner": "Ugh, and the bus was late too.",
+              "suggestion": "Seriously? Ugh, that bus is never on time!",
+              "cue": "Annoyed"
+            }
+          ]
+        },
+        "medium": {
+          "setting": "A group chat, read aloud by a friend. React in your own words with the emotion shown.",
+          "partner": "Friends",
+          "goal": "Find your own words for each emotion.",
+          "tips": [
+            "Disappointment pulls the voice down; keep it soft but not low.",
+            "Mock outrage is a great chance for big, bright melody."
+          ],
+          "turns": [
+            {
+              "prompt": "React with excitement and say yes.",
+              "seconds": 8,
+              "partner": "We’re all going to the beach on Saturday! You in?",
+              "cue": "Excited"
+            },
+            {
+              "prompt": "React with disappointment, then suggest something else.",
+              "seconds": 10,
+              "partner": "Bad news: it’s going to rain all weekend.",
+              "cue": "Disappointed"
+            },
+            {
+              "prompt": "React with surprise and delight.",
+              "seconds": 8,
+              "partner": "Jamie just said they found tickets to the concert instead!",
+              "cue": "Surprised"
+            },
+            {
+              "prompt": "React with mock outrage, then laugh about it.",
+              "seconds": 10,
+              "partner": "…but the tickets are front row and cost a fortune.",
+              "cue": "Outraged, then laughing"
+            },
+            {
+              "prompt": "React with disbelief and gratitude.",
+              "seconds": 10,
+              "partner": "Okay, okay. Jamie says they’re a birthday present. For you.",
+              "cue": "Touched"
+            }
+          ]
+        },
+        "hard": {
+          "setting": "Quick mood changes. Each line flips the mood; react naturally and quickly, with no script.",
+          "partner": "Friend",
+          "goal": "Switch emotions fast while your voice stays consistent.",
+          "tips": [
+            "Fast switches are the hardest test of consistency. Reset your resonance between turns.",
+            "Panic and shock make the throat tight. Keep breathing."
+          ],
+          "turns": [
+            {
+              "prompt": "Big excitement.",
+              "seconds": 8,
+              "partner": "I have the best news. I’m engaged!",
+              "cue": "Excited"
+            },
+            {
+              "prompt": "Shocked, but supportive.",
+              "seconds": 10,
+              "partner": "…to someone I met three weeks ago.",
+              "cue": "Shocked"
+            },
+            {
+              "prompt": "Laugh, then panic a little.",
+              "seconds": 12,
+              "partner": "And the wedding is next month. In Iceland. And you’re leading the ceremony!",
+              "cue": "Laughing, then panicking"
+            },
+            {
+              "prompt": "Indignant.",
+              "seconds": 10,
+              "partner": "Also, my brother says you can’t do it because you’ll cry through the whole thing.",
+              "cue": "Indignant"
+            },
+            {
+              "prompt": "Touched and sincere.",
+              "seconds": 12,
+              "partner": "Honestly? I’d love it if you cried. It would mean a lot.",
+              "cue": "Gentle"
+            },
+            {
+              "prompt": "Answer with a joyful yes and a big, happy laugh.",
+              "seconds": 8,
+              "partner": "So… yes?",
+              "cue": "Joyful"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "calling-across",
+      "title": "Calling someone across a room",
+      "systemImage": "speaker.wave.3",
+      "summary": "Get someone’s attention over distance and noise without your voice dropping or getting heavy.",
+      "focus": "Louder voices tend to drop and thicken. Use breath and a bright, forward sound: think “call”, not “shout”.",
+      "levels": {
+        "easy": {
+          "setting": "Your friend is at the other end of a quiet park.",
+          "partner": "Friend (far away)",
+          "goal": "Call out with the suggested lines, then switch back to a normal voice.",
+          "tips": [
+            "Calling is like a sustained, bright “hey!”: higher, not heavier.",
+            "Never push to the point of strain. Stop if your throat tickles or hurts."
+          ],
+          "turns": [
+            {
+              "prompt": "Call their name.",
+              "seconds": 4,
+              "suggestion": "Hey, Jamie! Over here!",
+              "cue": "Call out"
+            },
+            {
+              "prompt": "Call again, a little louder and higher.",
+              "seconds": 5,
+              "partner": "(They wave, but they can’t hear you.)",
+              "suggestion": "Jamie! Over here, by the big tree!",
+              "cue": "Louder, still light"
+            },
+            {
+              "prompt": "Normal voice again.",
+              "seconds": 5,
+              "partner": "(They walk closer.) What did you say?",
+              "suggestion": "I said, I saved us a spot in the shade!"
+            },
+            {
+              "prompt": "Answer in a normal voice.",
+              "seconds": 5,
+              "partner": "Oh, nice! Did you bring the snacks?",
+              "suggestion": "Yes, and I brought lemonade too."
+            }
+          ]
+        },
+        "medium": {
+          "setting": "A house party. You need your friend’s attention in the kitchen.",
+          "partner": "Friend (across the room)",
+          "goal": "Call over music in your own words, then talk normally up close.",
+          "tips": [
+            "Switching between calling and close talk is the skill here.",
+            "Use more air, not more weight."
+          ],
+          "turns": [
+            {
+              "prompt": "Call your friend’s name over the music.",
+              "seconds": 5,
+              "cue": "Call out"
+            },
+            {
+              "prompt": "Call again and say where you are.",
+              "seconds": 6,
+              "partner": "(They look around but don’t see you.)",
+              "cue": "Louder, still bright"
+            },
+            {
+              "prompt": "Ask them to bring you something from the kitchen, still across the room.",
+              "seconds": 8,
+              "partner": "Oh, hey! What’s up?",
+              "cue": "Projected"
+            },
+            {
+              "prompt": "Thank them in a normal, close voice.",
+              "seconds": 6,
+              "partner": "(They come over.) Here you go!"
+            },
+            {
+              "prompt": "Explain, in normal conversation.",
+              "seconds": 10,
+              "partner": "Who’s that you were talking to?"
+            }
+          ]
+        },
+        "hard": {
+          "setting": "A busy train station. You spot a friend on the other platform.",
+          "partner": "Friend (far away)",
+          "goal": "Project clearly through noise and announcements without your pitch sinking.",
+          "tips": [
+            "When you have to repeat yourself, the voice tends to get lower and pushier each time. Go brighter instead.",
+            "Short words carry better than long sentences."
+          ],
+          "turns": [
+            {
+              "prompt": "Call out to get your friend’s attention.",
+              "seconds": 5,
+              "cue": "Call out"
+            },
+            {
+              "prompt": "Tell them their train is delayed. Keep it short and projected.",
+              "seconds": 8,
+              "partner": "(They take out their earbuds.) What?!",
+              "cue": "Projected"
+            },
+            {
+              "prompt": "Answer with a number and directions.",
+              "seconds": 8,
+              "partner": "Which platform?!",
+              "cue": "Projected"
+            },
+            {
+              "prompt": "Repeat yourself even more clearly, without pushing your voice down.",
+              "seconds": 8,
+              "partner": "(An announcement drowns you out.)",
+              "cue": "Louder, still light"
+            },
+            {
+              "prompt": "Switch back to a normal conversation voice.",
+              "seconds": 12,
+              "partner": "(They come over to your side.) Phew, okay, thanks! Where are you headed?"
+            },
+            {
+              "prompt": "Make a plan, then say goodbye.",
+              "seconds": 10,
+              "partner": "Oh, nice, have fun! Let’s grab dinner next week."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tired-voice",
+      "title": "End-of-day tired voice",
+      "systemImage": "moon.zzz",
+      "summary": "Practice when you’re tired: keep it light and easy instead of slipping into old habits.",
+      "focus": "Tired voices slip. Short, easy practice is better than pushing. Stop if anything feels strained.",
+      "levels": {
+        "easy": {
+          "setting": "Late evening. A housemate asks about your day.",
+          "partner": "Housemate",
+          "goal": "A few short, easy lines. Light and relaxed.",
+          "tips": [
+            "Keep it short and gentle. Quality over quantity tonight.",
+            "If your voice feels scratchy, stop and rest. That’s the right call."
+          ],
+          "turns": [
+            {
+              "prompt": "Answer, keeping it light.",
+              "seconds": 6,
+              "partner": "Hey, you look tired. Long day?",
+              "suggestion": "Yeah, a really long one, but I’m okay."
+            },
+            {
+              "prompt": "Accept.",
+              "seconds": 5,
+              "partner": "Want some tea?",
+              "suggestion": "Oh, that would be lovely, thank you."
+            },
+            {
+              "prompt": "Answer briefly.",
+              "seconds": 6,
+              "partner": "What are you up to tomorrow?",
+              "suggestion": "Just work, and then an early night, I think."
+            },
+            {
+              "prompt": "Say goodnight.",
+              "seconds": 4,
+              "partner": "Good plan. Night!",
+              "suggestion": "Goodnight, sleep well!"
+            }
+          ]
+        },
+        "medium": {
+          "setting": "Calling a family member before bed.",
+          "partner": "Family member",
+          "goal": "A relaxed conversation in your own words, staying light even when tired.",
+          "tips": [
+            "Tiredness makes the voice heavier. A slightly breathier, softer voice is fine.",
+            "Sip some water before you start."
+          ],
+          "turns": [
+            {
+              "prompt": "Talk about your day.",
+              "seconds": 15,
+              "partner": "Hi, sweetheart. How was today?"
+            },
+            {
+              "prompt": "Answer with a little humor.",
+              "seconds": 10,
+              "partner": "Did you eat something proper?"
+            },
+            {
+              "prompt": "Tell them how it’s going (it’s okay to be honest).",
+              "seconds": 15,
+              "partner": "And how’s your voice practice going?"
+            },
+            {
+              "prompt": "Thank them and say goodnight.",
+              "seconds": 8,
+              "partner": "I’m proud of you. Get some rest, okay?"
+            }
+          ]
+        },
+        "hard": {
+          "setting": "After a long, social day. Tell a story while tired, and keep your voice from sinking.",
+          "partner": "Partner or friend",
+          "goal": "Longer, tired storytelling with a consistent voice. Stop if anything strains.",
+          "tips": [
+            "Long tired turns are the hardest test. Check in with your throat: no pushing.",
+            "It’s fine to end early. Rest is part of training."
+          ],
+          "turns": [
+            {
+              "prompt": "Tell the story of your day in detail.",
+              "seconds": 30,
+              "partner": "You’re home late! What happened?"
+            },
+            {
+              "prompt": "Keep the story going.",
+              "seconds": 25,
+              "partner": "Wait, and then what?"
+            },
+            {
+              "prompt": "Decide, and say how you’re feeling.",
+              "seconds": 15,
+              "partner": "You sound exhausted. Do you want to talk about it tomorrow instead?"
+            },
+            {
+              "prompt": "Ask for something kind, and say goodnight.",
+              "seconds": 12,
+              "partner": "Okay. Anything I can do?"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
