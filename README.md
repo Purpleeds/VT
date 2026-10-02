@@ -334,7 +334,7 @@ The app expects `VocalSeparator` with input `magnitude` (1, 2, 2049, frames) and
 2. Choose **Convert separation model**, then **Run workflow**. Keep `umxhq` and `float16`.
 3. When the run finishes (about 5–10 minutes), download the **VocalSeparator** artifact from its summary page and unzip it. You get `VocalSeparator.mlpackage`, which is a folder.
 4. Put that folder in the repo's `Models/` folder (`Models/VocalSeparator.mlpackage`), then commit and push it (about 17 MB).
-5. The normal **Build iPhone app** workflow now compiles the model and bundles it. Install the new `.ipa`.
+5. The normal **Build iPhone app** workflow now compiles the model and copies it into the app. Install the new `.ipa`.
 
 **Option B: run the script yourself** (macOS or Linux; on Windows use WSL or Google Colab)
 ```

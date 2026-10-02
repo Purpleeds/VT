@@ -35,12 +35,6 @@ jobs:
 
       - name: Generate the Xcode project
         run: |
-          # Compile the High Quality splitter model if it's in the repo.
-          for model in VocalSeparator VocalSeparatorBest; do
-            if [ -d "Models/$model.mlpackage" ]; then
-              xcrun coremlcompiler compile "Models/$model.mlpackage" Models/
-            fi
-          done
           brew install xcodegen
           xcodegen generate
 
@@ -67,6 +61,14 @@ jobs:
         run: |
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/VoiceBloom.app Payload/
+          # The High Quality splitter model (optional): compiled and copied
+          # into the unsigned app; Sideloadly signs it along with the rest.
+          for model in VocalSeparator VocalSeparatorBest; do
+            if [ -d "Models/$model.mlpackage" ]; then
+              xcrun coremlcompiler compile "Models/$model.mlpackage" Payload/VoiceBloom.app/
+              echo "Bundled $model"
+            fi
+          done
           zip -qry VoiceBloom.ipa Payload
 
       - uses: actions/upload-artifact@v4
@@ -95,12 +97,6 @@ jobs:
 
       - name: Generate the Xcode project
         run: |
-          # Compile the High Quality splitter model if it's in the repo.
-          for model in VocalSeparator VocalSeparatorBest; do
-            if [ -d "Models/$model.mlpackage" ]; then
-              xcrun coremlcompiler compile "Models/$model.mlpackage" Models/
-            fi
-          done
           brew install xcodegen
           xcodegen generate
 
