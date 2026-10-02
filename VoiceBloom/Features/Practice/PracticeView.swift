@@ -173,7 +173,7 @@ struct PracticeView: View {
                         }
                         Divider()
                         Button("Finish Session", systemImage: "checkmark.circle") {
-                            Task { await sessionController.finishSession() }
+                            Task { _ = await sessionController.finishSession() }
                         }
                         .disabled(!sessionController.hasSessionInProgress)
                         Button("Discard Session", systemImage: "trash", role: .destructive) {
@@ -445,7 +445,7 @@ private struct PracticeControls: View {
             .accessibilityLabel("Save the last 30 seconds as a recording")
 
             Button {
-                Task { await sessionController.finishSession() }
+                Task { _ = await sessionController.finishSession() }
             } label: {
                 Label("Finish", systemImage: "checkmark.circle")
             }
