@@ -49,7 +49,7 @@ final class AppLock {
     /// Asks for Face ID (falling back to the passcode).
     /// - Returns: True when the user authenticated.
     @discardableResult
-    func authenticate(reason: String = "Unlock VoiceBloom") async -> Bool {
+    func authenticate(reason: String = "Unlock Chirp") async -> Bool {
         guard !isAuthenticating else { return false }
         isAuthenticating = true
         defer { isAuthenticating = false }

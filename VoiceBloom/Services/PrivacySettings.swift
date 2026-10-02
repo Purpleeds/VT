@@ -91,7 +91,7 @@ nonisolated enum AppIconChoice: String, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .standard: "VoiceBloom"
+        case .standard: "Chirp"
         case .neutral: "Neutral (grey list)"
         }
     }

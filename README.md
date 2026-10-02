@@ -1,4 +1,6 @@
-# VoiceBloom
+# Chirp
+
+The app shows as **Chirp** on the Home Screen (light sky blue icon). The code, project and bundle ID still use the original working name VoiceBloom, so existing data and the App Group keep working.
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
@@ -120,7 +122,7 @@ The GitHub build already includes all of this (it comes from `project.yml`). If 
 4. **Match the settings:** select the **VoiceBloomWidget** target ▸ **General**: Minimum Deployments **iOS 26.0**. **Build Settings**: Swift Language Version **Swift 6**, Default Actor Isolation **MainActor**, Approachable Concurrency **Yes**.
 5. **Add the App Group to the app:** select the **VoiceBloom** target ▸ **Signing & Capabilities** ▸ **+ Capability** ▸ **App Groups**, click **+**, enter `group.com.williamzhao.voicebloom`, and make sure it's ticked.
 6. **Add the same App Group to the widget:** select the **VoiceBloomWidget** target ▸ **Signing & Capabilities** ▸ choose the same Team ▸ **+ Capability** ▸ **App Groups** ▸ tick `group.com.williamzhao.voicebloom`.
-7. **Siri shortcuts** need no setup: they're declared in `VoiceBloom/App/AppShortcuts.swift`. After installing, say "Start voice practice in VoiceBloom" or "Do a Quick Check in VoiceBloom", or find them in the Shortcuts app.
+7. **Siri shortcuts** need no setup: they're declared in `VoiceBloom/App/AppShortcuts.swift`. After installing, say "Start voice practice in Chirp" or "Do a Quick Check in Chirp", or find them in the Shortcuts app.
 8. Build and run the **VoiceBloom** scheme, then long-press the Home Screen ▸ **Edit ▸ Add Widget** ▸ VoiceBloom.
 
 If the App Group is missing (for example with some sideloading tools), the widgets show "Open the app to start" instead of your numbers; everything else still works.
@@ -166,7 +168,7 @@ Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition e
 - **Balloon game** (More ▸ Tools): hum or speak to steer a balloon through gaps; the green band is your target range, and bright resonance while passing a gap scores a bonus star. Haptics mark passes and misses; Reduce Motion slows it down. Scores are kept.
 - **Reminders** (Settings): the daily reminder plus an optional evening nudge at 7 pm only if you haven't practiced. Wording is neutral ("Time for practice").
 - **Widgets:** Home Screen (small: streak and minutes; medium: plus today's challenge and a **Start** button) and Lock Screen (minutes ring, streak and minutes, inline). The app updates them whenever you practice.
-- **Siri and Shortcuts:** "Start voice practice in VoiceBloom" opens Practice and starts listening; "Do a Quick Check in VoiceBloom" opens Quick Check.
+- **Siri and Shortcuts:** "Start voice practice in Chirp" opens Practice and starts listening; "Do a Quick Check in Chirp" opens Quick Check.
 - **Xcode:** the widget target and App Group are in `project.yml` for the GitHub build; for a hand-made Xcode project follow [step 7](#7-widgets-app-group-and-siri-shortcuts-stage-12).
 
 **Stage 11** (AI Coach; **More ▸ Settings ▸ AI Coach** to turn it off or pick the coach):

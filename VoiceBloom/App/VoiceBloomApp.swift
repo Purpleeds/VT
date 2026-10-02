@@ -17,7 +17,7 @@ struct VoiceBloomApp: App {
         let player = RecordingPlayer()
         let database = VoiceBloomDatabase.open()
         let warning: String? = database?.isTemporary == true
-            ? "Your saved history couldn’t be opened, so this session won’t be kept after you quit. Restart VoiceBloom to try again."
+            ? "Your saved history couldn’t be opened, so this session won’t be kept after you quit. Restart Chirp to try again."
             : nil
         let controller = database.map { result in
             PracticeSessionController(
@@ -77,7 +77,7 @@ struct VoiceBloomApp: App {
 private struct DataUnavailableView: View {
     var body: some View {
         ContentUnavailableView(
-            "VoiceBloom couldn’t start",
+            "Chirp couldn’t start",
             systemImage: "externaldrive.badge.exclamationmark",
             description: Text("Your practice data couldn’t be opened. Please quit and reopen the app. If this keeps happening, free up some storage on your iPhone and try again.")
         )

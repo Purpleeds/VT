@@ -228,7 +228,7 @@ final class MicCalibrationModel {
     private static func message(forUnavailable status: MonitorStatus) -> String {
         switch status {
         case .permissionDenied:
-            "Microphone access is off. Turn on Microphone for VoiceBloom in Settings, then try again."
+            "Microphone access is off. Turn on Microphone for Chirp in Settings, then try again."
         case .failed(let message):
             message
         case .idle, .starting, .running, .paused:

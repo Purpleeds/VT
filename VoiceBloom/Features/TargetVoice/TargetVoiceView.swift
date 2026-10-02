@@ -99,7 +99,7 @@ struct TargetVoiceView: View {
                 .accessibilityHidden(true)
             Text("Find a voice you’d like to grow toward")
                 .font(.title3.weight(.semibold))
-            Text("Import 10–60 seconds of one person talking (an interview, a vlog, a voice memo from a friend who agreed). VoiceBloom measures its pitch, resonance, weight and melody on this iPhone, and can set your targets from it.")
+            Text("Import 10–60 seconds of one person talking (an interview, a vlog, a voice memo from a friend who agreed). Chirp measures its pitch, resonance, weight and melody on this iPhone, and can set your targets from it.")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }

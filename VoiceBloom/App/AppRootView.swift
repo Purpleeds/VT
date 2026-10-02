@@ -72,7 +72,7 @@ private struct LockScreenView: View {
                     .imageScale(.large)
                     .foregroundStyle(.tint)
                     .accessibilityHidden(true)
-                Text("VoiceBloom is locked")
+                Text("Chirp is locked")
                     .font(.title2.weight(.semibold))
                 Button {
                     Task { await appLock.authenticate() }

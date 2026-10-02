@@ -9,7 +9,7 @@ What CI can't check is sound, microphones, haptics, notifications, widgets, Face
 Tip: **More ▸ Debug & Tuning** shows raw pitch, formants, the noise floor and processing time, and can generate sample history for the Progress tab.
 
 ## 1. Install and first launch
-- [ ] The app installs and opens (sideloaded `.ipa` or Xcode).
+- [ ] The app installs and opens (sideloaded `.ipa` or Xcode), named **Chirp** with a plain light sky blue icon.
 - [ ] Onboarding runs through all 9 steps.
 - [ ] Each permission prompt appears once, with readable text: microphone, speech recognition, Face ID, notifications.
 - [ ] Placement test: the tones play, matching works, and it suggests a sensible starting week.
@@ -93,7 +93,7 @@ Tip: **More ▸ Debug & Tuning** shows raw pitch, formants, the noise floor and 
   - [ ] The medium widget's Start button opens Practice and starts listening.
   - [ ] Both look right in dark mode.
   - [ ] If they only say "Open the app to start", the App Group didn't survive sideloading (see README step 7).
-- [ ] **Siri:** "Start voice practice in VoiceBloom" and "Do a Quick Check in VoiceBloom" work, and both appear in the Shortcuts app.
+- [ ] **Siri:** "Start voice practice in Chirp" and "Do a Quick Check in Chirp" work, and both appear in the Shortcuts app.
 
 ## 10. Privacy and data
 - [ ] **Face ID lock:** it locks on launch and when returning from the background; the passcode fallback works.

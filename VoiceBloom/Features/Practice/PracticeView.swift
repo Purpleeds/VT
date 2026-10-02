@@ -544,7 +544,7 @@ private struct MicrophoneAccessCard: View {
     var body: some View {
         NoticeBanner(
             title: "Microphone access is off",
-            message: "VoiceBloom needs the microphone to hear your voice. Your voice is analyzed on this iPhone and never leaves it. Turn on Microphone for VoiceBloom in Settings.",
+            message: "Chirp needs the microphone to hear your voice. Your voice is analyzed on this iPhone and never leaves it. Turn on Microphone for Chirp in Settings.",
             systemImage: "mic.slash.fill"
         )
     }

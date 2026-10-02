@@ -136,7 +136,7 @@ private struct OnboardingWelcomeStep: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
                 .accessibilityHidden(true)
-            Text("Welcome to VoiceBloom")
+            Text("Welcome to Chirp")
                 .font(.largeTitle.weight(.bold))
             Text("Voice training is like learning an instrument: small, regular practice changes four things your ear hears as feminine or masculine.")
                 .foregroundStyle(.secondary)
@@ -210,10 +210,10 @@ private struct OnboardingHealthStep: View {
             Text("Training should never hurt")
                 .font(.title.weight(.bold))
             bullet("Stop right away if you feel pain, tightness, burning or hoarseness.")
-            bullet("Short sessions, several times a day, are better than one long one. VoiceBloom suggests a soft limit of 45 minutes a day.")
+            bullet("Short sessions, several times a day, are better than one long one. Chirp suggests a soft limit of 45 minutes a day.")
             bullet("Drink water, and rest your voice when it feels tired.")
             bullet("If problems last more than a couple of weeks, see a doctor or a speech-language pathologist (SLP).")
-            Text("VoiceBloom’s strain and comfort readings are rough indicators from a phone microphone, not a medical diagnosis.")
+            Text("Chirp’s strain and comfort readings are rough indicators from a phone microphone, not a medical diagnosis.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -245,7 +245,7 @@ private struct OnboardingPermissionsStep: View {
         VStack(alignment: .leading, spacing: 18) {
             Text("Microphone and speech")
                 .font(.title.weight(.bold))
-            Text("VoiceBloom needs the microphone to hear your voice. Speech recognition is optional: it shows a live transcript while you read.")
+            Text("Chirp needs the microphone to hear your voice. Speech recognition is optional: it shows a live transcript while you read.")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -344,7 +344,7 @@ private struct OnboardingCalibrationStep: View {
         VStack(alignment: .leading, spacing: 18) {
             Text("Calibrate your microphone")
                 .font(.title.weight(.bold))
-            Text("Fifteen seconds: stay quiet for 5 seconds so VoiceBloom can measure your room, then say “aah” to set your input level. It makes every meter more accurate, and warns you if the room is too noisy.")
+            Text("Fifteen seconds: stay quiet for 5 seconds so Chirp can measure your room, then say “aah” to set your input level. It makes every meter more accurate, and warns you if the room is too noisy.")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -563,7 +563,7 @@ private struct OnboardingDailyGoalStep: View {
                     .foregroundStyle(.secondary)
             }
             if notificationsDenied {
-                Label("Notifications are off for VoiceBloom. You can turn them on in the Settings app.", systemImage: "bell.slash")
+                Label("Notifications are off for Chirp. You can turn them on in the Settings app.", systemImage: "bell.slash")
                     .font(.footnote)
                     .foregroundStyle(Theme.warning)
             }
@@ -612,7 +612,7 @@ private struct OnboardingExtrasStep: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Lock with \(AppLock.methodName)")
                         .font(.headline)
-                    Text("Ask for \(AppLock.methodName) when opening VoiceBloom, so your practice stays private.")
+                    Text("Ask for \(AppLock.methodName) when opening Chirp, so your practice stays private.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -657,7 +657,7 @@ private struct OnboardingExtrasStep: View {
             lockOn = false
             return
         }
-        if await appLock.authenticate(reason: "Turn on the VoiceBloom lock") {
+        if await appLock.authenticate(reason: "Turn on the Chirp lock") {
             profile.faceIDLockEnabled = true
         } else {
             lockOn = false

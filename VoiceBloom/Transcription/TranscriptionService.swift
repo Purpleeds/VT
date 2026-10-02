@@ -26,7 +26,7 @@ final class TranscriptionService {
     @ObservationIgnored private var eventTask: Task<Void, Never>?
 
     private static let enabledKey = "liveTranscriptEnabled"
-    static let permissionMessage = "Speech recognition is turned off for VoiceBloom. You can allow it in Settings › Privacy & Security › Speech Recognition."
+    static let permissionMessage = "Speech recognition is turned off for Chirp. You can allow it in Settings › Privacy & Security › Speech Recognition."
 
     init(tap: AudioTap) {
         self.tap = tap

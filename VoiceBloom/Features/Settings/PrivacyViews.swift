@@ -237,9 +237,9 @@ struct AppIconPickerView: View {
                 Text("iOS doesn’t let apps rename themselves on the Home Screen. To hide the name as well:")
                 VStack(alignment: .leading, spacing: 6) {
                     Text("1. Open the Shortcuts app and tap +.")
-                    Text("2. Add the action Open App and choose VoiceBloom.")
+                    Text("2. Add the action Open App and choose Chirp.")
                     Text("3. Tap the share button › Add to Home Screen, and pick any name and icon.")
-                    Text("4. Long-press VoiceBloom’s own icon › Remove App › Remove from Home Screen. It stays in the App Library.")
+                    Text("4. Long-press Chirp’s own icon › Remove App › Remove from Home Screen. It stays in the App Library.")
                 }
                 .font(.subheadline)
             } header: {

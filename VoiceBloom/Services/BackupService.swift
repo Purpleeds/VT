@@ -192,8 +192,8 @@ nonisolated enum BackupError: LocalizedError, Sendable, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .unreadable: "This file isn’t a VoiceBloom backup, or it’s damaged."
-        case .newerFormat: "This backup was made by a newer version of VoiceBloom. Update the app, then try again."
+        case .unreadable: "This file isn’t a Chirp backup, or it’s damaged."
+        case .newerFormat: "This backup was made by a newer version of Chirp. Update the app, then try again."
         }
     }
 }
@@ -522,7 +522,7 @@ enum BackupService {
     }
 
     static func fileName(for date: Date = Date()) -> String {
-        "VoiceBloom Backup \(date.formatted(.iso8601.year().month().day()))"
+        "Chirp Backup \(date.formatted(.iso8601.year().month().day()))"
     }
 }
 

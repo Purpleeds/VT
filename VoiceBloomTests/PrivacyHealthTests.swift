@@ -283,6 +283,6 @@ struct BackupTests {
         #expect(!BackupService.isSafeFileName("folder/clip.m4a"))
         #expect(!BackupService.isSafeFileName(".hidden"))
         #expect(!BackupService.isSafeFileName("C:clip"))
-        #expect(BackupService.fileName(for: marchNoon(10)).hasPrefix("VoiceBloom Backup 2026-03-10"))
+        #expect(BackupService.fileName(for: marchNoon(10)).hasPrefix("Chirp Backup 2026-03-10"))
     }
 }

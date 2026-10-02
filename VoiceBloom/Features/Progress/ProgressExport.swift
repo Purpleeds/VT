@@ -54,7 +54,7 @@ struct ProgressShareCard: View {
                 tile("Resonance", SessionFormat.score(average(.resonance)))
                 tile("Weight", SessionFormat.score(average(.weight)))
             }
-            Text("Made with VoiceBloom")
+            Text("Made with Chirp")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -88,7 +88,7 @@ struct ProgressExportCard: View {
             VStack(spacing: 10) {
                 ShareLink(
                     item: csv,
-                    preview: SharePreview("VoiceBloom sessions (CSV)", image: Image(systemName: "tablecells"))
+                    preview: SharePreview("Chirp sessions (CSV)", image: Image(systemName: "tablecells"))
                 ) {
                     Label("Export All Stats as CSV", systemImage: "tablecells")
                         .frame(maxWidth: .infinity)

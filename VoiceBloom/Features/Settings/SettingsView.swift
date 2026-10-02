@@ -18,7 +18,7 @@ struct SettingsView: View {
                 SettingsForm(profile: profile)
                     .id(profile.persistentModelID)
             } else {
-                ContentUnavailableView("Settings unavailable", systemImage: "gearshape", description: Text("Please restart VoiceBloom."))
+                ContentUnavailableView("Settings unavailable", systemImage: "gearshape", description: Text("Please restart Chirp."))
             }
         }
         .navigationTitle("Settings")
@@ -69,7 +69,7 @@ private struct SettingsForm: View {
             Section {
                 LabeledContent("Version", value: Self.versionText)
             } footer: {
-                Text("VoiceBloom analyzes your voice on this iPhone. No analytics, no tracking, no ads.")
+                Text("Chirp analyzes your voice on this iPhone. No analytics, no tracking, no ads.")
             }
         }
         .onAppear(perform: loadState)
@@ -351,7 +351,7 @@ private struct SettingsForm: View {
             } else {
                 remindersOn = false
                 profile.reminderTime = nil
-                message = "Notifications are off for VoiceBloom. Turn them on in the Settings app to get reminders."
+                message = "Notifications are off for Chirp. Turn them on in the Settings app to get reminders."
             }
         } else {
             profile.reminderTime = nil
@@ -370,7 +370,7 @@ private struct SettingsForm: View {
             lockOn = false
             return
         }
-        if await appLock.authenticate(reason: "Turn on the VoiceBloom lock") {
+        if await appLock.authenticate(reason: "Turn on the Chirp lock") {
             profile.faceIDLockEnabled = true
             appLock.isEnabled = true
         } else {

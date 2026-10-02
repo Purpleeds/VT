@@ -178,7 +178,7 @@ final class VoiceTakeRecorder {
     static func message(for status: MonitorStatus) -> String {
         switch status {
         case .permissionDenied:
-            "VoiceBloom needs microphone access to hear you. Turn on Microphone for VoiceBloom in Settings."
+            "Chirp needs microphone access to hear you. Turn on Microphone for Chirp in Settings."
         case .failed(let message):
             message
         default:

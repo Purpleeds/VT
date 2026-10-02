@@ -127,11 +127,11 @@ nonisolated enum ProgressCSV {
         return String(format: "%.\(decimals)f", value)
     }
 
-    /// e.g. "VoiceBloom sessions 2026-03-10.csv"
+    /// e.g. "Chirp sessions 2026-03-10.csv"
     static func fileName(now: Date = Date()) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
-        return "VoiceBloom sessions \(formatter.string(from: now)).csv"
+        return "Chirp sessions \(formatter.string(from: now)).csv"
     }
 }

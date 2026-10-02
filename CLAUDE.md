@@ -1,4 +1,4 @@
-# VoiceBloom
+# VoiceBloom (shown to users as "Chirp")
 iOS 26+ SwiftUI app. The full spec is in SPEC.md. Read it before starting any work.
 
 ## Rules
@@ -29,6 +29,7 @@ iOS 26+ SwiftUI app. The full spec is in SPEC.md. Read it before starting any wo
 
 - GitHub Actions (`.github/workflows/build-ipa.yml`) generates the Xcode project from `project.yml` with XcodeGen, builds an unsigned `VoiceBloom.ipa` and runs the unit tests on an iPhone simulator on every push. Read the run's job log for compile errors and failed tests (the log prints them in "Errors and warnings", "Compile errors" and "Failed tests" groups). Push, then check CI before moving on.
 - Accessibility rules (Stage 13): no `.font(.system(size:))` with a literal size; wrap animations in `reduceMotion ? nil : …`; never show meaning by color alone.
+- App name: user-facing text says "Chirp" (`CFBundleDisplayName` in `project.yml`, icon a solid #87CEFA). Code, module, bundle ID, data store name, Keychain service and App Group keep "VoiceBloom"; don't rename them (existing data would be lost).
 - UI rules (Stage 14): button titles in Title Case ("Try Again", "Delete All Data"); show numbers with `value.roundedInt`, never `Int(value.rounded())` (traps on NaN); set observed properties only when the value changes.
 - Swift Testing gotchas found by CI: inside `#expect`/`#require`, don't pass key paths to rethrowing functions (`contains(where: \.x)` → use a closure) and don't call methods on `var` values (assign to a `let` first).
 

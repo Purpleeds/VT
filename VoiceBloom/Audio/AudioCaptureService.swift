@@ -35,9 +35,9 @@ nonisolated enum AudioCaptureError: LocalizedError, Sendable, Equatable {
         case .noInputAvailable:
             "No microphone is available. If another app is recording, close it and try again."
         case .unsupportedFormat:
-            "This microphone uses an audio format VoiceBloom can’t read. Try the iPhone’s built-in mic."
+            "This microphone uses an audio format Chirp can’t read. Try the iPhone’s built-in mic."
         case .sessionUnavailable:
-            "VoiceBloom couldn’t access the microphone. If you’re on a call or another app is using audio, finish that first and try again."
+            "Chirp couldn’t access the microphone. If you’re on a call or another app is using audio, finish that first and try again."
         case .engineFailed:
             "The microphone couldn’t start. Please try again."
         }

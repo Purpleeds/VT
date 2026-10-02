@@ -41,7 +41,7 @@ nonisolated enum HealthLibrary {
                     "Pitch is how fast your vocal folds vibrate. Faster vibration sounds higher. Small muscles in the larynx stretch and thin the folds to raise pitch. Pitch is only one part of how a voice is perceived, and pushing it higher on its own often sounds strained.",
                 ]),
                 .init(heading: "Resonance", paragraphs: [
-                    "Resonance is how the filter shapes the sound. A smaller, brighter space (a slightly higher larynx, the tongue forward) makes some frequencies stronger, which listeners hear as brighter or more forward. VoiceBloom measures this through formants, the peaks the filter creates.",
+                    "Resonance is how the filter shapes the sound. A smaller, brighter space (a slightly higher larynx, the tongue forward) makes some frequencies stronger, which listeners hear as brighter or more forward. Chirp measures this through formants, the peaks the filter creates.",
                 ]),
                 .init(heading: "Weight", paragraphs: [
                     "Vocal weight is how thick and pressed the vibrating folds are. Heavier phonation sounds buzzy and full; lighter phonation sounds softer and smoother. Weight is changed by how the folds close, not by squeezing the throat.",
@@ -58,7 +58,7 @@ nonisolated enum HealthLibrary {
             systemImage: "checkmark.shield",
             parts: [
                 .init(heading: "Little and often", paragraphs: [
-                    "Several short sessions spread through the day work better than one long one. VoiceBloom suggests no more than about 45 minutes of focused practice a day, with a short break every 15 minutes.",
+                    "Several short sessions spread through the day work better than one long one. Chirp suggests no more than about 45 minutes of focused practice a day, with a short break every 15 minutes.",
                 ]),
                 .init(heading: "Every session", paragraphs: [], bullets: [
                     "Start with a gentle warm-up: lip trills, humming, easy sighs.",
@@ -105,10 +105,10 @@ nonisolated enum HealthLibrary {
             systemImage: "bed.double.fill",
             parts: [
                 .init(heading: "Daily rest", paragraphs: [
-                    "Take short breaks of a few minutes every 15 minutes of practice. Stop for the day at around 45 minutes of focused work. VoiceBloom shows a gentle reminder when you get close.",
+                    "Take short breaks of a few minutes every 15 minutes of practice. Stop for the day at around 45 minutes of focused work. Chirp shows a gentle reminder when you get close.",
                 ]),
                 .init(heading: "Rest days", paragraphs: [
-                    "If your throat feels sore, or after a lot of voice use (a long day of talking, a party, singing), take a day off training. If you report a sore throat twice in three days, VoiceBloom suggests a rest day; your streak has a weekly freeze so a rest day doesn’t break it.",
+                    "If your throat feels sore, or after a lot of voice use (a long day of talking, a party, singing), take a day off training. If you report a sore throat twice in three days, Chirp suggests a rest day; your streak has a weekly freeze so a rest day doesn’t break it.",
                 ]),
                 .init(heading: "What vocal rest means", paragraphs: [
                     "On a rest day, talk in your easy, comfortable voice and keep it short. Avoid shouting, talking over noise and long phone calls.",
@@ -133,7 +133,7 @@ nonisolated enum HealthLibrary {
                     "Tension in the jaw, tongue, neck or shoulders.",
                 ]),
                 .init(heading: "What the app watches", paragraphs: [
-                    "During practice VoiceBloom compares the roughness of your voice (jitter, shimmer and noise) with your own usual values and warns you if it stays higher than normal. It also asks how your throat felt after each session. These are hints, not a diagnosis.",
+                    "During practice Chirp compares the roughness of your voice (jitter, shimmer and noise) with your own usual values and warns you if it stays higher than normal. It also asks how your throat felt after each session. These are hints, not a diagnosis.",
                 ]),
                 .init(heading: "What to do", paragraphs: [
                     "Stop the exercise, sip water and rest your voice. Next time, go back to an easier step and lower the effort. If symptoms last more than two weeks, or you notice pain or sudden changes, see a professional.",
@@ -148,7 +148,7 @@ nonisolated enum HealthLibrary {
             parts: [
                 .init(heading: "Forcing pitch", paragraphs: [
                     "It’s tempting to reach a target pitch by tightening the throat and pushing. That squeezes the muscles around the larynx and makes the folds work against tension. Over time it can cause fatigue, hoarseness and sometimes injury, and the result usually sounds strained.",
-                    "A modest pitch change with good resonance and lighter weight often sounds more natural than a big pitch change on its own. That’s why VoiceBloom works on all of them.",
+                    "A modest pitch change with good resonance and lighter weight often sounds more natural than a big pitch change on its own. That’s why Chirp works on all of them.",
                 ]),
                 .init(heading: "Falsetto", paragraphs: [
                     "Falsetto uses only the thin edges of the vocal folds, often with air leaking through. It’s fine as a short exercise, but speaking in it all day is breathy, tiring and hard to control. Training aims for a light but fully connected voice instead.",
@@ -178,7 +178,7 @@ nonisolated enum HealthLibrary {
                     "A laryngologist (an ear, nose and throat doctor specializing in the voice) can look at your vocal folds. A speech-language pathologist can assess how you use your voice, find habits that cause strain, and give you exercises tailored to you. Many SLPs offer voice training for gender affirmation and understand your goals.",
                 ]),
                 .init(heading: "Using the app alongside", paragraphs: [
-                    "VoiceBloom is a practice tool, not a replacement for professional care. Your progress charts and recordings can be useful to show a clinician. They stay on your iPhone unless you choose to share them.",
+                    "Chirp is a practice tool, not a replacement for professional care. Your progress charts and recordings can be useful to show a clinician. They stay on your iPhone unless you choose to share them.",
                 ]),
             ]
         ),
