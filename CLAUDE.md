@@ -26,7 +26,7 @@ iOS 26+ SwiftUI app. The full spec is in SPEC.md. Read it before starting any wo
 - GitHub Actions (`.github/workflows/build-ipa.yml`) generates the Xcode project from `project.yml` with XcodeGen, builds an unsigned `VoiceBloom.ipa` and runs the unit tests on an iPhone simulator on every push. Read the run's job log for compile errors and failed tests (the log prints them in "Errors and warnings", "Compile errors" and "Failed tests" groups). Push, then check CI before moving on.
 - Swift Testing gotchas found by CI: inside `#expect`/`#require`, don't pass key paths to rethrowing functions (`contains(where: \.x)` → use a closure) and don't call methods on `var` values (assign to a `let` first).
 
-## Code conventions (established in Stages 1–7)
+## Code conventions (established in Stages 1–10)
 - Xcode 26 projects default to `MainActor` isolation. Mark DSP and model types `nonisolated` (struct/enum/final class) so they run off the main thread whatever that setting is. View models are explicitly `@MainActor @Observable`.
 - Each file imports what it uses (the Xcode 26 template turns on MemberImportVisibility).
 - Do DSP in plain synchronous types and test them with synthetic signals. Test helpers are in `VoiceBloomTests/TestSignal.swift`; `TestSignal.vowel` and `TestVowel` give source–filter vowels with known formants. Prototype numeric expectations before writing the tests (no compiler here).
@@ -40,4 +40,7 @@ iOS 26+ SwiftUI app. The full spec is in SPEC.md. Read it before starting any wo
 - Starting any guided practice (lessons, routines, single exercises, later Quick Check/scenarios): build a `GuidedSessionPlan` and call `GuidedSessionCoordinator.request(_:)`.
 - Private top-level types share the module namespace with internal ones: give view helpers distinctive names (the static checks list duplicates).
 - Anything that makes sound or vibration while listening must go through `LiveVoiceMonitor.deliver`, so the mic input during the cue is excluded from analysis.
+- `Task { … }` closures must not end with a call that returns a SwiftData model (models aren't Sendable): write `Task { _ = await … }`. The static checks flag this.
+- A screen that deletes the model it shows dismisses first and deletes afterwards (reading a deleted model crashes). Write audio files before inserting the models that point to them, and roll back (and delete the file) if saving fails (`SavedAudioFile`).
+- Reference sounds (tones, target clips, read-aloud lines) follow Discreet Mode: headphones only. Pause listening, or call `monitor.excludeFromStatistics(for:)`, while the app itself makes sound.
 - Nested types inside `nonisolated` types are also marked `nonisolated`. Never call a mutating method inside `#expect`/`#require`; assign the result first. Run the static checks before committing (tree-sitter syntax parse, an import heuristic per file, no force unwraps, nested-type isolation); a lost import broke a file once.
