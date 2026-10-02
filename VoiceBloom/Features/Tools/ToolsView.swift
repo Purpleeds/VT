@@ -43,6 +43,15 @@ struct ToolsView: View {
                     )
                 }
                 NavigationLink {
+                    PitchGameView()
+                } label: {
+                    ToolRow(
+                        title: "Balloon Game",
+                        detail: "Steer a balloon through gaps with your pitch. Bright resonance scores bonus stars.",
+                        systemImage: "balloon"
+                    )
+                }
+                NavigationLink {
                     PracticeTextView()
                 } label: {
                     ToolRow(

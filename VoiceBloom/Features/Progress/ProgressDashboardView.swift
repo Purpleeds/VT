@@ -70,6 +70,8 @@ struct ProgressDashboardView: View {
 
                 WeeklySummaryCard(summary: summary, dailyGoal: dailyGoal)
 
+                AchievementsSummaryCard()
+
                 PitchTrendChart(points: points, target: target, domain: domain, onSelect: open)
                 ScoreTrendChart(points: points, domain: domain, onSelect: open)
                 InTargetChart(points: points, domain: domain, onSelect: open)

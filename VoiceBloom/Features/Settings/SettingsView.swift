@@ -35,6 +35,7 @@ private struct SettingsForm: View {
     @State private var isShowingBaseline = false
     @State private var isConfirmingDelete = false
     @State private var remindersOn = false
+    @AppStorage(MotivationCenter.nudgeKey) private var eveningNudge = true
     @State private var reminderTime = Calendar.current.date(bySettingHour: 18, minute: 30, second: 0, of: Date()) ?? Date()
     @State private var lockOn = false
     @State private var message: String?
@@ -74,6 +75,7 @@ private struct SettingsForm: View {
         .onChange(of: profile.targetPitchLow) { _, _ in applyTargets() }
         .onChange(of: profile.targetPitchHigh) { _, _ in applyTargets() }
         .onChange(of: remindersOn) { _, _ in Task { await updateReminder() } }
+        .onChange(of: eveningNudge) { _, _ in _ = MotivationCenter.refresh(context: modelContext) }
         .onChange(of: reminderTime) { _, _ in Task { await updateReminder() } }
         .onChange(of: lockOn) { _, newValue in
             guard newValue != profile.faceIDLockEnabled else { return }
@@ -199,6 +201,7 @@ private struct SettingsForm: View {
             Toggle("Daily reminder", isOn: $remindersOn)
             if remindersOn {
                 DatePicker("Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
+                Toggle("Evening nudge if I haven’t practiced", isOn: $eveningNudge)
             }
         }
     }

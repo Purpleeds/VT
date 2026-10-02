@@ -2,7 +2,7 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–11 of 14 are done:
+**Status:** Stages 1–12 of 14 are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
@@ -12,6 +12,7 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 7:** the 16-week lesson plan (all content in `Lessons.json`), guided sessions (warm-up, main practice, carryover, cool-down) in Quick/Standard/Deep lengths, unlock rules, and maintenance mode.
 - **Stage 8:** Tools: the searchable exercise library, a reference tone generator with a mini piano, the Daily Sentence Journal with a timeline, Quick Check, and Discreet Mode.
 - **Stage 9:** Target Voice: import audio or video from Files or Photos, trim it on a waveform, quality warnings, a Target Voice Profile, automatic targets, Compare to Target, shadowing, and several saved profiles.
+- **Stage 12:** motivation: streaks with a weekly streak freeze, achievements, a daily challenge, the balloon pitch game, an evening nudge, Home Screen and Lock Screen widgets, and Siri shortcuts.
 - **Stage 11:** the AI Coach: Apple's on-device model, optional Gemini with your own key, or simple built-in tips; post-session feedback, an AI scenario partner, weekly review, practice texts and Ask the Coach.
 - **Stage 10:** scenario practice: 11 everyday situations at Easy, Medium and Hard with pre-written scripts, each turn scored, results saved for the Progress radar.
 
@@ -107,6 +108,21 @@ git commit -m "Add Xcode project"
 
 `.gitignore` already excludes per-user Xcode state.
 
+### 7. Widgets, App Group and Siri shortcuts (Stage 12)
+
+The GitHub build already includes all of this (it comes from `project.yml`). If you build in Xcode yourself:
+
+1. **Add the widget target:** **File ▸ New ▸ Target… ▸ Widget Extension**. Product name `VoiceBloomWidget`, untick **Include Live Activity**, **Include Control** and **Include Configuration App Intent**, click **Finish**, and **Activate** the scheme if asked. Xcode sets the bundle ID to `com.williamzhao.voicebloom.VoiceBloomWidget`; that's fine.
+2. **Use the repo's widget code:** delete the Swift files Xcode generated in the new `VoiceBloomWidget` group (Move to Trash), then drag `VoiceBloomWidget/VoiceBloomWidget.swift` from the repo into that group with only the **VoiceBloomWidget** target ticked.
+3. **Share two app files with the widget:** select `VoiceBloom/Shared/WidgetSnapshot.swift` and `VoiceBloom/Shared/LaunchIntents.swift`, open the File inspector (right sidebar) and tick **VoiceBloomWidget** under **Target Membership** (keep **VoiceBloom** ticked).
+4. **Match the settings:** select the **VoiceBloomWidget** target ▸ **General**: Minimum Deployments **iOS 26.0**. **Build Settings**: Swift Language Version **Swift 6**, Default Actor Isolation **MainActor**, Approachable Concurrency **Yes**.
+5. **Add the App Group to the app:** select the **VoiceBloom** target ▸ **Signing & Capabilities** ▸ **+ Capability** ▸ **App Groups**, click **+**, enter `group.com.williamzhao.voicebloom`, and make sure it's ticked.
+6. **Add the same App Group to the widget:** select the **VoiceBloomWidget** target ▸ **Signing & Capabilities** ▸ choose the same Team ▸ **+ Capability** ▸ **App Groups** ▸ tick `group.com.williamzhao.voicebloom`.
+7. **Siri shortcuts** need no setup: they're declared in `VoiceBloom/App/AppShortcuts.swift`. After installing, say "Start voice practice in VoiceBloom" or "Do a Quick Check in VoiceBloom", or find them in the Shortcuts app.
+8. Build and run the **VoiceBloom** scheme, then long-press the Home Screen ▸ **Edit ▸ Add Widget** ▸ VoiceBloom.
+
+If the App Group is missing (for example with some sideloading tools), the widgets show "Open the app to start" instead of your numbers; everything else still works.
+
 ### Troubleshooting
 
 | Problem | Fix |
@@ -123,6 +139,15 @@ git commit -m "Add Xcode project"
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Stage 12** (motivation):
+- **Today card** (top of the Lessons tab): your streak, today's minutes against your daily goal, and today's challenge with **Go** and **Mark done**. One missed day per week is covered by a **streak freeze**, so a rest day for your voice doesn't break the streak (a practice day is any session of a minute or more).
+- **Achievements** (Progress tab ▸ Achievements): 18 badges, from your first session and streaks to 80% in target, a Hard scenario and five hours of practice.
+- **Balloon game** (More ▸ Tools): hum or speak to steer a balloon through gaps; the green band is your target range, and bright resonance while passing a gap scores a bonus star. Haptics mark passes and misses; Reduce Motion slows it down. Scores are kept.
+- **Reminders** (Settings): the daily reminder plus an optional evening nudge at 7 pm only if you haven't practiced. Wording is neutral ("Time for practice").
+- **Widgets:** Home Screen (small: streak and minutes; medium: plus today's challenge and a **Start** button) and Lock Screen (minutes ring, streak and minutes, inline). The app updates them whenever you practice.
+- **Siri and Shortcuts:** "Start voice practice in VoiceBloom" opens Practice and starts listening; "Do a Quick Check in VoiceBloom" opens Quick Check.
+- **Xcode:** the widget target and App Group are in `project.yml` for the GitHub build; for a hand-made Xcode project follow [step 7](#7-widgets-app-group-and-siri-shortcuts-stage-12).
 
 **Stage 11** (AI Coach; **More ▸ Settings ▸ AI Coach** to turn it off or pick the coach):
 - **Which coach:** Apple Intelligence on the iPhone when it's available (free, private, no key). Only if it isn't, and you paste your own free Gemini key (get one at aistudio.google.com), Gemini is used; it receives text only (stats, the words you said in scenarios, chat messages), never audio. Otherwise, and whenever an AI answer fails, the built-in rule-based coach answers. Settings shows which coach is in use and why on-device AI isn't available.
@@ -286,6 +311,9 @@ VoiceBloom/
   Coach/          AICoachService protocol, FoundationModelsCoach (@Generable answers), GeminiCoach
                   (REST, key in Keychain), RuleBasedCoach, CoachSafety (rules, pain detection),
                   CoachPrompts, CoachRouter (choice + fallback), CoachContextBuilder
+  Motivation/     StreakCalculator (weekly freezes), AchievementKind, DailyChallenge, NudgeScheduler,
+                  PitchGameEngine + scores, MotivationCenter (refresh achievements, widgets, nudge)
+  Shared/         WidgetSnapshot (App Group data) and LaunchIntents (App Intents), also in the widget
   Scenarios/      ScenarioCatalog (Scenarios.json models, script text), ScenarioScoring (turn scores,
                   consistency, summary), ScenarioResultStore, ScenarioSessionModel
   TargetVoice/    AudioFileDecoder (AVAssetReader), TargetClipAnalyzer (offline pipeline run),
@@ -315,6 +343,7 @@ VoiceBloom/
                   Target, shadowing), Scenarios (list, detail, full-screen practice),
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
+VoiceBloomWidget/ WidgetKit extension: streak, today's minutes, quick start (Home and Lock Screen)
 VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels
 ```
 

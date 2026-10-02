@@ -11,6 +11,7 @@ on:
     paths:
       - "VoiceBloom/**"
       - "VoiceBloomTests/**"
+      - "VoiceBloomWidget/**"
       - "project.yml"
       - ".github/workflows/build-ipa.yml"
 

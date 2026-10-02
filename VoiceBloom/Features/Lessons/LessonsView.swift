@@ -44,6 +44,8 @@ struct LessonsView: View {
 
         return ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                TodayCard()
+
                 if let week = catalog.week(current) {
                     CurrentWeekCard(week: week, catalog: catalog, progress: progress[week.week], isUnlocked: true)
                 }
