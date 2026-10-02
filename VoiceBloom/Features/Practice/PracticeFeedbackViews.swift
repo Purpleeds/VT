@@ -28,7 +28,7 @@ struct InTargetCard: View {
                     .rotationEffect(.degrees(-90))
                     .animation(reduceMotion ? nil : .easeOut(duration: 0.3), value: percent)
                 VStack(spacing: 0) {
-                    Text(percent.map { "\(Int($0.rounded()))%" } ?? "—")
+                    Text(percent.map { "\($0.roundedInt)%" } ?? "—")
                         .font(.system(size: numberSize, weight: .semibold, design: .rounded))
                         .monospacedDigit()
                         .lineLimit(1)
@@ -42,11 +42,11 @@ struct InTargetCard: View {
             .frame(width: ringSize, height: ringSize)
 
             VStack(spacing: 2) {
-                Text("Last 10 s: \(monitor.recentInTargetPercent.map { "\(Int($0.rounded()))%" } ?? "—")")
+                Text("Last 10 s: \(monitor.recentInTargetPercent.map { "\($0.roundedInt)%" } ?? "—")")
                     .font(.subheadline.weight(.medium))
                     .monospacedDigit()
                 if let bright = monitor.stats.brightResonance.percent {
-                    Text("Bright resonance: \(Int(bright.rounded()))%")
+                    Text("Bright resonance: \(bright.roundedInt)%")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .monospacedDigit()
@@ -67,12 +67,12 @@ struct InTargetCard: View {
     private var accessibilityValue: String {
         let zone = "Target zone \(monitor.targetZone.spokenDescription)."
         guard let percent = monitor.stats.pitch.percentInTarget else { return "No voiced time yet. \(zone)" }
-        var parts = ["\(Int(percent.rounded())) percent of voiced time this session."]
+        var parts = ["\(percent.roundedInt) percent of voiced time this session."]
         if let recent = monitor.recentInTargetPercent {
-            parts.append("\(Int(recent.rounded())) percent in the last 10 seconds.")
+            parts.append("\(recent.roundedInt) percent in the last 10 seconds.")
         }
         if let bright = monitor.stats.brightResonance.percent {
-            parts.append("Resonance bright \(Int(bright.rounded())) percent of the time.")
+            parts.append("Resonance bright \(bright.roundedInt) percent of the time.")
         }
         parts.append(zone)
         return parts.joined(separator: " ")
@@ -173,7 +173,7 @@ struct StrainWarningBanner: View {
     }
 
     private var percentAbove: Int {
-        max(0, Int(((warning.roughnessRatio - 1) * 100).rounded()))
+        max(0, ((warning.roughnessRatio - 1) * 100).roundedInt)
     }
 }
 
@@ -209,8 +209,8 @@ struct VoiceQualityCard: View {
                 )
                 StatTile(
                     title: "HNR",
-                    value: summary?.harmonicsToNoiseDb.map { "\(Int($0.rounded())) dB" } ?? "—",
-                    accessibilityValue: summary?.harmonicsToNoiseDb.map { "\(Int($0.rounded())) decibels" } ?? "None yet"
+                    value: summary?.harmonicsToNoiseDb.map { "\($0.roundedInt) dB" } ?? "—",
+                    accessibilityValue: summary?.harmonicsToNoiseDb.map { "\($0.roundedInt) decibels" } ?? "None yet"
                 )
             }
             Text("Rough indicators from your phone’s mic, compared with your own usual voice. Not a medical diagnosis. See a doctor or speech-language pathologist about pain or hoarseness that lasts.")
@@ -224,7 +224,7 @@ struct VoiceQualityCard: View {
     private func statusText(_ status: VoiceQualityStatus?) -> String {
         guard let status else { return "Speak or hold a vowel" }
         if let assessment = status.assessment {
-            let change = Int(((assessment.roughnessRatio - 1) * 100).rounded())
+            let change = ((assessment.roughnessRatio - 1) * 100).roundedInt
             if assessment.isElevated {
                 return "Rougher than usual (+\(change)%)"
             }

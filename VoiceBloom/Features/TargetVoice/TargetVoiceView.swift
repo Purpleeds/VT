@@ -234,13 +234,13 @@ private struct TargetProfileCard: View {
     private var summary: String {
         var parts: [String] = []
         if let pitch = target.averagePitch {
-            parts.append("\(Int(pitch.rounded())) Hz")
+            parts.append("\(pitch.roundedInt) Hz")
         }
         if let low = target.minimumPitch, let high = target.maximumPitch {
-            parts.append("range \(Int(low.rounded()))–\(Int(high.rounded()))")
+            parts.append("range \(low.roundedInt)–\(high.roundedInt)")
         }
         if let f2 = target.averageF2 {
-            parts.append("F2 \(Int(f2.rounded()))")
+            parts.append("F2 \(f2.roundedInt)")
         }
         return parts.isEmpty ? "No voice measured" : parts.joined(separator: " · ")
     }

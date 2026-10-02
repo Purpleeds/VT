@@ -34,7 +34,7 @@ struct SessionListView: View {
                 }
             }
         }
-        .navigationTitle("All sessions")
+        .navigationTitle("All Sessions")
     }
 
     private func delete(at offsets: IndexSet) {
@@ -71,7 +71,7 @@ private struct SessionRow: View {
                     .accessibilityLabel(SessionFormat.spokenDuration(session.duration))
                 if let pitch = session.averagePitch {
                     Label(SessionFormat.hertz(pitch), systemImage: "waveform")
-                        .accessibilityLabel("average \(Int(pitch.rounded())) hertz")
+                        .accessibilityLabel("average \(pitch.roundedInt) hertz")
                 }
                 if let percent = session.percentInTarget {
                     Label(SessionFormat.percent(percent), systemImage: "target")

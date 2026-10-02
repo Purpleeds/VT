@@ -115,7 +115,7 @@ private struct PracticeTextContent: View {
                 TakeResultSummary(result: result)
                     .cardStyle()
             }
-            Button("Read it again") {
+            Button("Read It Again") {
                 recorder.reset()
             }
             .buttonStyle(.glass)
@@ -138,7 +138,7 @@ private struct PracticeTextContent: View {
                 )
             }
         } label: {
-            Label("Read it aloud", systemImage: "mic.fill")
+            Label("Read It Aloud", systemImage: "mic.fill")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.glass)

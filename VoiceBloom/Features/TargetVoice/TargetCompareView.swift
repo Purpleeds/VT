@@ -68,14 +68,14 @@ private struct TargetCompareContent: View {
     private var controls: some View {
         switch recorder.phase {
         case .idle:
-            startButton("Start recording")
+            startButton("Start Recording")
         case .starting, .recording:
             TakeProgressView(recorder: recorder)
         case .finished:
             Button {
                 recorder.reset()
             } label: {
-                Label("Record again", systemImage: "arrow.counterclockwise")
+                Label("Record Again", systemImage: "arrow.counterclockwise")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.glass)
@@ -84,7 +84,7 @@ private struct TargetCompareContent: View {
             Text(message)
                 .font(.subheadline)
                 .foregroundStyle(Theme.warning)
-            startButton("Try again")
+            startButton("Try Again")
         }
     }
 
@@ -119,7 +119,7 @@ private struct CompareResults: View {
             VStack(alignment: .leading, spacing: 12) {
                 if let overall = TargetComparison.overall(matches) {
                     HStack(alignment: .firstTextBaseline) {
-                        Text("\(Int(overall.rounded()))%")
+                        Text("\(overall.roundedInt)%")
                             .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                             .monospacedDigit()
                         Text("overall match")
@@ -133,7 +133,7 @@ private struct CompareResults: View {
                             Text(match.category.title)
                                 .font(.subheadline.weight(.semibold))
                             Spacer()
-                            Text("\(Int(match.percent.rounded()))%")
+                            Text("\(match.percent.roundedInt)%")
                                 .font(.subheadline.weight(.semibold))
                                 .monospacedDigit()
                         }
@@ -146,7 +146,7 @@ private struct CompareResults: View {
                     }
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(match.category.title)
-                    .accessibilityValue("\(Int(match.percent.rounded())) percent match. \(match.detail)")
+                    .accessibilityValue("\(match.percent.roundedInt) percent match. \(match.detail)")
                 }
                 Text("A partial match is normal: everyone’s voice and vocal tract are different. Small steps in the right direction count.")
                     .font(.caption)
@@ -178,7 +178,7 @@ private struct CompareResults: View {
                         .foregroundStyle(by: .value("Voice", bar.voice))
                         .position(by: .value("Voice", bar.voice))
                         .accessibilityLabel("\(bar.voice) \(bar.formant)")
-                        .accessibilityValue("\(Int(bar.frequency.rounded())) hertz")
+                        .accessibilityValue("\(bar.frequency.roundedInt) hertz")
                     }
                     .chartForegroundStyleScale(domain: ["You", "Target"], range: [Theme.pitchLine, Theme.resonanceSeries])
                     .chartYAxisLabel("Hz")

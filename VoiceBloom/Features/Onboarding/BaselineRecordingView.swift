@@ -146,7 +146,7 @@ struct BaselineRecordingView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Label(message, systemImage: "mic.slash")
                     .foregroundStyle(Theme.warning)
-                Button("Try again") {
+                Button("Try Again") {
                     recorder.reset()
                 }
                 .buttonStyle(.glass)

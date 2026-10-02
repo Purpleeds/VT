@@ -100,8 +100,8 @@ struct ScenarioDetailView: View {
             ScenarioSessionView(model: model)
         }
         .alert("You’ve practiced 45 minutes today", isPresented: $isShowingSoftCap) {
-            Button("Rest instead", role: .cancel) {}
-            Button("Practice anyway") {
+            Button("Rest Instead", role: .cancel) {}
+            Button("Practice Anyway") {
                 Task { await start() }
             }
         } message: {
@@ -152,7 +152,7 @@ struct ScenarioDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text(result.overallScore.map { "\(Int($0.rounded()))" } ?? "—")
+                    Text(result.overallScore.map { "\($0.roundedInt)" } ?? "—")
                         .font(.title3.weight(.semibold))
                         .monospacedDigit()
                 }

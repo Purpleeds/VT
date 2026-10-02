@@ -30,7 +30,7 @@ struct TodayCard: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("\(Int(minutes.rounded())) of \(goal) min")
+                    Text("\(minutes.roundedInt) of \(goal) min")
                         .font(.subheadline.weight(.semibold))
                         .monospacedDigit()
                     MeterBar(fraction: goal > 0 ? minutes / Double(goal) : 0, tint: Theme.targetZone)
@@ -38,7 +38,7 @@ struct TodayCard: View {
                 }
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("Today")
-                .accessibilityValue("\(Int(minutes.rounded())) of \(goal) minutes")
+                .accessibilityValue("\(minutes.roundedInt) of \(goal) minutes")
             }
 
             Divider()

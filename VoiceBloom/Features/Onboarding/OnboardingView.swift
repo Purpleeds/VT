@@ -85,7 +85,7 @@ struct OnboardingView: View {
                 BaselineRecordingView(purpose: .dayOne, profile: profile, monitor: monitor) { _ in
                     next()
                 }
-                Button("Skip for now") {
+                Button("Skip for Now") {
                     next()
                 }
                 .buttonStyle(.glass)
@@ -349,10 +349,10 @@ private struct OnboardingCalibrationStep: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             if let calibration = monitor.calibration {
-                Label("Calibrated (room noise \(Int(calibration.noiseFloorDb.rounded())) dB)", systemImage: "checkmark.circle.fill")
+                Label("Calibrated (room noise \(calibration.noiseFloorDb.roundedInt) dB)", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(Theme.targetZone)
                 OnboardingContinueButton(action: onContinue)
-                Button("Calibrate again") {
+                Button("Calibrate Again") {
                     isShowingCalibration = true
                 }
                 .buttonStyle(.glass)
@@ -361,7 +361,7 @@ private struct OnboardingCalibrationStep: View {
                 OnboardingContinueButton(title: "Start calibration") {
                     isShowingCalibration = true
                 }
-                Button("Skip for now", action: onContinue)
+                Button("Skip for Now", action: onContinue)
                     .buttonStyle(.glass)
                     .frame(maxWidth: .infinity)
             }

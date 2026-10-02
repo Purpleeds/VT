@@ -44,7 +44,7 @@ private struct JournalContent: View {
 
     private var selectedIndex: Int? {
         guard !entries.isEmpty else { return nil }
-        return min(max(Int(scrubPosition.rounded()), 0), entries.count - 1)
+        return min(max(scrubPosition.roundedInt, 0), entries.count - 1)
     }
 
     var body: some View {
@@ -160,7 +160,7 @@ private struct JournalContent: View {
                     Button {
                         Task { await startRecording() }
                     } label: {
-                        Label("Record today’s entry", systemImage: "mic.fill")
+                        Label("Record Today’s Entry", systemImage: "mic.fill")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glassProminent)
@@ -169,7 +169,7 @@ private struct JournalContent: View {
                     Button {
                         Task { await startRecording() }
                     } label: {
-                        Label("Record again (replaces today’s)", systemImage: "mic")
+                        Label("Record Again (Replaces Today’s)", systemImage: "mic")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glass)
@@ -232,7 +232,7 @@ private struct JournalContent: View {
                 Button {
                     playHighlights()
                 } label: {
-                    Label("Play my progress", systemImage: "play.circle")
+                    Label("Play My Progress", systemImage: "play.circle")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.glass)
@@ -324,7 +324,7 @@ private struct JournalPitchChart: View {
                         .interpolationMethod(.monotone)
                         .foregroundStyle(Theme.pitchLine)
                         .accessibilityLabel(point.date.formatted(date: .abbreviated, time: .omitted))
-                        .accessibilityValue("\(Int(pitch.rounded())) hertz")
+                        .accessibilityValue("\(pitch.roundedInt) hertz")
                     PointMark(x: .value("Day", Double(index)), y: .value("Pitch", pitch))
                         .symbolSize(index == selectedIndex ? 90 : 24)
                         .foregroundStyle(Theme.pitchLine)
@@ -367,7 +367,7 @@ private struct JournalEntryDetail: View {
                 }
                 Spacer()
                 Menu {
-                    Button("Delete entry", systemImage: "trash", role: .destructive, action: onDelete)
+                    Button("Delete Entry", systemImage: "trash", role: .destructive, action: onDelete)
                 } label: {
                     Image(systemName: "ellipsis.circle")
                         .font(.title3)
@@ -403,7 +403,7 @@ private struct JournalEntryDetail: View {
     private var subtitle: String {
         var text = "Day \(number)"
         if let change, number > 1 {
-            let amount = Int(abs(change).rounded())
+            let amount = abs(change).roundedInt
             text += amount == 0 ? " · same pitch as day 1" : " · \(change > 0 ? "+" : "−")\(amount) Hz since day 1"
         }
         return text
@@ -431,7 +431,7 @@ private struct JournalSentenceEditor: View {
                     Text("Pick something you can say comfortably in about 5–10 seconds. Keeping the same sentence makes days easy to compare; earlier entries keep the sentence they were recorded with.")
                 }
                 Section {
-                    Button("Use the default sentence") {
+                    Button("Use the Default Sentence") {
                         text = ReadingPassages.journalSentence
                     }
                 }

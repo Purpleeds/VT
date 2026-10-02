@@ -80,12 +80,12 @@ nonisolated enum CoachSafety {
 /// never sent anywhere.
 nonisolated enum CoachPrompts {
     static func describe(_ stats: CoachSessionStats) -> String {
-        var parts = ["\(Int(stats.minutes.rounded())) min"]
-        if let pitch = stats.averagePitch { parts.append("average pitch \(Int(pitch.rounded())) Hz") }
-        if let value = stats.percentInTarget { parts.append("\(Int(value.rounded()))% of the time in the target range") }
-        if let value = stats.resonance { parts.append("resonance \(Int(value.rounded()))/100") }
-        if let value = stats.weight { parts.append("lightness \(Int(value.rounded()))/100") }
-        if let value = stats.intonation { parts.append("intonation \(Int(value.rounded()))/100") }
+        var parts = ["\(stats.minutes.roundedInt) min"]
+        if let pitch = stats.averagePitch { parts.append("average pitch \(pitch.roundedInt) Hz") }
+        if let value = stats.percentInTarget { parts.append("\(value.roundedInt)% of the time in the target range") }
+        if let value = stats.resonance { parts.append("resonance \(value.roundedInt)/100") }
+        if let value = stats.weight { parts.append("lightness \(value.roundedInt)/100") }
+        if let value = stats.intonation { parts.append("intonation \(value.roundedInt)/100") }
         if stats.slipAlerts > 0 { parts.append("\(stats.slipAlerts) slip alerts") }
         if stats.strainWarnings > 0 { parts.append("\(stats.strainWarnings) strain warnings") }
         if let comfort = stats.comfort { parts.append("throat felt \(comfort)") }
@@ -118,12 +118,12 @@ nonisolated enum CoachPrompts {
             "Review this person's week of voice training and recommend what to do next.",
             "Current lesson: week \(context.week), “\(context.weekTitle)”. Goal: \(context.goalDescription)",
             "Lesson sessions this week: \(context.sessionsThisWeek) of \(context.requiredSessions) needed. Goal met: \(context.goalMet ? "yes" : "no").",
-            "Practice in the last 7 days: \(Int(context.practiceMinutes.rounded())) minutes (daily goal \(context.dailyGoalMinutes) min).",
+            "Practice in the last 7 days: \(context.practiceMinutes.roundedInt) minutes (daily goal \(context.dailyGoalMinutes) min).",
             "Sore-throat check-ins in the last 7 days: \(context.soreCheckIns).",
         ]
         for metric in ProgressMetric.allCases {
-            let now = context.averages[metric].map { "\(Int($0.rounded()))" } ?? "no data"
-            let before = context.previousAverages[metric].map { "\(Int($0.rounded()))" } ?? "no data"
+            let now = context.averages[metric].map { "\($0.roundedInt)" } ?? "no data"
+            let before = context.previousAverages[metric].map { "\($0.roundedInt)" } ?? "no data"
             lines.append("\(metric.title): this week \(now), the week before \(before).")
         }
         lines.append("Recommendation must be one of: moveOn, repeatWeek, extraPractice, rest. Use rest if there were 2 or more sore check-ins. Focus must be one of: inTarget, resonance, weight, intonation, none.")

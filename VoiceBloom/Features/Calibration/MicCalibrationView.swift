@@ -126,7 +126,7 @@ struct MicCalibrationView: View {
                     verdict: voiceVerdictText(voice.verdict),
                     systemImage: voice.verdict == .good ? "checkmark.circle.fill" : "exclamationmark.triangle.fill",
                     isGood: voice.verdict == .good,
-                    detail: "\(decibels(voice.levelDb)), \(Int(voice.signalToNoiseDb.rounded())) dB above the room. \(voiceAdvice(voice.verdict))"
+                    detail: "\(decibels(voice.levelDb)), \(voice.signalToNoiseDb.roundedInt) dB above the room. \(voiceAdvice(voice.verdict))"
                 )
             }
 
@@ -178,7 +178,7 @@ struct MicCalibrationView: View {
     // MARK: Wording
 
     private func decibels(_ value: Double) -> String {
-        "\(Int(value.rounded())) dBFS"
+        "\(value.roundedInt) dBFS"
     }
 
     private func noiseVerdictText(_ noise: NoiseAssessment) -> String {
@@ -259,14 +259,14 @@ private struct MeasuringStepView: View {
             ProgressView(value: progress)
                 .progressViewStyle(.linear)
                 .accessibilityLabel("Progress")
-                .accessibilityValue("\(Int((progress * 100).rounded())) percent")
+                .accessibilityValue("\((progress * 100).roundedInt) percent")
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("Input level")
                         .font(.subheadline.weight(.semibold))
                     Spacer()
-                    Text(levelDb.map { "\(Int($0.rounded())) dBFS" } ?? "—")
+                    Text(levelDb.map { "\($0.roundedInt) dBFS" } ?? "—")
                         .font(.subheadline)
                         .monospacedDigit()
                         .foregroundStyle(.secondary)

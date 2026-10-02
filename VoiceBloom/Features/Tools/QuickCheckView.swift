@@ -93,7 +93,7 @@ private struct QuickCheckContent: View {
             Button {
                 Task { await start() }
             } label: {
-                Label(checks.isEmpty ? "Start Quick Check" : "Start today’s check", systemImage: "mic.fill")
+                Label(checks.isEmpty ? "Start Quick Check" : "Start Today’s Check", systemImage: "mic.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.glassProminent)
@@ -121,7 +121,7 @@ private struct QuickCheckContent: View {
                         comparison = nil
                         savedRecording = nil
                     } label: {
-                        Label("Check again", systemImage: "arrow.counterclockwise")
+                        Label("Check Again", systemImage: "arrow.counterclockwise")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glass)

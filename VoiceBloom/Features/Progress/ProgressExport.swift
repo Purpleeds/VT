@@ -90,7 +90,7 @@ struct ProgressExportCard: View {
                     item: csv,
                     preview: SharePreview("VoiceBloom sessions (CSV)", image: Image(systemName: "tablecells"))
                 ) {
-                    Label("Export all stats as CSV", systemImage: "tablecells")
+                    Label("Export All Stats as CSV", systemImage: "tablecells")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.glass)
@@ -101,7 +101,7 @@ struct ProgressExportCard: View {
                         item: shareImage,
                         preview: SharePreview("My voice progress", image: shareImage)
                     ) {
-                        Label("Share progress image", systemImage: "photo")
+                        Label("Share Progress Image", systemImage: "photo")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glass)

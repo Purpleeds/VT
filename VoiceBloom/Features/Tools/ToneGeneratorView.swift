@@ -73,7 +73,7 @@ struct ToneGeneratorView: View {
     private var toneCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .firstTextBaseline) {
-                Text("\(Int(frequency.rounded())) Hz")
+                Text("\(frequency.roundedInt) Hz")
                     .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                     .monospacedDigit()
                     .contentTransition(.numericText())
@@ -88,7 +88,7 @@ struct ToneGeneratorView: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Tone")
-            .accessibilityValue("\(Int(frequency.rounded())) hertz, \(PitchMath.spokenNoteName(for: frequency) ?? "")\(target.contains(frequency) ? ", in your target" : "")")
+            .accessibilityValue("\(frequency.roundedInt) hertz, \(PitchMath.spokenNoteName(for: frequency) ?? "")\(target.contains(frequency) ? ", in your target" : "")")
 
             Slider(value: $sliderValue, in: 0...1) {
                 Text("Frequency")
@@ -99,7 +99,7 @@ struct ToneGeneratorView: View {
                 Text("\(Int(ToneGeneratorMath.range.upperBound))")
                     .font(.caption2)
             }
-            .accessibilityValue("\(Int(frequency.rounded())) hertz")
+            .accessibilityValue("\(frequency.roundedInt) hertz")
 
             HStack(spacing: 10) {
                 Button {
@@ -129,7 +129,7 @@ struct ToneGeneratorView: View {
                     HStack(spacing: 8) {
                         ForEach(ToneGeneratorMath.presets(for: target)) { preset in
                             FilterChip(
-                                title: "\(preset.title) \(Int(preset.frequency.rounded()))",
+                                title: "\(preset.title) \(preset.frequency.roundedInt)",
                                 systemImage: "scope",
                                 isSelected: abs(frequency - preset.frequency) < 0.5
                             ) {
@@ -179,7 +179,7 @@ struct ToneGeneratorView: View {
         guard let name = PitchMath.noteName(for: frequency),
               let cents = PitchMath.centsFromNearestNote(for: frequency)
         else { return "" }
-        let rounded = Int(cents.rounded())
+        let rounded = cents.roundedInt
         return rounded == 0 ? name : "\(name) \(rounded > 0 ? "+" : "−")\(abs(rounded))¢"
     }
 
@@ -192,7 +192,7 @@ struct ToneGeneratorView: View {
                     .font(.headline)
                 Spacer()
                 if let note = tones.lastNote, let name = PitchMath.noteName(for: note) {
-                    Text("\(name) · \(Int(note.rounded())) Hz")
+                    Text("\(name) · \(note.roundedInt) Hz")
                         .font(.subheadline)
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
@@ -256,6 +256,7 @@ struct MiniPianoView: View {
     let onPlay: (PianoKey) -> Void
 
     @ScaledMetric(relativeTo: .body) private var whiteWidth: CGFloat = 42
+    @Environment(\.colorScheme) private var colorScheme
     private let layout = PianoLayout(keys: PianoKey.range)
     private let height: CGFloat = 150
 
@@ -293,8 +294,13 @@ struct MiniPianoView: View {
             onPlay(key)
         } label: {
             ZStack(alignment: .bottom) {
+                // Keys stay piano-coloured in dark mode, just less glaring.
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(isLit(key) ? Theme.pitchLine.opacity(0.35) : Color(white: 0.97))
+                    .fill(Color(white: colorScheme == .dark ? 0.85 : 0.97))
+                if isLit(key) {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(Theme.pitchLine.opacity(0.35))
+                }
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .strokeBorder(Color.black.opacity(0.25), lineWidth: 1)
                 VStack(spacing: 4) {
@@ -312,7 +318,7 @@ struct MiniPianoView: View {
             .frame(width: whiteWidth, height: height)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(key.spokenName), \(Int(key.frequency.rounded())) hertz")
+        .accessibilityLabel("\(key.spokenName), \(key.frequency.roundedInt) hertz")
         .accessibilityValue(target.contains(key.frequency) ? "In your target range" : "")
         .accessibilityAddTraits(.playsSound)
     }
@@ -334,7 +340,7 @@ struct MiniPianoView: View {
             .frame(width: blackWidth, height: height * 0.6)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(key.spokenName), \(Int(key.frequency.rounded())) hertz")
+        .accessibilityLabel("\(key.spokenName), \(key.frequency.roundedInt) hertz")
         .accessibilityValue(target.contains(key.frequency) ? "In your target range" : "")
         .accessibilityAddTraits(.playsSound)
     }

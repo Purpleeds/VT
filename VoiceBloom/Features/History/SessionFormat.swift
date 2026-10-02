@@ -4,7 +4,7 @@ import Foundation
 nonisolated enum SessionFormat {
     /// e.g. "45 s", "12 min", "1 h 5 min".
     static func duration(_ seconds: Double) -> String {
-        let total = max(0, Int(seconds.rounded()))
+        let total = max(0, seconds.roundedInt)
         if total < 60 {
             return "\(total) s"
         }
@@ -18,7 +18,7 @@ nonisolated enum SessionFormat {
 
     /// e.g. "45 seconds", "12 minutes" (VoiceOver).
     static func spokenDuration(_ seconds: Double) -> String {
-        let total = max(0, Int(seconds.rounded()))
+        let total = max(0, seconds.roundedInt)
         if total < 60 {
             return total == 1 ? "1 second" : "\(total) seconds"
         }
@@ -27,21 +27,21 @@ nonisolated enum SessionFormat {
     }
 
     static func hertz(_ frequency: Double) -> String {
-        "\(Int(frequency.rounded())) Hz"
+        "\(frequency.roundedInt) Hz"
     }
 
     static func percent(_ value: Double) -> String {
-        "\(Int(value.rounded()))%"
+        "\(value.roundedInt)%"
     }
 
     /// A 0–100 score, e.g. "62".
     static func score(_ value: Double?) -> String {
-        value.map { "\(Int($0.rounded()))" } ?? "—"
+        value.map { "\($0.roundedInt)" } ?? "—"
     }
 
     static func range(low: Double?, high: Double?) -> String {
         guard let low, let high else { return "—" }
-        return "\(Int(low.rounded()))–\(Int(high.rounded())) Hz"
+        return "\(low.roundedInt)–\(high.roundedInt) Hz"
     }
 
     /// e.g. "0.62%", for jitter and shimmer.

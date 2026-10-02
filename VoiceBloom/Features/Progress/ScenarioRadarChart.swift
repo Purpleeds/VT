@@ -17,7 +17,7 @@ struct ScenarioRadarChart: View {
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("Scenario skills radar chart")
                     .accessibilityValue(RadarValues.Axis.allCases.compactMap { axis in
-                        values.value(axis).map { "\(axis.title) \(Int($0.rounded()))" }
+                        values.value(axis).map { "\(axis.title) \($0.roundedInt)" }
                     }.joined(separator: ", "))
                     // Lets VoiceOver users explore the values as an audio graph.
                     .accessibilityChartDescriptor(RadarChartDescriptor(values: values))
@@ -36,7 +36,7 @@ private nonisolated struct RadarChartDescriptor: AXChartDescriptorRepresentable 
         let axes = RadarValues.Axis.allCases
         let xAxis = AXCategoricalDataAxisDescriptor(title: "Skill", categoryOrder: axes.map(\.title))
         let yAxis = AXNumericDataAxisDescriptor(title: "Score", range: 0...100, gridlinePositions: [0, 25, 50, 75, 100]) { value in
-            "\(Int(value.rounded())) out of 100"
+            "\(value.roundedInt) out of 100"
         }
         let points = axes.compactMap { axis in
             values.value(axis).map { AXDataPoint(x: axis.title, y: $0) }
@@ -91,7 +91,7 @@ private struct RadarShapeView: View {
                     VStack(spacing: 0) {
                         Text(axis.title)
                             .font(.caption.weight(.medium))
-                        Text(values.value(axis).map { "\(Int($0.rounded()))" } ?? "—")
+                        Text(values.value(axis).map { "\($0.roundedInt)" } ?? "—")
                             .font(.caption2.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }

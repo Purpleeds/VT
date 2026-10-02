@@ -62,8 +62,8 @@ struct PitchHistogramChart: View {
                 .interpolationMethod(.catmullRom)
                 .lineStyle(StrokeStyle(lineWidth: 2.5))
                 .foregroundStyle(by: .value("Voice", point.series))
-                .accessibilityLabel("\(point.series), \(Int(point.frequency.rounded())) hertz")
-                .accessibilityValue("\(Int(point.percent.rounded())) percent of the time")
+                .accessibilityLabel("\(point.series), \(point.frequency.roundedInt) hertz")
+                .accessibilityValue("\(point.percent.roundedInt) percent of the time")
             }
             .chartForegroundStyleScale(domain: series.map(\.name), range: series.map(\.color))
             .chartXAxisLabel("Hz")
@@ -101,11 +101,11 @@ struct TargetStatsGrid: View {
     private var pitchText: String {
         guard let pitch = snapshot.medianPitch else { return "—" }
         let note = PitchMath.noteName(for: pitch).map { " (\($0))" } ?? ""
-        return "\(Int(pitch.rounded())) Hz\(note)"
+        return "\(pitch.roundedInt) Hz\(note)"
     }
 
     private func hertz(_ value: Double?) -> String {
-        value.map { "\(Int($0.rounded())) Hz" } ?? "—"
+        value.map { "\($0.roundedInt) Hz" } ?? "—"
     }
 
     private var weightText: String {

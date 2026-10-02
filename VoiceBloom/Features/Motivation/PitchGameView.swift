@@ -156,7 +156,7 @@ private struct PitchGameContent: View {
                 Text("Best \(PitchGameScores.best)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                startButton("Play again")
+                startButton("Play Again")
             }
             .onAppear {
                 _ = MotivationCenter.refresh(context: modelContext)
@@ -176,9 +176,9 @@ private struct PitchGameContent: View {
     }
 
     private var accessibilityStatus: String {
-        let height = Int((model.engine.balloonY * 100).rounded())
+        let height = (model.engine.balloonY * 100).roundedInt
         let next = model.engine.gates.first { !$0.isResolved }
-        let gap = next.map { ", next gap at \(Int(($0.gapCenter * 100).rounded())) percent height" } ?? ""
+        let gap = next.map { ", next gap at \(($0.gapCenter * 100).roundedInt) percent height" } ?? ""
         return "Balloon at \(height) percent height\(gap). Score \(model.engine.score)."
     }
 }

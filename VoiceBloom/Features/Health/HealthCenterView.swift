@@ -31,7 +31,7 @@ struct HealthCenterView: View {
                 CheckInCountsRow(summary: summary)
                 LabeledContent("Strain warnings", value: "\(summary.strainWarnings)")
                     .accessibilityValue(summary.strainWarnings == 0 ? "None" : "\(summary.strainWarnings)")
-                LabeledContent("Practice", value: "\(Int(summary.weekMinutes.rounded())) min")
+                LabeledContent("Practice", value: "\(summary.weekMinutes.roundedInt) min")
             } header: {
                 Text("Last 7 days")
             } footer: {
@@ -52,7 +52,7 @@ struct HealthCenterView: View {
                 Text(HealthLibrary.disclaimer)
             }
         }
-        .navigationTitle("Vocal Health")
+        .navigationTitle("Vocal Health Center")
         .onAppear(perform: refresh)
     }
 
@@ -107,11 +107,11 @@ private struct TodayLimitRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("\(Int(summary.todayMinutes.rounded())) of \(Int(limit)) min")
+                Text("\(summary.todayMinutes.roundedInt) of \(Int(limit)) min")
                     .font(.headline)
                     .monospacedDigit()
                 Spacer()
-                Text(summary.remainingMinutes > 0 ? "\(Int(summary.remainingMinutes.rounded())) min left" : "Limit reached")
+                Text(summary.remainingMinutes > 0 ? "\(summary.remainingMinutes.roundedInt) min left" : "Limit reached")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -121,7 +121,7 @@ private struct TodayLimitRow: View {
         .padding(.vertical, 4)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Practice today")
-        .accessibilityValue("\(Int(summary.todayMinutes.rounded())) of \(Int(limit)) minutes. \(summary.remainingMinutes > 0 ? "\(Int(summary.remainingMinutes.rounded())) minutes left" : "Soft limit reached")")
+        .accessibilityValue("\(summary.todayMinutes.roundedInt) of \(Int(limit)) minutes. \(summary.remainingMinutes > 0 ? "\(summary.remainingMinutes.roundedInt) minutes left" : "Soft limit reached")")
     }
 }
 
@@ -239,7 +239,7 @@ struct BreakAdviceBanner: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             NoticeBanner(title: advice.title, message: advice.message, systemImage: advice.systemImage, tint: Theme.targetZone)
-            Button("OK", action: onDismiss)
+            Button("Got It", action: onDismiss)
                 .buttonStyle(.glass)
         }
     }

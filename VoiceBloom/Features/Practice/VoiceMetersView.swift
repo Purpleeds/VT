@@ -44,13 +44,13 @@ struct VoiceMetersCard: View {
 
     private var resonanceDisplay: MeterDisplay? {
         guard let reading = monitor.resonance else { return nil }
-        let f3Text = reading.f3.map { " · F3 \(Int($0.rounded())) Hz" } ?? ""
-        let f3Spoken = reading.f3.map { ", F3 \(Int($0.rounded())) hertz" } ?? ""
+        let f3Text = reading.f3.map { " · F3 \($0.roundedInt) Hz" } ?? ""
+        let f3Spoken = reading.f3.map { ", F3 \($0.roundedInt) hertz" } ?? ""
         return MeterDisplay(
             score: reading.score,
             zone: MeterZone(score: reading.score).resonanceLabel,
-            detail: "F2 \(Int(reading.f2.rounded())) Hz\(f3Text)",
-            spokenDetail: "F2 \(Int(reading.f2.rounded())) hertz\(f3Spoken)",
+            detail: "F2 \(reading.f2.roundedInt) Hz\(f3Text)",
+            spokenDetail: "F2 \(reading.f2.roundedInt) hertz\(f3Spoken)",
             isLive: reading.isLive
         )
     }
@@ -137,7 +137,7 @@ struct VoiceMeterRow: View {
                     Text(display.zone)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Text("\(Int(display.score.rounded()))")
+                    Text("\(display.score.roundedInt)")
                         .font(.title2.weight(.bold))
                         .monospacedDigit()
                 } else {
@@ -172,7 +172,7 @@ struct VoiceMeterRow: View {
     private var accessibilityValue: String {
         guard let display else { return "No reading yet. \(emptyHint)." }
         let freshness = display.isLive ? "" : " Last reading."
-        return "\(Int(display.score.rounded())) out of 100, \(display.zone).\(freshness) \(display.spokenDetail)."
+        return "\(display.score.roundedInt) out of 100, \(display.zone).\(freshness) \(display.spokenDetail)."
     }
 }
 

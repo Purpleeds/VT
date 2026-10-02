@@ -355,7 +355,7 @@ private struct LiveReadoutPanel: View {
 
     private var pitchText: String {
         guard let frequency = monitor.readoutFrequency else { return "—" }
-        return "\(Int(frequency.rounded()))"
+        return "\(frequency.roundedInt)"
     }
 
     /// The note name as the big number ("Note names" display setting).
@@ -381,7 +381,7 @@ private struct LiveReadoutPanel: View {
     private var pitchAccessibilityValue: String {
         guard let frequency = monitor.readoutFrequency else { return "No voice detected" }
         let note = PitchMath.spokenNoteName(for: frequency).map { ", note \($0)" } ?? ""
-        return "\(Int(frequency.rounded())) hertz\(note)"
+        return "\(frequency.roundedInt) hertz\(note)"
     }
 }
 
@@ -398,8 +398,8 @@ private struct SessionStatsRow: View {
             HStack(spacing: 12) {
                 StatTile(
                     title: "Average",
-                    value: stats.pitch.averageFrequency.map { "\(Int($0.rounded())) Hz" } ?? "—",
-                    accessibilityValue: stats.pitch.averageFrequency.map { "\(Int($0.rounded())) hertz" } ?? "None yet"
+                    value: stats.pitch.averageFrequency.map { "\($0.roundedInt) Hz" } ?? "—",
+                    accessibilityValue: stats.pitch.averageFrequency.map { "\($0.roundedInt) hertz" } ?? "None yet"
                 )
                 StatTile(
                     title: "Range",
@@ -422,26 +422,26 @@ private struct SessionStatsRow: View {
     }
 
     private func scoreText(_ average: ScoreAverage) -> String {
-        average.mean.map { "\(Int($0.rounded()))" } ?? "—"
+        average.mean.map { "\($0.roundedInt)" } ?? "—"
     }
 
     private func scoreSpoken(_ average: ScoreAverage) -> String {
-        average.mean.map { "average \(Int($0.rounded())) out of 100" } ?? "None yet"
+        average.mean.map { "average \($0.roundedInt) out of 100" } ?? "None yet"
     }
 
     private func rangeText(_ stats: PitchSessionStats) -> String {
         guard let low = stats.minimumFrequency, let high = stats.maximumFrequency else { return "—" }
-        return "\(Int(low.rounded()))–\(Int(high.rounded()))"
+        return "\(low.roundedInt)–\(high.roundedInt)"
     }
 
     private func rangeAccessibilityText(_ stats: PitchSessionStats) -> String {
         guard let low = stats.minimumFrequency, let high = stats.maximumFrequency else { return "None yet" }
-        return "\(Int(low.rounded())) to \(Int(high.rounded())) hertz"
+        return "\(low.roundedInt) to \(high.roundedInt) hertz"
     }
 
     private func durationText(_ stats: PitchSessionStats) -> String {
         let interval = monitor.analysisConfiguration?.hopDuration ?? AnalysisConfiguration().hopDuration
-        let seconds = Int(stats.voicedDuration(frameInterval: interval).rounded())
+        let seconds = stats.voicedDuration(frameInterval: interval).roundedInt
         return Duration.seconds(seconds).formatted(.time(pattern: .minuteSecond))
     }
 }

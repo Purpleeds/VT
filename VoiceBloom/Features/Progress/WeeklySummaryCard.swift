@@ -17,7 +17,7 @@ struct WeeklySummaryCard: View {
             } else {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 12) {
-                        StatTile(title: "Practice", value: "\(Int(summary.minutes.rounded())) min")
+                        StatTile(title: "Practice", value: "\(summary.minutes.roundedInt) min")
                         StatTile(title: "Sessions", value: "\(summary.sessionCount)")
                         StatTile(title: "Days", value: "\(summary.activeDays) of 7")
                     }
@@ -32,7 +32,7 @@ struct WeeklySummaryCard: View {
                         row(
                             symbol: "arrow.up.right.circle.fill",
                             title: "Biggest improvement",
-                            detail: "\(change.metric.title): +\(Int(change.amount.rounded()))\(change.metric == .inTarget ? " points" : "") on last week"
+                            detail: "\(change.metric.title): +\(change.amount.roundedInt)\(change.metric == .inTarget ? " points" : "") on last week"
                         )
                     } else {
                         row(symbol: "arrow.left.arrow.right.circle", title: "Trend", detail: "Practice two weeks in a row to see what’s improving.")
@@ -41,7 +41,7 @@ struct WeeklySummaryCard: View {
                         row(
                             symbol: "scope",
                             title: "Area to focus on",
-                            detail: "\(focus.metric.title) (average \(Int(focus.average.rounded()))\(focus.metric.unit)). \(Self.tip(for: focus.metric))"
+                            detail: "\(focus.metric.title) (average \(focus.average.roundedInt)\(focus.metric.unit)). \(Self.tip(for: focus.metric))"
                         )
                     }
                 }
@@ -52,9 +52,9 @@ struct WeeklySummaryCard: View {
     private func bestDayText(_ best: WeeklySummary.BestDay) -> String {
         let day = best.date.formatted(.dateTime.weekday(.wide))
         if let percent = best.percentInTarget {
-            return "\(day): \(Int(percent.rounded()))% in target over \(Int(best.minutes.rounded())) min"
+            return "\(day): \(percent.roundedInt)% in target over \(best.minutes.roundedInt) min"
         }
-        return "\(day): \(Int(best.minutes.rounded())) min of practice"
+        return "\(day): \(best.minutes.roundedInt) min of practice"
     }
 
     private func row(symbol: String, title: String, detail: String) -> some View {

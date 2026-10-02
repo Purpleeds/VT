@@ -1,6 +1,7 @@
+import Foundation
 import SwiftUI
 
-/// The live scrolling pitch graph, driven by the display's refresh rate.
+/// The live scrolling pitch graph, redrawn at up to 60 fps while listening.
 struct LivePitchGraph: View {
     @Environment(LiveVoiceMonitor.self) private var monitor
     /// Draws raw YIN estimates as dots (used on the debug screen).
@@ -12,7 +13,10 @@ struct LivePitchGraph: View {
         // Reading the revision makes a paused graph redraw after a reset.
         let _ = monitor.historyRevision
 
-        TimelineView(.animation(minimumInterval: nil, paused: !isRunning)) { context in
+        // 60 fps is smooth for a scrolling line; ProMotion's 120 Hz would
+        // double the drawing for no visible gain (30 fps in Low Power Mode).
+        let interval = ProcessInfo.processInfo.isLowPowerModeEnabled ? 1.0 / 30 : 1.0 / 60
+        TimelineView(.animation(minimumInterval: interval, paused: !isRunning)) { context in
             let end = monitor.graphEndTime(at: context.date)
             PitchGraphCanvas(
                 points: monitor.graphPoints(endingAt: end),
@@ -32,7 +36,7 @@ struct LivePitchGraph: View {
         guard let frequency = monitor.readoutFrequency else {
             return "No voice detected. Target zone \(target.spokenDescription)."
         }
-        let hertz = Int(frequency.rounded())
+        let hertz = frequency.roundedInt
         let position: String
         if target.contains(frequency) {
             position = "inside the target zone"

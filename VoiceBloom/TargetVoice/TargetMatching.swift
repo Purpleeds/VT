@@ -163,7 +163,7 @@ nonisolated enum TargetComparison {
     }
 
     private static func hertz(_ value: Double?) -> String {
-        value.map { "\(Int($0.rounded())) Hz" } ?? "—"
+        value.map { "\($0.roundedInt) Hz" } ?? "—"
     }
 
     private static func decibels(_ value: Double) -> String {

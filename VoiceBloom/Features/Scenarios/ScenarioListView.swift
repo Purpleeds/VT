@@ -81,13 +81,13 @@ struct DifficultyBadge: View {
     let score: Double?
 
     var body: some View {
-        Text(score.map { "\(difficulty.title) \(Int($0.rounded()))" } ?? difficulty.title)
+        Text(score.map { "\(difficulty.title) \($0.roundedInt)" } ?? difficulty.title)
             .font(.caption2.weight(.semibold))
             .monospacedDigit()
             .padding(.horizontal, 7)
             .padding(.vertical, 3)
             .background(score == nil ? Color.secondary.opacity(0.12) : Theme.targetZone.opacity(0.22), in: Capsule())
             .foregroundStyle(score == nil ? Color.secondary : Color.primary)
-            .accessibilityLabel(score.map { "\(difficulty.title), best score \(Int($0.rounded()))" } ?? "\(difficulty.title), not practiced yet")
+            .accessibilityLabel(score.map { "\(difficulty.title), best score \($0.roundedInt)" } ?? "\(difficulty.title), not practiced yet")
     }
 }

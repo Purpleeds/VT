@@ -80,7 +80,7 @@ struct CoachFeedbackCard: View {
                 Button {
                     Task { await generate() }
                 } label: {
-                    Label("Get coach feedback", systemImage: "sparkles")
+                    Label("Get Coach Feedback", systemImage: "sparkles")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.glass)
@@ -146,7 +146,7 @@ struct WeeklyReviewCard: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
-                Button("Review again") {
+                Button("Review Again") {
                     Task { await generate() }
                 }
                 .font(.footnote)
@@ -161,7 +161,7 @@ struct WeeklyReviewCard: View {
                 Button {
                     Task { await generate() }
                 } label: {
-                    Label("Review my week", systemImage: "sparkles")
+                    Label("Review My Week", systemImage: "sparkles")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.glass)

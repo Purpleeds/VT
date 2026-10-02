@@ -102,7 +102,7 @@ struct DebugView: View {
 
             Section {
                 LabeledContent("Active slips", value: slipText)
-                LabeledContent("Pitch floor", value: "\(Int(monitor.slipConfiguration.pitchFloor.rounded())) Hz")
+                LabeledContent("Pitch floor", value: "\(monitor.slipConfiguration.pitchFloor.roundedInt) Hz")
                 LabeledContent("Resonance threshold", value: "\(Int(monitor.slipConfiguration.resonanceThreshold)) / 100")
                 LabeledContent("Delay", value: "\(monitor.slipConfiguration.delay.formatted()) s")
                 LabeledContent("Haptics supported", value: monitor.supportsHaptics ? "Yes" : "No")
@@ -183,7 +183,7 @@ struct DebugView: View {
         guard let summary else { return "—" }
         let jitter = summary.jitterPercent.map { "J \($0.formatted(.number.precision(.fractionLength(2))))%" } ?? "J —"
         let shimmer = summary.shimmerPercent.map { "S \($0.formatted(.number.precision(.fractionLength(1))))%" } ?? "S —"
-        let hnr = summary.harmonicsToNoiseDb.map { "H \(Int($0.rounded())) dB" } ?? "H —"
+        let hnr = summary.harmonicsToNoiseDb.map { "H \($0.roundedInt) dB" } ?? "H —"
         return "\(jitter) · \(shimmer) · \(hnr)"
     }
 
@@ -194,7 +194,7 @@ struct DebugView: View {
 
     private func formantText(_ formant: Formant?) -> String {
         guard let formant else { return "—" }
-        return "\(Int(formant.frequency.rounded())) Hz (\(Int(formant.bandwidth.rounded())))"
+        return "\(formant.frequency.roundedInt) Hz (\(formant.bandwidth.roundedInt))"
     }
 
     private func decibelText(_ value: Double?, unit: String) -> String {
@@ -204,7 +204,7 @@ struct DebugView: View {
 
     private func score(_ value: Double?) -> String {
         guard let value else { return "—" }
-        return "\(Int(value.rounded())) / 100"
+        return "\(value.roundedInt) / 100"
     }
 
     private var noteDescription: String {
@@ -213,7 +213,7 @@ struct DebugView: View {
               let cents = PitchMath.centsFromNearestNote(for: frequency)
         else { return "—" }
         let sign = cents >= 0 ? "+" : "−"
-        return "\(name) \(sign)\(Int(abs(cents).rounded()))¢"
+        return "\(name) \(sign)\(abs(cents).roundedInt)¢"
     }
 
     private var sampleRateText: String {

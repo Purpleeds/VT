@@ -143,7 +143,7 @@ struct PitchTrendChart: View {
                                 .interpolationMethod(.monotone)
                                 .foregroundStyle(Theme.pitchLine)
                                 .accessibilityLabel(spokenDate(point.date))
-                                .accessibilityValue("\(Int(pitch.rounded())) hertz")
+                                .accessibilityValue("\(pitch.roundedInt) hertz")
                             PointMark(x: .value("Date", point.date), y: .value("Average pitch", pitch))
                                 .symbolSize(28)
                                 .foregroundStyle(Theme.pitchLine)
@@ -222,7 +222,7 @@ struct ScoreTrendChart: View {
                         .foregroundStyle(by: .value("Measure", sample.metric.title))
                         .symbol(by: .value("Measure", sample.metric.title))
                         .accessibilityLabel("\(sample.metric.title), \(spokenDate(sample.date))")
-                        .accessibilityValue("\(Int(sample.value.rounded())) out of 100")
+                        .accessibilityValue("\(sample.value.roundedInt) out of 100")
                     }
                     .chartForegroundStyleScale([
                         ProgressMetric.resonance.title: Theme.resonanceSeries,
@@ -330,7 +330,7 @@ struct InTargetChart: View {
                                 .foregroundStyle(Theme.targetZone)
                                 .symbol(.circle)
                                 .accessibilityLabel(spokenDate(point.date))
-                                .accessibilityValue("\(Int(percent.rounded())) percent in target")
+                                .accessibilityValue("\(percent.roundedInt) percent in target")
                         }
                     }
                 }
@@ -376,7 +376,7 @@ struct PracticeMinutesChart: View {
     var body: some View {
         ChartCard(
             title: "Practice time",
-            subtitle: "\(Int(total.rounded())) min in this range. Several short sessions beat one long one; stay under 45 min a day."
+            subtitle: "\(total.roundedInt) min in this range. Several short sessions beat one long one; stay under 45 min a day."
         ) {
             Picker("Group by", selection: $grouping) {
                 ForEach(Grouping.allCases) { grouping in
@@ -394,7 +394,7 @@ struct PracticeMinutesChart: View {
                     )
                     .foregroundStyle(bucket.minutes >= goal ? Theme.targetZone : Theme.pitchLine.opacity(0.7))
                     .accessibilityLabel(bucket.start.formatted(date: .abbreviated, time: .omitted))
-                    .accessibilityValue("\(Int(bucket.minutes.rounded())) minutes\(bucket.minutes >= goal ? ", goal met" : "")")
+                    .accessibilityValue("\(bucket.minutes.roundedInt) minutes\(bucket.minutes >= goal ? ", goal met" : "")")
                 }
                 RuleMark(y: .value("Goal", goal))
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))

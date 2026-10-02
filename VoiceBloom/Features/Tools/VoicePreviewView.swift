@@ -281,7 +281,7 @@ private struct VoicePreviewContent: View {
             model.player.stop()
             isPickingRecording = true
         } label: {
-            Label("Saved recording", systemImage: "waveform")
+            Label("Saved Recording", systemImage: "waveform")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.glass)
@@ -336,7 +336,7 @@ private struct VoicePreviewContent: View {
                 }
             }
 
-            Text("Your targets: \(targetZone.formatted), resonance (F2) about \(Int(targetF2.rounded())) Hz. Bigger shifts sound more processed.")
+            Text("Your targets: \(targetZone.formatted), resonance (F2) about \(targetF2.roundedInt) Hz. Bigger shifts sound more processed.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -349,7 +349,7 @@ private struct VoicePreviewContent: View {
         Button {
             model.applyTarget(pitch: targetZone.center, f2: targetF2)
         } label: {
-            Label("Toward my target", systemImage: "scope")
+            Label("Toward My Target", systemImage: "scope")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.glass)
@@ -451,7 +451,7 @@ private struct VoicePreviewSourceSummary: View {
             parts.append("pitch \(SessionFormat.hertz(pitch))")
         }
         if let f2 = source.f2 {
-            parts.append("F2 \(Int(f2.rounded())) Hz")
+            parts.append("F2 \(f2.roundedInt) Hz")
         }
         return parts.joined(separator: " · ")
     }
@@ -498,7 +498,7 @@ private struct VoicePreviewRecordingPicker: View {
                     }
                 }
             }
-            .navigationTitle("Choose a recording")
+            .navigationTitle("Choose a Recording")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -515,7 +515,7 @@ nonisolated enum VoicePreviewFormat {
         let change = signed(semitones, digits: 1) + " st"
         guard let pitch, pitch > 0 else { return change }
         let shifted = pitch * pow(2, semitones / 12)
-        return "\(change) (\(Int(pitch.rounded())) → \(Int(shifted.rounded())) Hz)"
+        return "\(change) (\(pitch.roundedInt) → \(shifted.roundedInt) Hz)"
     }
 
     static func resonance(_ percent: Double) -> String {
@@ -533,7 +533,7 @@ nonisolated enum VoicePreviewFormat {
     }
 
     static func spokenResonance(_ percent: Double) -> String {
-        abs(percent) < 0.5 ? "No change" : "\(Int(abs(percent).rounded())) percent \(percent > 0 ? "brighter" : "darker")"
+        abs(percent) < 0.5 ? "No change" : "\(abs(percent).roundedInt) percent \(percent > 0 ? "brighter" : "darker")"
     }
 
     /// "+4.5", "−3", "0".

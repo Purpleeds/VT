@@ -2,7 +2,7 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–12 of 14 are done:
+**Status:** all 14 stages are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
@@ -12,10 +12,11 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 7:** the 16-week lesson plan (all content in `Lessons.json`), guided sessions (warm-up, main practice, carryover, cool-down) in Quick/Standard/Deep lengths, unlock rules, and maintenance mode.
 - **Stage 8:** Tools: the searchable exercise library, a reference tone generator with a mini piano, the Daily Sentence Journal with a timeline, Quick Check, and Discreet Mode.
 - **Stage 9:** Target Voice: import audio or video from Files or Photos, trim it on a waveform, quality warnings, a Target Voice Profile, automatic targets, Compare to Target, shadowing, and several saved profiles.
+- **Stage 10:** scenario practice: 11 everyday situations at Easy, Medium and Hard with pre-written scripts, each turn scored, results saved for the Progress radar.
+- **Stage 11:** the AI Coach: Apple's on-device model, optional Gemini with your own key, or simple built-in tips; post-session feedback, an AI scenario partner, weekly review, practice texts and Ask the Coach.
 - **Stage 12:** motivation: streaks with a weekly streak freeze, achievements, a daily challenge, the balloon pitch game, an evening nudge, Home Screen and Lock Screen widgets, and Siri shortcuts.
 - **Stage 13:** privacy (app lock, app-switcher cover, a neutral app icon, neutral notification wording, backup/restore to a file, delete all data), the Vocal Health Center (articles, a 45-minute daily soft limit with break suggestions, rest suggestions) and an accessibility pass. iCloud sync is left out: it needs a paid Apple Developer account.
-- **Stage 11:** the AI Coach: Apple's on-device model, optional Gemini with your own key, or simple built-in tips; post-session feedback, an AI scenario partner, weekly review, practice texts and Ask the Coach.
-- **Stage 10:** scenario practice: 11 everyday situations at Easy, Medium and Hard with pre-written scripts, each turn scored, results saved for the Progress radar.
+- **Stage 14:** Voice Preview (a rough pitch and resonance preview of your own recording, clearly labelled as an approximation) and a final polish pass: consistent button titles, dark-mode fixes, a lighter live graph, and crash-proof number formatting.
 
 > **Building in Xcode yourself?** Stage 4 added a speech recognition entry and Stage 6 a Face ID entry to Info.plist: see [steps 3.4 and 3.5](#3-target-settings). The GitHub build already includes both.
 
@@ -140,6 +141,12 @@ If the App Group is missing (for example with some sideloading tools), the widge
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Stage 14** (Voice Preview and polish):
+- **More ▸ Tools ▸ Voice Preview:** record 8 seconds in your current voice (or pick a saved recording), then move the **Pitch** (−6 to +12 semitones) and **Resonance** (−10 to +20 %) sliders, or tap **Toward My Target**. Play **Original** and **Preview** back to back (headphones recommended; Discreet Mode applies). It's a rough approximation made with simple signal processing and is never saved.
+- **How it works:** the pitch track from the normal analysis pipeline marks each voice cycle; two-cycle slices are laid down closer together or further apart (pitch) and squeezed or stretched (resonance), a method called PSOLA. Unvoiced sounds pass through unchanged. Big shifts sound processed; that's expected.
+- **Polish:** button titles now use the same capitalization everywhere, the mini piano and widgets look right in dark mode, the live pitch graph draws at 60 fps (30 in Low Power Mode) instead of up to 120, readouts only refresh when they change, and every number shown on screen is formatted without any chance of a crash on a bad value.
+- See [TESTING.md](TESTING.md) for the checklist of things to try on a real iPhone.
 
 **Stage 13** (privacy, vocal health, accessibility):
 - **Settings ▸ Privacy & data:**
@@ -320,7 +327,8 @@ VoiceBloom/
                   Scenarios.json (11 scenarios × Easy/Medium/Hard)
   Lessons/        LessonCatalog (JSON models), SessionPlanner, unlock rules and goal evaluation,
                   LessonProgressStore, GuidedSessionModel, GuidedSessionCoordinator
-  Tools/          Exercise library search and filters, piano layout, tone-generator maths,
+  Tools/          VoicePreview (PSOLA pitch and formant shifting, period tracks, source analysis),
+                  Exercise library search and filters, piano layout, tone-generator maths,
                   journal timeline (scrubber, streaks, highlights), Quick Check comparison
   Coach/          AICoachService protocol, FoundationModelsCoach (@Generable answers), GeminiCoach
                   (REST, key in Keychain), RuleBasedCoach, CoachSafety (rules, pain detection),
@@ -354,7 +362,7 @@ VoiceBloom/
                   eyes-free practice), History (session list, session detail, check-in),
                   Onboarding (9 steps, placement test, baseline recording), Settings,
                   Lessons (lesson list, week detail, exercise detail, maintenance, guided session player),
-                  Tools (hub, exercise library, tone generator + mini piano, journal, Quick Check,
+                  Tools (hub, exercise library, tone generator + mini piano, journal, Quick Check, Voice Preview,
                   Discreet Mode), TargetVoice (list + import, trim editor, profile, Compare to
                   Target, shadowing), Scenarios (list, detail, full-screen practice),
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More,
@@ -374,7 +382,7 @@ VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic ton
    - On every 4th stable frame (no overlap): jitter, shimmer and HNR at the full sample rate.
    - Phrase detection for intonation.
 4. Results arrive on the main actor in batches.
-5. The graph redraws in sync with the display. The meters take a median over a short window and refresh about 8 times a second.
+5. The graph redraws at up to 60 fps (30 in Low Power Mode). The meters take a median over a short window and refresh about 8 times a second.
 6. On the main actor, `SlipDetector` watches pitch and resonance, and `VoiceQualityTracker` compares roughness with the user's normal. Alerts go out through `FeedbackOutput` as Core Haptics patterns and chimes on an `AVAudioPlayerNode` in the same engine. Frames recorded while a cue plays are left out of the analysis.
 7. The same background task hands each chunk of raw samples, with its time on the frame clock, to `AudioTap`. That keeps the last 30 seconds in memory (for **Save Clip**) and, when the transcript is on, feeds `SFSpeechAudioBufferRecognitionRequest`. Recognition requests are rotated every ~55 seconds so transcripts can run for a whole session. Word timings use the same clock, so a saved clip gets exactly the words spoken in it.
 

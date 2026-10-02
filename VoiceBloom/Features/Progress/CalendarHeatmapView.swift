@@ -105,7 +105,7 @@ struct CalendarHeatmapView: View {
     }
 
     private func minutesText(_ minutes: Double) -> String {
-        minutes <= 0 ? "no practice" : "\(Int(minutes.rounded())) min"
+        minutes <= 0 ? "no practice" : "\(minutes.roundedInt) min"
     }
 }
 
@@ -142,6 +142,6 @@ private struct HeatmapCell: View {
             .frame(width: size, height: size)
             .accessibilityElement()
             .accessibilityLabel(day.date.formatted(date: .complete, time: .omitted))
-            .accessibilityValue(day.isFuture ? "Upcoming" : (day.minutes > 0 ? "\(Int(day.minutes.rounded())) minutes\(day.level >= 3 ? ", goal met" : "")" : "No practice"))
+            .accessibilityValue(day.isFuture ? "Upcoming" : (day.minutes > 0 ? "\(day.minutes.roundedInt) minutes\(day.level >= 3 ? ", goal met" : "")" : "No practice"))
     }
 }

@@ -43,7 +43,7 @@ struct TakeProgressView: View {
             HStack(spacing: 8) {
                 Image(systemName: "waveform")
                     .accessibilityHidden(true)
-                Text(recorder.livePitch.map { "\(Int($0.rounded())) Hz" } ?? "Listening…")
+                Text(recorder.livePitch.map { "\($0.roundedInt) Hz" } ?? "Listening…")
                     .monospacedDigit()
             }
             .font(.headline)

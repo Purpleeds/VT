@@ -37,7 +37,7 @@ struct BackupRestoreView: View {
                 Button {
                     Task { await makeBackup() }
                 } label: {
-                    Label("Back up to a file", systemImage: "square.and.arrow.up")
+                    Label("Back Up to a File", systemImage: "square.and.arrow.up")
                 }
                 .disabled(isWorking)
             } header: {
@@ -50,7 +50,7 @@ struct BackupRestoreView: View {
                 Button {
                     isImporting = true
                 } label: {
-                    Label("Restore from a backup", systemImage: "square.and.arrow.down")
+                    Label("Restore from a Backup", systemImage: "square.and.arrow.down")
                 }
                 .disabled(isWorking)
             } header: {

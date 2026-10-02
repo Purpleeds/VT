@@ -46,11 +46,11 @@ struct GuidedSessionView: View {
                 }
             }
             .confirmationDialog("End this session?", isPresented: $isConfirmingEnd, titleVisibility: .visible) {
-                Button("End and save") {
+                Button("End and Save") {
                     model.finish()
                     dismiss()
                 }
-                Button("Keep practicing", role: .cancel) {}
+                Button("Keep Practicing", role: .cancel) {}
             } message: {
                 Text(model.countsAsCompleted ? "It counts toward this week." : "Sessions count toward the week once you’ve done at least half.")
             }
@@ -218,7 +218,7 @@ struct GuidedSessionView: View {
         case .recording:
             TakeProgressView(recorder: model.recorder, stopTitle: "Done")
         case .done:
-            Button("Try again") {
+            Button("Try Again") {
                 model.startStep()
             }
             .buttonStyle(.glass)
@@ -235,12 +235,12 @@ struct GuidedSessionView: View {
                     VStack(spacing: 2) {
                         Image(systemName: done ? (model.isMatch(at: index) ? "checkmark.circle.fill" : "xmark.circle") : (index == model.matchIndex ? "circle.dotted" : "circle"))
                             .foregroundStyle(done ? (model.isMatch(at: index) ? Theme.targetZone : Theme.warning) : Color.secondary)
-                        Text("\(Int(tone.rounded()))")
+                        Text("\(tone.roundedInt)")
                             .font(.caption2.monospacedDigit())
                             .foregroundStyle(.secondary)
                     }
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("Tone \(index + 1), \(Int(tone.rounded())) hertz")
+                    .accessibilityLabel("Tone \(index + 1), \(tone.roundedInt) hertz")
                     .accessibilityValue(done ? (model.isMatch(at: index) ? "Matched" : "Missed") : "Not yet")
                 }
             }
@@ -273,7 +273,7 @@ struct GuidedSessionView: View {
     private var liveReadout: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(monitor.readoutFrequency.map { "\(Int($0.rounded())) Hz" } ?? "—")
+                Text(monitor.readoutFrequency.map { "\($0.roundedInt) Hz" } ?? "—")
                     .font(.title2.weight(.semibold))
                     .monospacedDigit()
                 if let frequency = monitor.readoutFrequency, let note = PitchMath.noteName(for: frequency) {

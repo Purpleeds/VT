@@ -26,7 +26,7 @@ struct EyesFreePracticeView: View {
                 .minimumScaleFactor(0.5)
 
             if let percent = monitor.stats.pitch.percentInTarget {
-                Text("\(Int(percent.rounded()))% in target")
+                Text("\(percent.roundedInt)% in target")
                     .font(.title2.weight(.semibold))
                     .monospacedDigit()
                     .foregroundStyle(Color.white.opacity(0.8))

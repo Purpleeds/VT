@@ -70,7 +70,7 @@ struct LessonDetailView: View {
                         Button {
                             isShowingBaseline = true
                         } label: {
-                            Label("Re-record your baseline", systemImage: "mic.fill")
+                            Label("Re-record Your Baseline", systemImage: "mic.fill")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.glass)
@@ -136,7 +136,7 @@ struct LessonDetailView: View {
                         .padding()
                     }
                     .background { AppBackground() }
-                    .navigationTitle("Re-record baseline")
+                    .navigationTitle("Re-record Baseline")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
@@ -273,7 +273,7 @@ struct ExerciseDetailView: View {
                         goal: nil
                     ))
                 } label: {
-                    Label("Practice this exercise", systemImage: "play.fill")
+                    Label("Practice This Exercise", systemImage: "play.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.glassProminent)
@@ -317,7 +317,7 @@ struct MaintenanceView: View {
                         Text(routine.summary)
                             .foregroundStyle(.secondary)
                         if let focus = summary.focus {
-                            Label("Focus this week: \(focus.metric.title) (your lowest average, \(Int(focus.average.rounded())))", systemImage: "scope")
+                            Label("Focus this week: \(focus.metric.title) (your lowest average, \(focus.average.roundedInt))", systemImage: "scope")
                                 .font(.subheadline)
                         }
                         Button {

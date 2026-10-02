@@ -20,7 +20,7 @@ nonisolated struct RuleBasedCoach: AICoachService {
         }
 
         if let pitch = stats.averagePitch, pitch < context.target.lowerBound * pow(2, -1.0 / 12) {
-            tips.append("You averaged \(Int(pitch.rounded())) Hz, a little under your target (\(context.target.formatted)). Before each sentence, hum your target note for a second and start speaking from it.")
+            tips.append("You averaged \(pitch.roundedInt) Hz, a little under your target (\(context.target.formatted)). Before each sentence, hum your target note for a second and start speaking from it.")
         }
 
         if let weakest = context.weakestMetric, tips.count < 3 {
@@ -55,10 +55,10 @@ nonisolated struct RuleBasedCoach: AICoachService {
     }
 
     static func summary(_ stats: CoachSessionStats) -> String {
-        let minutes = max(1, Int(stats.minutes.rounded()))
+        let minutes = max(1, stats.minutes.roundedInt)
         if let inTarget = stats.percentInTarget {
             let word = inTarget >= 70 ? "Great session" : (inTarget >= 40 ? "Good session" : "Solid practice")
-            return "\(word): \(Int(inTarget.rounded()))% of the time in your target over \(minutes) min."
+            return "\(word): \(inTarget.roundedInt)% of the time in your target over \(minutes) min."
         }
         return "You practiced for \(minutes) min. Every session counts."
     }
@@ -143,7 +143,7 @@ nonisolated struct RuleBasedCoach: AICoachService {
             return WeeklyReview(
                 recommendation: .repeatWeek,
                 focus: nil,
-                message: "You practiced \(Int(context.practiceMinutes.rounded())) minutes this week. Stay with week \(context.week) and aim for a few short sessions; consistency matters more than length.",
+                message: "You practiced \(context.practiceMinutes.roundedInt) minutes this week. Stay with week \(context.week) and aim for a few short sessions; consistency matters more than length.",
                 engine: engine
             )
         }
@@ -151,7 +151,7 @@ nonisolated struct RuleBasedCoach: AICoachService {
             return WeeklyReview(
                 recommendation: .extraPractice,
                 focus: weakest.rawValue,
-                message: "\(weakest.title) is your weakest area right now (\(Int(value.rounded()))). Add one extra exercise for it each day while you finish week \(context.week).",
+                message: "\(weakest.title) is your weakest area right now (\(value.roundedInt)). Add one extra exercise for it each day while you finish week \(context.week).",
                 engine: engine
             )
         }

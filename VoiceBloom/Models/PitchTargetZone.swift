@@ -24,11 +24,11 @@ nonisolated struct PitchTargetZone: Sendable, Equatable {
 
     /// e.g. "180–220 Hz"
     var formatted: String {
-        "\(Int(lowerBound.rounded()))–\(Int(upperBound.rounded())) Hz"
+        "\(lowerBound.roundedInt)–\(upperBound.roundedInt) Hz"
     }
 
     /// e.g. "180 to 220 hertz", for VoiceOver.
     var spokenDescription: String {
-        "\(Int(lowerBound.rounded())) to \(Int(upperBound.rounded())) hertz"
+        "\(lowerBound.roundedInt) to \(upperBound.roundedInt) hertz"
     }
 }

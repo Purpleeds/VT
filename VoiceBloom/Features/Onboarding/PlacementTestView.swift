@@ -60,7 +60,7 @@ struct PlacementTestView: View {
                 .padding()
             }
             .background { AppBackground() }
-            .navigationTitle("Placement test")
+            .navigationTitle("Placement Test")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -127,14 +127,14 @@ struct PlacementTestView: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("Tone \(index + 1): \(PitchMath.noteName(for: target) ?? "") · \(Int(target.rounded())) Hz")
+            Text("Tone \(index + 1): \(PitchMath.noteName(for: target) ?? "") · \(target.roundedInt) Hz")
                 .font(.headline)
 
             if pitchResults.count > index {
                 let sung = pitchResults[index]
                 let matched = PlacementScoring.isMatch(sung: sung, target: target)
                 Label(
-                    matched ? "Matched! (\(sung.map { "\(Int($0.rounded())) Hz" } ?? ""))" : (sung.map { "You sang \(Int($0.rounded())) Hz, \(Int(abs($0 - target).rounded())) Hz away." } ?? "No voice heard."),
+                    matched ? "Matched! (\(sung.map { "\($0.roundedInt) Hz" } ?? ""))" : (sung.map { "You sang \($0.roundedInt) Hz, \(abs($0 - target).roundedInt) Hz away." } ?? "No voice heard."),
                     systemImage: matched ? "checkmark.circle.fill" : "xmark.circle"
                 )
                 .foregroundStyle(matched ? Theme.targetZone : Theme.warning)
@@ -230,7 +230,7 @@ struct PlacementTestView: View {
             .controlSize(.large)
 
             if recommendedWeek > 1 {
-                Button("Start at week 1 instead") {
+                Button("Start at Week 1 Instead") {
                     finish(week: 1)
                 }
                 .buttonStyle(.glass)
@@ -276,7 +276,7 @@ struct PlacementTestView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Label(message, systemImage: "mic.slash")
                     .foregroundStyle(Theme.warning)
-                Button("Try again") { recorder.reset() }
+                Button("Try Again") { recorder.reset() }
                     .buttonStyle(.glass)
             }
         }

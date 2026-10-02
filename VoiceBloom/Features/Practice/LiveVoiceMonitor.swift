@@ -753,23 +753,24 @@ final class LiveVoiceMonitor {
             deliver(.strain)
         }
 
-        guard let newest = newestFrame,
-              let voiced = lastVoicedFrame,
-              let frequency = voiced.displayFrequency
-        else {
-            readoutFrequency = nil
-            readoutIsLive = false
-            return
-        }
         // Keep showing the last pitch (dimmed) through short pauses between
         // words, and clear it after two seconds of silence.
-        let silence = newest.time - voiced.time
-        if silence > 2 {
-            readoutFrequency = nil
-            readoutIsLive = false
-        } else {
-            readoutFrequency = frequency
-            readoutIsLive = status == .running && silence < 0.25
+        var newFrequency: Double?
+        var newIsLive = false
+        if let newest = newestFrame, let voiced = lastVoicedFrame, let frequency = voiced.displayFrequency {
+            let silence = newest.time - voiced.time
+            if silence <= 2 {
+                newFrequency = frequency
+                newIsLive = status == .running && silence < 0.25
+            }
+        }
+        // Only touch observed properties when they change, so views that
+        // read them don't redraw for nothing.
+        if readoutFrequency != newFrequency {
+            readoutFrequency = newFrequency
+        }
+        if readoutIsLive != newIsLive {
+            readoutIsLive = newIsLive
         }
     }
 

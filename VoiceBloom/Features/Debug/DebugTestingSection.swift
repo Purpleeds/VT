@@ -27,17 +27,17 @@ struct DebugTestingSection: View {
             .disabled(isWorking)
 
             if hasSampleData {
-                Button("Remove sample history", systemImage: "trash", role: .destructive) {
+                Button("Remove Sample History", systemImage: "trash", role: .destructive) {
                     remove()
                 }
                 .disabled(isWorking)
             }
 
             Toggle(isOn: $unlockAllLessons) {
-                Label("Unlock all lesson weeks", systemImage: "lock.open")
+                Label("Unlock All Lesson Weeks", systemImage: "lock.open")
             }
 
-            Button("Show onboarding again", systemImage: "arrow.uturn.backward.circle") {
+            Button("Show Onboarding Again", systemImage: "arrow.uturn.backward.circle") {
                 profiles.first?.hasCompletedOnboarding = false
                 try? modelContext.save()
             }

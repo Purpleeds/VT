@@ -112,7 +112,7 @@ struct TargetProfileDetailView: View {
 
     private var clipLengthText: String {
         guard let start = target.clipStart, let end = target.clipEnd, end > start else { return "" }
-        return " · \(Int((end - start).rounded())) s clip"
+        return " · \((end - start).roundedInt) s clip"
     }
 
     private var actions: some View {
@@ -137,14 +137,14 @@ struct TargetProfileDetailView: View {
             NavigationLink {
                 ShadowingView(target: target)
             } label: {
-                Label("Shadowing practice", systemImage: "repeat")
+                Label("Shadowing Practice", systemImage: "repeat")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.glass)
             .disabled(target.clipFileURL == nil)
 
             if target.isActive, let user {
-                Button("Stop using as my target voice") {
+                Button("Stop Using as My Target Voice") {
                     do {
                         try TargetVoiceStore(context: modelContext).deactivate(for: user)
                     } catch {
@@ -258,7 +258,7 @@ struct TargetSuggestionSheet: View {
     }
 
     private func hertz(_ value: Double?, default fallback: Double) -> String {
-        "\(Int((value ?? fallback).rounded())) Hz"
+        "\((value ?? fallback).roundedInt) Hz"
     }
 
     private func decibels(_ value: Double) -> String {

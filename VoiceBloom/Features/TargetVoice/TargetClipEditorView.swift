@@ -109,7 +109,7 @@ struct TargetClipEditorView: View {
                 Text("\(SessionTime.clock(selection.start)) – \(SessionTime.clock(selection.end))")
                     .monospacedDigit()
                 Spacer()
-                Text("\(Int(selection.length.rounded())) s selected")
+                Text("\(selection.length.roundedInt) s selected")
                     .monospacedDigit()
                     .foregroundStyle(ClipQualityChecker.recommendedDuration.contains(selection.length) ? Color.secondary : Theme.warning)
             }

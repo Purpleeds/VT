@@ -119,7 +119,7 @@ private struct SettingsForm: View {
                     .padding()
                 }
                 .background { AppBackground() }
-                .navigationTitle("Baseline recording")
+                .navigationTitle("Baseline Recording")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -186,9 +186,9 @@ private struct SettingsForm: View {
 
     private var microphoneSection: some View {
         Section {
-            Button("Re-run mic calibration") { isShowingCalibration = true }
-            Button("Re-run placement test") { isShowingPlacement = true }
-            Button(profile.hasBaseline ? "Re-record baseline" : "Record baseline") { isShowingBaseline = true }
+            Button("Re-run Mic Calibration") { isShowingCalibration = true }
+            Button("Re-run Placement Test") { isShowingPlacement = true }
+            Button(profile.hasBaseline ? "Re-record Baseline" : "Record Baseline") { isShowingBaseline = true }
         } header: {
             Text("Microphone & tests")
         } footer: {
@@ -240,10 +240,10 @@ private struct SettingsForm: View {
                         .textInputAutocapitalization(.never)
                         .onSubmit(saveGeminiKey)
                     if !geminiKey.isEmpty {
-                        Button("Save key", action: saveGeminiKey)
+                        Button("Save Key", action: saveGeminiKey)
                     }
                     if hasGeminiKey {
-                        Button("Remove Gemini key", role: .destructive) {
+                        Button("Remove Gemini Key", role: .destructive) {
                             KeychainStore.set(nil, account: KeychainStore.geminiAPIKeyAccount)
                             hasGeminiKey = false
                         }
@@ -302,7 +302,7 @@ private struct SettingsForm: View {
                 Text("Backup & restore")
             }
             LabeledContent("iCloud sync", value: "Not available")
-            Button("Delete all data", role: .destructive) {
+            Button("Delete All Data", role: .destructive) {
                 isConfirmingDelete = true
             }
         } header: {
@@ -437,7 +437,7 @@ struct VoiceTargetsView: View {
             }
             Section {
                 LabeledContent("Baseline", value: profile.hasBaseline ? "From your Day 1 recording" : "Typical starting values")
-                Button("Reset to defaults") {
+                Button("Reset to Defaults") {
                     profile.targetF2 = nil
                     profile.targetF3 = nil
                     profile.targetH1MinusH2 = nil
@@ -447,7 +447,7 @@ struct VoiceTargetsView: View {
                 Text("Scores run from your baseline (0) to these targets (100).")
             }
         }
-        .navigationTitle("Voice targets")
+        .navigationTitle("Voice Targets")
         .onChange(of: profile.personalReferences) { _, newValue in
             monitor.applyReferences(newValue)
         }

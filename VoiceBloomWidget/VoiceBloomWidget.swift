@@ -70,10 +70,10 @@ struct PracticeWidgetView: View {
     private var progress: Double { entry.snapshot?.goalProgress(on: entry.date) ?? 0 }
 
     var body: some View {
+        // The system background adapts to light and dark mode (and is
+        // dropped automatically on the Lock Screen and in StandBy).
         content
-            .containerBackground(for: .widget) {
-                Color.clear
-            }
+            .containerBackground(.background, for: .widget)
     }
 
     @ViewBuilder

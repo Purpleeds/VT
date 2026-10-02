@@ -140,7 +140,9 @@ actor AudioCaptureService {
 
     /// Plays a soft feedback chime while listening (no-op when not capturing).
     func playTone(_ tone: ToneSequence) {
-        guard isCapturing, let player = cuePlayer, let format = cueFormat else { return }
+        // A player node raises an exception if its engine has stopped (for
+        // example right after an interruption, before the restart).
+        guard isCapturing, engine?.isRunning == true, let player = cuePlayer, let format = cueFormat else { return }
         let samples = tone.render(sampleRate: format.sampleRate)
         guard !samples.isEmpty,
               let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(samples.count)),

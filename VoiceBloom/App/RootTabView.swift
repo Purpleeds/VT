@@ -84,10 +84,10 @@ struct RootTabView: View {
             CheckInSheet(request: request)
         }
         .alert("You’ve practiced 45 minutes today", isPresented: $guided.isShowingSoftCapAlert) {
-            Button("Rest instead", role: .cancel) {
+            Button("Rest Instead", role: .cancel) {
                 coordinator.softCapPlan = nil
             }
-            Button("Practice anyway") {
+            Button("Practice Anyway") {
                 coordinator.confirmSoftCap()
             }
         } message: {

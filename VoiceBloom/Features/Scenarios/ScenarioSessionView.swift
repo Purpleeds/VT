@@ -45,14 +45,14 @@ struct ScenarioSessionView: View {
                 }
             }
             .confirmationDialog("End this scenario?", isPresented: $isConfirmingEnd, titleVisibility: .visible) {
-                Button("See results so far") {
+                Button("See Results So Far") {
                     model.endEarly()
                 }
-                Button("End without saving", role: .destructive) {
+                Button("End Without Saving", role: .destructive) {
                     model.stopAudio()
                     dismiss()
                 }
-                Button("Keep going", role: .cancel) {}
+                Button("Keep Going", role: .cancel) {}
             }
             .interactiveDismissDisabled()
             .task {
@@ -176,7 +176,7 @@ struct ScenarioSessionView: View {
                 .buttonStyle(.glass)
             }
         case .ready:
-            startButton("Start speaking")
+            startButton("Start Speaking")
         case .recording:
             TakeProgressView(recorder: model.recorder, stopTitle: "Done")
         case .scored:
@@ -191,7 +191,7 @@ struct ScenarioSessionView: View {
                     Button {
                         Task { await model.startTurn() }
                     } label: {
-                        Label("Try again", systemImage: "arrow.counterclockwise")
+                        Label("Try Again", systemImage: "arrow.counterclockwise")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glass)
@@ -235,7 +235,7 @@ struct ScenarioSessionView: View {
             } else {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .firstTextBaseline) {
-                        Text(summary.overall.map { "\(Int($0.rounded()))" } ?? "—")
+                        Text(summary.overall.map { "\($0.roundedInt)" } ?? "—")
                             .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                             .monospacedDigit()
                         Text("overall · \(summary.turnCount) of \(model.level.turns.count) turns")
@@ -345,10 +345,10 @@ private struct TurnScoreCard: View {
                     .font(.headline)
                 Spacer()
                 if let overall = ScenarioScoring.overall(score) {
-                    Text("\(Int(overall.rounded()))")
+                    Text("\(overall.roundedInt)")
                         .font(.title2.weight(.semibold))
                         .monospacedDigit()
-                        .accessibilityLabel("Overall \(Int(overall.rounded()))")
+                        .accessibilityLabel("Overall \(overall.roundedInt)")
                 }
             }
             ForEach(RadarValues.Axis.allCases) { axis in
@@ -372,13 +372,13 @@ struct ScoreBarRow: View {
             MeterBar(fraction: (value ?? 0) / 100, tint: Theme.targetZone)
                 .frame(height: 8)
                 .opacity(value == nil ? 0.3 : 1)
-            Text(value.map { "\(Int($0.rounded()))" } ?? "—")
+            Text(value.map { "\($0.roundedInt)" } ?? "—")
                 .font(.subheadline.weight(.semibold))
                 .monospacedDigit()
                 .frame(width: 34, alignment: .trailing)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(title)
-        .accessibilityValue(value.map { "\(Int($0.rounded())) out of 100" } ?? "Not measured")
+        .accessibilityValue(value.map { "\($0.roundedInt) out of 100" } ?? "Not measured")
     }
 }

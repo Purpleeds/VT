@@ -250,24 +250,24 @@ nonisolated enum LessonGoalEvaluator {
         var parts: [String] = []
         if outcome.kind == .hold {
             if let bright = take.brightResonancePercent {
-                parts.append("Bright \(Int(bright.rounded()))% of the time")
+                parts.append("Bright \(bright.roundedInt)% of the time")
             }
         } else {
             if let inTarget = take.percentInTarget {
-                parts.append("\(Int(inTarget.rounded()))% in target (\(target.formatted))")
+                parts.append("\(inTarget.roundedInt)% in target (\(target.formatted))")
             }
             if let bright = take.brightResonancePercent {
-                parts.append("bright \(Int(bright.rounded()))%")
+                parts.append("bright \(bright.roundedInt)%")
             }
             if let light = take.lightWeightPercent {
-                parts.append("light \(Int(light.rounded()))%")
+                parts.append("light \(light.roundedInt)%")
             }
             if let intonation = take.intonationScore {
-                parts.append("melody \(Int(intonation.rounded()))")
+                parts.append("melody \(intonation.roundedInt)")
             }
         }
         if let pitch = take.medianPitch {
-            parts.append("average \(Int(pitch.rounded())) Hz")
+            parts.append("average \(pitch.roundedInt) Hz")
         }
         return parts.joined(separator: " · ")
     }

@@ -198,7 +198,7 @@ nonisolated enum JournalTimeline {
     static func index(forPosition position: Double, count: Int) -> Int? {
         guard count > 0 else { return nil }
         let clamped = min(max(position, 0), 1)
-        return Int((clamped * Double(count - 1)).rounded())
+        return (clamped * Double(count - 1)).roundedInt
     }
 
     /// Days in a row with an entry, ending today (or yesterday, so the
@@ -224,7 +224,7 @@ nonisolated enum JournalTimeline {
         guard maximum > 1 else { return [count - 1] }
         var result: [Int] = []
         for step in 0..<maximum {
-            let index = Int((Double(step) * Double(count - 1) / Double(maximum - 1)).rounded())
+            let index = (Double(step) * Double(count - 1) / Double(maximum - 1)).roundedInt
             if result.last != index {
                 result.append(index)
             }
@@ -265,15 +265,15 @@ nonisolated enum QuickCheckMetric: String, CaseIterable, Identifiable, Sendable 
 
     func formatted(_ value: Double) -> String {
         switch self {
-        case .pitch: "\(Int(value.rounded())) Hz"
-        case .inTarget: "\(Int(value.rounded()))%"
-        case .resonance, .weight, .intonation: "\(Int(value.rounded()))"
+        case .pitch: "\(value.roundedInt) Hz"
+        case .inTarget: "\(value.roundedInt)%"
+        case .resonance, .weight, .intonation: "\(value.roundedInt)"
         }
     }
 
     func formattedChange(_ difference: Double) -> String {
         let sign = difference >= 0 ? "+" : "−"
-        let amount = Int(abs(difference).rounded())
+        let amount = abs(difference).roundedInt
         switch self {
         case .pitch: return "\(sign)\(amount) Hz"
         case .inTarget: return "\(sign)\(amount) pts"

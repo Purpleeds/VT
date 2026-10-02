@@ -99,7 +99,7 @@ private struct ShadowingContent: View {
             HStack(spacing: 8) {
                 ForEach(segments) { segment in
                     FilterChip(
-                        title: "Phrase \(segment.index + 1) · \(Int(segment.duration.rounded())) s",
+                        title: "Phrase \(segment.index + 1) · \(segment.duration.roundedInt) s",
                         systemImage: "text.bubble",
                         isSelected: segment.index == index
                     ) {
@@ -158,7 +158,7 @@ private struct ShadowingContent: View {
                             Button {
                                 Task { await playAttempt(audio) }
                             } label: {
-                                Label("Hear yourself", systemImage: "play.fill")
+                                Label("Hear Yourself", systemImage: "play.fill")
                                     .frame(maxWidth: .infinity)
                             }
                             .buttonStyle(.glass)
@@ -167,7 +167,7 @@ private struct ShadowingContent: View {
                             Button {
                                 select(segment.index + 1)
                             } label: {
-                                Label("Next phrase", systemImage: "forward.fill")
+                                Label("Next Phrase", systemImage: "forward.fill")
                                     .frame(maxWidth: .infinity)
                             }
                             .buttonStyle(.glass)
@@ -306,7 +306,7 @@ private struct AttemptResult: View {
             } else {
                 HStack(alignment: .firstTextBaseline) {
                     if let shape = attempt.comparison.shapeMatch {
-                        Text("\(Int(shape.rounded()))%")
+                        Text("\(shape.roundedInt)%")
                             .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                             .monospacedDigit()
                         Text("melody match")
