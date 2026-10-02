@@ -47,6 +47,9 @@ nonisolated struct VoiceFrame: Sendable, Equatable {
     var formants: FormantMeasurement?
     /// Vocal weight, measured only on stable frames.
     var weight: WeightMeasurement?
+    /// Jitter, shimmer and HNR, measured on every 4th stable frame (so the
+    /// overlapping frames never count the same voice cycles twice).
+    var voiceQuality: VoiceQualityMeasurement?
     /// Set on the frame where a phrase (speech between pauses) ends.
     var completedPhrase: PhraseIntonation?
     /// Wall-clock seconds spent analyzing this frame (for the debug screen).

@@ -1,9 +1,21 @@
+import Foundation
+import SwiftUI
+import UIKit
+
 /// Live practice: current pitch, % of time in the target zone, the scrolling
 /// pitch graph, and the resonance, weight and intonation meters.
 struct PracticeView: View {
     @Environment(LiveVoiceMonitor.self) private var monitor
     @ScaledMetric(relativeTo: .body) private var graphHeight: CGFloat = 220
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isShowingCalibration = false
+    @State private var isShowingFeedbackSettings = false
+    @State private var isShowingEyesFree = false
+
+    /// Whether to show slip alerts on screen right now.
+    private var visibleSlips: Set<SlipChannel> {
+        monitor.feedbackSettings.visualAlerts ? monitor.activeSlips : []
+    }
 
     var body: some View {
         NavigationStack {
@@ -30,6 +42,15 @@ struct PracticeView: View {
                         NoticeBanner(title: "Listening paused", message: notice, systemImage: "pause.circle.fill")
                     }
 
+                    if let warning = monitor.strainWarning {
+                        StrainWarningBanner(warning: warning)
+                    }
+
+                    if !visibleSlips.isEmpty {
+                        SlipAlertBanner(channels: visibleSlips)
+                            .transition(reduceMotion ? .identity : .opacity)
+                    }
+
                     if monitor.calibration == nil {
                         CalibrationPromptCard {
                             isShowingCalibration = true
@@ -51,8 +72,12 @@ struct PracticeView: View {
                             .frame(height: graphHeight)
                     }
                     .cardStyle()
+                    .slipHighlight(visibleSlips.contains(.pitch))
 
                     VoiceMetersCard()
+                        .slipHighlight(visibleSlips.contains(.resonance))
+
+                    VoiceQualityCard()
 
                     SessionStatsRow()
 
@@ -64,11 +89,12 @@ struct PracticeView: View {
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 24)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: visibleSlips)
             }
             .background { AppBackground() }
             // Start/pause stays reachable without scrolling.
             .safeAreaInset(edge: .bottom) {
-                PracticeControls()
+                PracticeControls(onEyesFree: { isShowingEyesFree = true })
                     .padding(.horizontal)
                     .padding(.vertical, 8)
             }
@@ -77,9 +103,35 @@ struct PracticeView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     ListeningIndicator()
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button("Alerts & Feedback", systemImage: "bell.badge") {
+                            isShowingFeedbackSettings = true
+                        }
+                        Button("Eyes-Free Practice", systemImage: "eye.slash") {
+                            isShowingEyesFree = true
+                        }
+                        Button("Calibrate Microphone", systemImage: "mic.and.signal.meter") {
+                            isShowingCalibration = true
+                        }
+                        Divider()
+                        Button("Reset Session", systemImage: "arrow.counterclockwise", role: .destructive) {
+                            monitor.resetSession()
+                        }
+                        .disabled(monitor.stats.pitch.voicedFrameCount == 0)
+                    } label: {
+                        Label("Practice options", systemImage: "ellipsis.circle")
+                    }
+                }
             }
             .sheet(isPresented: $isShowingCalibration) {
                 MicCalibrationView(monitor: monitor)
+            }
+            .sheet(isPresented: $isShowingFeedbackSettings) {
+                FeedbackSettingsView()
+            }
+            .fullScreenCover(isPresented: $isShowingEyesFree) {
+                EyesFreePracticeView()
             }
         }
     }
@@ -181,24 +233,7 @@ private struct LiveReadoutPanel: View {
     }
 
     private var targetCard: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Label("In target", systemImage: "target")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-            Text(percentText)
-                .font(.system(size: numberSize, weight: .semibold, design: .rounded))
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-            Text(monitor.targetZone.formatted)
-                .font(.headline)
-                .foregroundStyle(Theme.targetZone)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .cardStyle()
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Time in target zone")
-        .accessibilityValue(targetAccessibilityValue)
+        InTargetCard()
     }
 
     private var pitchText: String {
@@ -215,21 +250,10 @@ private struct LiveReadoutPanel: View {
         return note
     }
 
-    private var percentText: String {
-        guard let percent = monitor.stats.pitch.percentInTarget else { return "—" }
-        return "\(Int(percent.rounded()))%"
-    }
-
     private var pitchAccessibilityValue: String {
         guard let frequency = monitor.readoutFrequency else { return "No voice detected" }
         let note = PitchMath.spokenNoteName(for: frequency).map { ", note \($0)" } ?? ""
         return "\(Int(frequency.rounded())) hertz\(note)"
-    }
-
-    private var targetAccessibilityValue: String {
-        let zone = "Target zone \(monitor.targetZone.spokenDescription)"
-        guard let percent = monitor.stats.pitch.percentInTarget else { return "No voiced time yet. \(zone)" }
-        return "\(Int(percent.rounded())) percent of voiced time. \(zone)"
     }
 }
 
@@ -298,18 +322,17 @@ private struct SessionStatsRow: View {
 private struct PracticeControls: View {
     @Environment(LiveVoiceMonitor.self) private var monitor
     @Environment(\.openURL) private var openURL
+    let onEyesFree: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
             primaryButton
-            if monitor.stats.pitch.voicedFrameCount > 0 {
-                Button {
-                    monitor.resetSession()
-                } label: {
-                    Label("Reset", systemImage: "arrow.counterclockwise")
+            if monitor.status != .permissionDenied {
+                Button(action: onEyesFree) {
+                    Label("Eyes-free", systemImage: "eye.slash")
                 }
                 .buttonStyle(.glass)
-                .accessibilityHint("Clears the graph and session statistics")
+                .accessibilityHint("Practice without looking: alerts come as gentle vibrations")
             }
         }
         .controlSize(.large)

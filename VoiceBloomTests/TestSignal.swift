@@ -68,6 +68,49 @@ nonisolated enum TestSignal {
         return output.map { Float(0.3 * $0) }
     }
 
+    /// Glottal-like pulses: each cycle is a decaying 700 Hz "ring" (like a
+    /// formant excited by one vocal-fold closure). The peak sits at a fixed
+    /// offset after each closure, so cycle-to-cycle period and amplitude
+    /// changes can be dialled in exactly.
+    /// - Parameters:
+    ///   - periodJitter: Each period varies uniformly by ±this fraction.
+    ///   - amplitudeJitter: Each cycle's amplitude varies uniformly by ±this fraction.
+    ///   - alternatingAmplitude: Amplitudes alternate +/− this fraction.
+    static func ringPulses(
+        fundamental: Double,
+        sampleRate: Double = 48_000,
+        count: Int,
+        periodJitter: Double = 0,
+        amplitudeJitter: Double = 0,
+        alternatingAmplitude: Double = 0,
+        seed: UInt64 = 1
+    ) -> [Float] {
+        var generator = SeededGenerator(seed: seed)
+        var output = [Float](repeating: 0, count: count)
+        let nominalPeriod = sampleRate / fundamental
+        var position = 0.0
+        var cycle = 0
+        while position < Double(count) {
+            let periodChange = periodJitter > 0 ? Double.random(in: -periodJitter...periodJitter, using: &generator) : 0
+            let period = nominalPeriod * (1 + periodChange)
+            var amplitude = 1 + (amplitudeJitter > 0 ? Double.random(in: -amplitudeJitter...amplitudeJitter, using: &generator) : 0)
+            if alternatingAmplitude > 0 {
+                amplitude += cycle.isMultiple(of: 2) ? alternatingAmplitude : -alternatingAmplitude
+            }
+            let start = Int(position.rounded(.up))
+            let end = min(count, Int((position + period).rounded(.up)))
+            if start < end {
+                for index in start..<end {
+                    let time = (Double(index) - position) / sampleRate
+                    output[index] = Float(0.5 * amplitude * sin(2 * Double.pi * 700 * time) * exp(-time / 0.002))
+                }
+            }
+            position += period
+            cycle += 1
+        }
+        return output
+    }
+
     /// A synthetic vowel, built the way speech is produced (source–filter model):
     /// 1. Source: harmonics of F0 falling 12 dB/octave, like the glottal pulse.
     /// 2. Filter: one two-pole resonator per formant (the vocal tract).

@@ -72,7 +72,7 @@ struct MeterBar: View {
             let clamped = min(max(fraction, 0), 1)
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(.secondary.opacity(0.2))
+                    .fill(Color.secondary.opacity(0.2))
                 Capsule()
                     .fill(tint)
                     .frame(width: max(proxy.size.height, proxy.size.width * clamped))

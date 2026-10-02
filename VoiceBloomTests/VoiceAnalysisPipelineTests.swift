@@ -128,6 +128,25 @@ struct VoiceAnalysisPipelineTests {
         #expect(frames.filter { !$0.isStable }.allSatisfy { $0.formants == nil && $0.weight == nil })
     }
 
+    @Test("Voice quality is measured on every 4th stable frame, never overlapping")
+    func voiceQualityCadence() throws {
+        let pipeline = VoiceAnalysisPipeline(configuration: configuration)
+        let frames = process(TestSignal.vowel(.maleAH, count: 48_000), with: pipeline)
+        let measured = frames.indices.filter { frames[$0].voiceQuality != nil }
+        #expect(measured.count >= 18 && measured.count <= 23)
+        // 4 hops = one frame length, so no audio is measured twice.
+        for (earlier, later) in zip(measured, measured.dropFirst()) {
+            #expect(later - earlier >= 4)
+        }
+        for index in measured {
+            #expect(frames[index].isStable)
+            let quality = try #require(frames[index].voiceQuality)
+            // A synthetic vowel is perfectly periodic.
+            #expect((quality.jitterPercent ?? 1) < 0.1)
+            #expect((quality.harmonicsToNoiseDb ?? 0) > 30)
+        }
+    }
+
     @Test("A phrase is summarized once the speaker pauses")
     func phraseCompletes() throws {
         let pipeline = VoiceAnalysisPipeline(configuration: configuration)

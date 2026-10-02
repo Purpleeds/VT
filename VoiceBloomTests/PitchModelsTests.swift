@@ -23,6 +23,7 @@ nonisolated enum FrameFixture {
             isStable: status == .voiced,
             formants: nil,
             weight: nil,
+            voiceQuality: nil,
             completedPhrase: nil,
             processingDuration: 0.0001
         )

@@ -2,9 +2,10 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–2 of 14 are done:
+**Status:** Stages 1–3 of 14 are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
+- **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
 
 ---
 
@@ -76,7 +77,25 @@ git commit -m "Add Xcode project"
 
 ## What to try on the device
 
-Stage 2 needs no extra Xcode setup.
+Stages 2 and 3 need no extra Xcode setup: no new permissions or capabilities.
+
+**Stage 3:**
+- **Slip alerts:** start listening, speak in your target zone, then let your pitch drop back below it.
+  - After about 2 seconds you feel two soft taps, a warm outline appears around the pitch graph, and a banner suggests easing back up.
+  - Resonance darkening gives a single low buzz and outlines the meters card.
+  - Pauses between words don't count, and alerts come at most every 4 seconds.
+  - Configure them in **⋯ ▸ Alerts & Feedback**: haptic, sound and visual separately, pitch and resonance separately, and *Gentle / Standard / Sensitive* (3 s / 2 s / about 1 s, with different thresholds).
+  - Sound alerts are off by default. The mic hears the chime (and the vibration), so those few hundred milliseconds are left out of your stats. Headphones avoid this for chimes.
+- **Eyes-free practice:** the **Eyes-free** button opens a full-screen, high-contrast view.
+  - Haptics are the feedback: two taps mean pitch drifting, a low buzz means resonance darkening, a light tap means back on target. Soft chimes are optional.
+  - The screen stays awake, and proximity sensing turns it off when you put the phone face down or in a pocket, while listening continues. Locking the phone still pauses, because the app doesn't use background audio.
+- **% in target:** a ring shows the session's percentage, with the last 10 seconds and the share of time with bright resonance underneath.
+- **Voice comfort card:** jitter, shimmer and HNR. For the first ~10–20 s of voicing in your first sessions it says *Learning your usual voice*. After that it compares your last 20 seconds with your normal: the start of the current session at first, then a stored average once you have 2+ sessions.
+  - If roughness stays 30%+ above normal for 10 seconds, a "Your voice sounds tired. Take a break." banner appears, with a gentle haptic and a *Take a Break* button. It won't repeat for 10 minutes.
+  - Everything is labelled as a rough phone-mic indicator, not a diagnosis.
+- **Debug & Tuning:** per-frame jitter, shimmer, HNR and cycle count, recent versus normal values, the roughness ratio, the slip thresholds, and buttons to feel each haptic cue.
+
+**Stage 2:**
 
 - **Calibrate first.** Practice shows a *Calibrate your microphone* card; you can also use **More ▸ Microphone Calibration**. You stay quiet for 5 seconds, then hold a comfortable "aah". The results report room noise (quiet / some noise / too noisy) and voice level (good / too quiet / too loud). Once saved, the measured room level becomes the lowest the noise gate can go.
 - **Practice tab:**
@@ -112,11 +131,16 @@ VoiceBloom/
                   Decimator (anti-alias FIR → ~12 kHz), LinearPrediction (Levinson–Durbin),
                   PolynomialRoots (Aberth), FormantAnalyzer (LPC → F1–F3), WeightAnalyzer
                   (H1–H2, H1*–H2*, spectral tilt), IntonationAnalyzer (phrases, semitone SD,
-                  rises/falls), SignalLevel + NoiseFloorEstimator, SampleFramer,
-                  VoiceAnalysisPipeline (the full per-frame chain), PitchMath
+                  rises/falls), VoiceQualityAnalyzer (jitter, shimmer, HNR), SignalLevel +
+                  NoiseFloorEstimator, SampleFramer, VoiceAnalysisPipeline (the full per-frame
+                  chain), PitchMath
   Models/         VoiceFrame, PitchTargetZone, PitchSessionStats, PitchHistory,
-                  VoiceReferences (baseline/target scoring), VoiceMeters (rolling meter readings)
-  Features/       Practice (LiveVoiceMonitor, PracticeView, pitch graph, voice meters),
+                  VoiceReferences (baseline/target scoring), VoiceMeters (rolling meter readings),
+                  SlipDetector (+ time-in-target tallies), VoiceQualityTracker (norms, strain)
+  Feedback/       FeedbackSettings, FeedbackCues (haptic patterns + chimes as data),
+                  HapticsService (Core Haptics), FeedbackOutput
+  Features/       Practice (LiveVoiceMonitor, PracticeView, pitch graph, voice meters, % in target,
+                  slip/strain banners, voice comfort card, Alerts & Feedback, eyes-free practice),
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
 VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels
@@ -129,8 +153,10 @@ VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic ton
 3. A background task drains the ring buffer every 5 ms and runs `VoiceAnalysisPipeline` on each 2048-sample frame (512-sample hop):
    - Noise gate, then YIN pitch, then octave-jump, median and smoothing filters.
    - On voiced, stable, clearly audible frames only: decimate to ~12 kHz, then 12-pole LPC for F1–F3, then harmonic levels (Goertzel) for H1–H2 and tilt, corrected for the formants.
+   - On every 4th stable frame (no overlap): jitter, shimmer and HNR at the full sample rate.
    - Phrase detection for intonation.
 4. Results arrive on the main actor in batches.
 5. The graph redraws in sync with the display. The meters take a median over a short window and refresh about 8 times a second.
+6. On the main actor, `SlipDetector` watches pitch and resonance, and `VoiceQualityTracker` compares roughness with the user's normal. Alerts go out through `FeedbackOutput` as Core Haptics patterns and chimes on an `AVAudioPlayerNode` in the same engine. Frames recorded while a cue plays are left out of the analysis.
 
 **Audio session:** category `.playAndRecord`, mode `.measurement` (no automatic gain control or voice processing), options `.defaultToSpeaker` and `.allowBluetoothA2DP`, preferred 48 kHz with 5 ms I/O buffers. Interruptions, route changes, engine configuration changes and media-services resets are all handled.

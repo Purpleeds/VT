@@ -83,6 +83,35 @@ struct DebugView: View {
             }
 
             Section {
+                LabeledContent("Jitter (last frame)", value: percent(quality?.latest?.jitterPercent))
+                LabeledContent("Shimmer (last frame)", value: percent(quality?.latest?.shimmerPercent))
+                LabeledContent("HNR (last frame)", value: decibelText(quality?.latest?.harmonicsToNoiseDb, unit: "dB"))
+                LabeledContent("Cycles marked", value: quality?.latest.map { "\($0.cycleCount)" } ?? "—")
+                LabeledContent("Recent median (20 s)", value: summaryText(quality?.assessment?.recent))
+                LabeledContent("Normal", value: summaryText(quality?.assessment?.reference))
+                LabeledContent("Normal comes from", value: referenceSource)
+                LabeledContent("Roughness vs normal", value: quality?.assessment.map { "×\($0.roughnessRatio.formatted(.number.precision(.fractionLength(2))))" } ?? "—")
+                LabeledContent("Session average", value: summaryText(quality?.session))
+            } header: {
+                Text("Voice quality")
+            } footer: {
+                Text("Measured on every 4th stable frame. A warning needs roughness ×1.3 or more for 10 s, with 100+ recent measurements. Rough indicators, not a diagnosis.")
+            }
+
+            Section {
+                LabeledContent("Active slips", value: slipText)
+                LabeledContent("Pitch floor", value: "\(Int(monitor.slipConfiguration.pitchFloor.rounded())) Hz")
+                LabeledContent("Resonance threshold", value: "\(Int(monitor.slipConfiguration.resonanceThreshold)) / 100")
+                LabeledContent("Delay", value: "\(monitor.slipConfiguration.delay.formatted()) s")
+                LabeledContent("Haptics supported", value: monitor.supportsHaptics ? "Yes" : "No")
+                Button("Play Pitch Slip Cue") { monitor.preview(.slip([.pitch])) }
+                Button("Play Resonance Slip Cue") { monitor.preview(.slip([.resonance])) }
+                Button("Play Strain Cue") { monitor.preview(.strain) }
+            } header: {
+                Text("Slip alerts")
+            }
+
+            Section {
                 if let calibration = monitor.calibration {
                     LabeledContent("Room noise floor", value: decibels(calibration.noiseFloorDb))
                     LabeledContent("Voice level", value: decibels(calibration.voiceLevelDb))
@@ -127,6 +156,34 @@ struct DebugView: View {
     private var formants: FormantMeasurement? { monitor.latestFormants }
     private var weightMeasurement: WeightMeasurement? { monitor.latestWeight }
     private var phrase: PhraseIntonation? { monitor.intonation?.phrase }
+    private var quality: VoiceQualityStatus? { monitor.voiceQuality }
+
+    private var referenceSource: String {
+        guard let quality else { return "—" }
+        if let assessment = quality.assessment {
+            return assessment.usesStoredNorms ? "Past sessions" : "Start of this session"
+        }
+        return quality.isLearning ? "Still learning" : "—"
+    }
+
+    private var slipText: String {
+        let slips = monitor.activeSlips
+        if slips.isEmpty { return "None" }
+        return slips.map(\.rawValue).sorted().joined(separator: ", ")
+    }
+
+    private func percent(_ value: Double?) -> String {
+        guard let value else { return "—" }
+        return "\(value.formatted(.number.precision(.fractionLength(2))))%"
+    }
+
+    private func summaryText(_ summary: VoiceQualitySummary?) -> String {
+        guard let summary else { return "—" }
+        let jitter = summary.jitterPercent.map { "J \($0.formatted(.number.precision(.fractionLength(2))))%" } ?? "J —"
+        let shimmer = summary.shimmerPercent.map { "S \($0.formatted(.number.precision(.fractionLength(1))))%" } ?? "S —"
+        let hnr = summary.harmonicsToNoiseDb.map { "H \(Int($0.rounded())) dB" } ?? "H —"
+        return "\(jitter) · \(shimmer) · \(hnr)"
+    }
 
     private var referenceText: String {
         let reference = monitor.resonanceMode.defaultReference

@@ -4,6 +4,7 @@ import Foundation
 ///
 ///     samples → framer (2048/512) → level + noise gate → YIN → pitch tracker
 ///             → stability check → [stable frames] decimate → LPC formants → H1–H2 / tilt
+///                                   [every 4th stable frame] jitter / shimmer / HNR
 ///             → phrase intonation
 ///
 /// The pipeline is a plain, synchronous object so it can be unit-tested by
@@ -23,6 +24,10 @@ nonisolated final class VoiceAnalysisPipeline {
     private let decimator: Decimator
     private let formantAnalyzer: FormantAnalyzer
     private let weightAnalyzer: WeightAnalyzer
+    private let voiceQualityAnalyzer: VoiceQualityAnalyzer
+    /// Frames between voice-quality measurements (frame size / hop = no overlap).
+    private let voiceQualityInterval: Int
+    private var lastVoiceQualityIndex = Int.min / 2
     private var tracker: PitchTracker
     private var stability = VoiceStabilityTracker()
     private var intonation: IntonationAnalyzer
@@ -51,6 +56,8 @@ nonisolated final class VoiceAnalysisPipeline {
         pitchAnalyzer = PitchAnalyzer(configuration: configuration)
         formantAnalyzer = FormantAnalyzer(sampleRate: decimator.outputSampleRate, maximumFrameLength: decimatedLength)
         weightAnalyzer = WeightAnalyzer(sampleRate: decimator.outputSampleRate, maximumFrameLength: decimatedLength)
+        voiceQualityAnalyzer = VoiceQualityAnalyzer(sampleRate: configuration.sampleRate)
+        voiceQualityInterval = max(1, configuration.frameSize / max(1, configuration.hopSize))
         tracker = PitchTracker(frameInterval: configuration.hopDuration, configuration: trackerConfiguration)
         intonation = IntonationAnalyzer(frameInterval: configuration.hopDuration)
         framer = SampleFramer(frameSize: configuration.frameSize, hopSize: configuration.hopSize)
@@ -151,7 +158,16 @@ nonisolated final class VoiceAnalysisPipeline {
             }
         }
 
-        // 5. Intonation: phrases are split at pauses and summarized when they end.
+        // 5. Voice quality (jitter, shimmer, HNR) on non-overlapping stable frames,
+        //    at the full sample rate for precise cycle timing.
+        var voiceQuality: VoiceQualityMeasurement?
+        if isStable, index - lastVoiceQualityIndex >= voiceQualityInterval,
+           let fundamental = estimate.frequency ?? tracked.filteredFrequency {
+            voiceQuality = voiceQualityAnalyzer.analyze(frame, fundamental: fundamental)
+            lastVoiceQualityIndex = index
+        }
+
+        // 6. Intonation: phrases are split at pauses and summarized when they end.
         let completedPhrase = intonation.process(
             time: time,
             frequency: status == .voiced ? tracked.filteredFrequency : nil
@@ -173,6 +189,7 @@ nonisolated final class VoiceAnalysisPipeline {
             isStable: isStable,
             formants: formants,
             weight: weight,
+            voiceQuality: voiceQuality,
             completedPhrase: completedPhrase,
             processingDuration: elapsed
         )

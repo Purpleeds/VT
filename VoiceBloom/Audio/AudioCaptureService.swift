@@ -59,6 +59,9 @@ actor AudioCaptureService {
     private let eventContinuation: AsyncStream<CaptureEvent>.Continuation
     private var engine: AVAudioEngine?
     private var format: CaptureFormat?
+    /// Plays the soft feedback chimes through the same engine.
+    private var cuePlayer: AVAudioPlayerNode?
+    private var cueFormat: AVAudioFormat?
     private var observers: [any NSObjectProtocol] = []
     private var isCapturing = false
     private var wasInterruptedWhileCapturing = false
@@ -102,6 +105,9 @@ actor AudioCaptureService {
             try session.setPreferredSampleRate(48_000)
             // Small hardware buffers mean fresh audio arrives every ~5 ms.
             try session.setPreferredIOBufferDuration(0.005)
+            // iOS silences haptics while the mic records unless this is set.
+            // Slip alerts rely on gentle haptics during practice.
+            try? session.setAllowHapticsAndSystemSoundsDuringRecording(true)
             try session.setActive(true)
         } catch {
             throw AudioCaptureError.sessionUnavailable(error.localizedDescription)
@@ -129,6 +135,24 @@ actor AudioCaptureService {
         isCapturing = false
         wasInterruptedWhileCapturing = false
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    /// Plays a soft feedback chime while listening (no-op when not capturing).
+    func playTone(_ tone: ToneSequence) {
+        guard isCapturing, let player = cuePlayer, let format = cueFormat else { return }
+        let samples = tone.render(sampleRate: format.sampleRate)
+        guard !samples.isEmpty,
+              let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(samples.count)),
+              let channel = buffer.floatChannelData?[0]
+        else { return }
+        buffer.frameLength = AVAudioFrameCount(samples.count)
+        for (index, sample) in samples.enumerated() {
+            channel[index] = sample
+        }
+        player.scheduleBuffer(buffer, completionHandler: nil)
+        if !player.isPlaying {
+            player.play()
+        }
     }
 
     /// Starts listening for interruptions, route changes, and engine resets.
@@ -178,7 +202,17 @@ actor AudioCaptureService {
 
     // MARK: Engine
 
+    /// Starts the engine with the chime player; if that combination fails on
+    /// some route, falls back to listening only (chimes are optional).
     private func startEngine(session: AVAudioSession) throws -> CaptureFormat {
+        do {
+            return try startEngine(session: session, withChimes: true)
+        } catch {
+            return try startEngine(session: session, withChimes: false)
+        }
+    }
+
+    private func startEngine(session: AVAudioSession, withChimes: Bool) throws -> CaptureFormat {
         tearDownEngine()
 
         // A fresh engine each time avoids stale graph state after route changes.
@@ -199,14 +233,30 @@ actor AudioCaptureService {
         engine.attach(sink)
         // The sink node can't convert formats, so it must use the input's format.
         engine.connect(input, to: sink, format: hardwareFormat)
+
+        // A player for feedback chimes (mono, at the output's rate).
+        var player: AVAudioPlayerNode?
+        var toneFormat: AVAudioFormat?
+        let outputRate = withChimes ? engine.outputNode.outputFormat(forBus: 0).sampleRate : 0
+        if outputRate > 0, let monoFormat = AVAudioFormat(standardFormatWithSampleRate: outputRate, channels: 1) {
+            let node = AVAudioPlayerNode()
+            engine.attach(node)
+            engine.connect(node, to: engine.mainMixerNode, format: monoFormat)
+            player = node
+            toneFormat = monoFormat
+        }
+
         engine.prepare()
         do {
             try engine.start()
         } catch {
             throw AudioCaptureError.engineFailed(error.localizedDescription)
         }
+        player?.play()
 
         self.engine = engine
+        cuePlayer = player
+        cueFormat = toneFormat
         let format = CaptureFormat(
             sampleRate: hardwareFormat.sampleRate,
             channelCount: Int(hardwareFormat.channelCount),
@@ -220,6 +270,8 @@ actor AudioCaptureService {
         engine?.stop()
         engine = nil
         format = nil
+        cuePlayer = nil
+        cueFormat = nil
     }
 
     /// Builds the real-time sink. This is `nonisolated` so the block is not tied
@@ -278,6 +330,8 @@ actor AudioCaptureService {
         // the next start() reconfigures the session from scratch.
         engine = nil
         format = nil
+        cuePlayer = nil
+        cueFormat = nil
         guard isCapturing || wasInterruptedWhileCapturing else { return }
         isCapturing = false
         wasInterruptedWhileCapturing = false

@@ -224,4 +224,6 @@ nonisolated struct VoiceSessionStats: Sendable, Equatable {
     var weight = ScoreAverage()
     /// Mean score of completed phrases.
     var intonation = ScoreAverage()
+    /// Share of stable frames whose rolling resonance reading was in the bright zone.
+    var brightResonance = ZoneTally()
 }
