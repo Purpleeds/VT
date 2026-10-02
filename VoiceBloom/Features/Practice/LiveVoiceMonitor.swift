@@ -397,6 +397,12 @@ final class LiveVoiceMonitor {
         strainWarning = nil
     }
 
+    /// Leaves the next `seconds` of microphone input out of statistics, meters
+    /// and slip alerts (e.g. while a reference tone plays from the speaker).
+    func excludeFromStatistics(for seconds: Double) {
+        feedbackQuietUntil = max(feedbackQuietUntil, Date().addingTimeInterval(seconds))
+    }
+
     /// Plays a cue on the enabled channels so the user can feel/hear it.
     func preview(_ cue: FeedbackCue) {
         deliver(cue)

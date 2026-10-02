@@ -1,0 +1,1896 @@
+{
+ "version": 1,
+ "warmups": [
+  {
+   "id": "belly-breathing",
+   "title": "Belly breathing",
+   "skill": "breathing",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Slow, low breaths that support the voice without tension.",
+   "instructions": [
+    "Sit or stand tall with your shoulders loose.",
+    "Rest one hand on your belly, just below your ribs.",
+    "Breathe in through your nose for 4 counts and feel your hand move out; your chest and shoulders stay still.",
+    "Breathe out on a soft “sss” for 6 counts, letting your belly come back in.",
+    "Repeat, keeping every breath unhurried."
+   ],
+   "howItShouldFeel": "Calm and wide around your waist, with nothing lifting in your shoulders or neck.",
+   "commonMistake": "Lifting the shoulders or gasping in through the mouth.",
+   "quiet": true
+  },
+  {
+   "id": "jaw-tongue-release",
+   "title": "Jaw and tongue release",
+   "skill": "warmUp",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Let go of the jaw, tongue and throat muscles that tighten the voice.",
+   "instructions": [
+    "Gently massage the hinge of your jaw in small circles for 15 seconds.",
+    "Let your jaw hang slightly open, then slowly close it. Repeat 5 times.",
+    "Stick your tongue out and down, hold for 3 seconds, then relax. Repeat 3 times.",
+    "Finish with a slow yawn, feeling the back of the throat open."
+   ],
+   "howItShouldFeel": "Loose and a little heavy in the jaw, with the throat feeling open and easy.",
+   "commonMistake": "Forcing the jaw open; this is about letting go, not stretching.",
+   "quiet": true
+  },
+  {
+   "id": "lip-trills",
+   "title": "Lip trills",
+   "skill": "warmUp",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Bubble the lips on a gentle sound to warm up with very little effort.",
+   "instructions": [
+    "Close your lips loosely and blow air through them so they flutter like a motorboat.",
+    "Add a soft voiced sound so the trill hums.",
+    "Slide slowly up a little and back down, like a gentle hill.",
+    "If your lips won’t keep fluttering, press a finger lightly into each cheek."
+   ],
+   "howItShouldFeel": "Tickly lips and a buzz in the face, with almost no work in the throat.",
+   "commonMistake": "Pushing a lot of air; you only need enough to keep the lips moving."
+  },
+  {
+   "id": "gentle-humming",
+   "title": "Gentle humming",
+   "skill": "warmUp",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Hum on “mm” to wake up the voice and feel vibration in the face.",
+   "instructions": [
+    "Close your lips with your teeth slightly apart.",
+    "Hum a comfortable note on “mm” at a quiet speaking volume.",
+    "Notice the buzz around your lips and nose.",
+    "Hum a few slow, small slides up and down."
+   ],
+   "howItShouldFeel": "A light buzz in the lips and nose. Your throat should feel like it’s barely doing anything.",
+   "commonMistake": "Humming too loudly or pressing the sound down into the chest.",
+   "quiet": true
+  },
+  {
+   "id": "gentle-sirens",
+   "title": "Gentle sirens",
+   "skill": "warmUp",
+   "kind": "glide",
+   "durationSeconds": 60,
+   "summary": "Smooth slides from low to high and back, like a quiet siren.",
+   "instructions": [
+    "Start on a comfortable low “ng” (as at the end of “sing”) or “oo”.",
+    "Slide smoothly up as high as is easy, then back down.",
+    "Keep it quiet and light; stop below any point that feels tight.",
+    "Do several slow sirens, each one a little smoother."
+   ],
+   "howItShouldFeel": "Smooth and effortless, like a slide rather than steps, with no squeeze at the top.",
+   "commonMistake": "Getting louder as you go higher, or pushing to reach high notes."
+  },
+  {
+   "id": "straw-phonation",
+   "title": "Straw phonation",
+   "skill": "warmUp",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Hum through a straw (or pursed lips) for an easy, balanced voice.",
+   "instructions": [
+    "Hold a drinking straw between your lips (or make a tiny “oo” opening if you have none).",
+    "Hum gently through it at a comfortable pitch.",
+    "Glide slowly up and down a few notes.",
+    "Keep your cheeks relaxed and the airflow steady."
+   ],
+   "howItShouldFeel": "Gentle back-pressure at the lips and a very easy, effortless voice.",
+   "commonMistake": "Puffing the cheeks out or blowing hard."
+  }
+ ],
+ "cooldowns": [
+  {
+   "id": "hum-downward",
+   "title": "Downward hums",
+   "skill": "coolDown",
+   "kind": "glide",
+   "durationSeconds": 45,
+   "summary": "Gentle hums that slide down to settle the voice.",
+   "instructions": [
+    "Hum softly on “mm” at a comfortable middle note.",
+    "Slide slowly down to a relaxed low note and let it fade.",
+    "Take an easy breath and repeat 4–5 times."
+   ],
+   "howItShouldFeel": "Settled and soothed, like a sigh of relief.",
+   "commonMistake": "Pressing low notes; let them fade naturally.",
+   "quiet": true
+  },
+  {
+   "id": "yawn-sighs",
+   "title": "Yawn-sighs",
+   "skill": "coolDown",
+   "kind": "timed",
+   "durationSeconds": 45,
+   "summary": "Big easy yawns that end in a soft sigh to release the throat.",
+   "instructions": [
+    "Start a yawn and feel the back of your throat open.",
+    "As the yawn finishes, let out a gentle descending “haaah”.",
+    "Repeat 4–5 times, keeping it soft."
+   ],
+   "howItShouldFeel": "Open and loose in the throat, with the sigh floating down on its own.",
+   "commonMistake": "Making the sigh loud or gravelly."
+  },
+  {
+   "id": "relaxed-breathing",
+   "title": "Relaxed breathing",
+   "skill": "coolDown",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Slow breathing to finish calm and tension-free.",
+   "instructions": [
+    "Breathe in through your nose for 4 counts.",
+    "Breathe out slowly through your mouth for 6–8 counts.",
+    "Let your shoulders drop a little more with each breath out."
+   ],
+   "howItShouldFeel": "Calm and heavy in the shoulders, quiet in the throat.",
+   "quiet": true
+  },
+  {
+   "id": "neck-shoulder-release",
+   "title": "Neck and shoulder release",
+   "skill": "coolDown",
+   "kind": "timed",
+   "durationSeconds": 45,
+   "summary": "Release the muscles around the voice after practice.",
+   "instructions": [
+    "Slowly roll your shoulders back 5 times, then forward 5 times.",
+    "Tip your ear toward one shoulder and hold for 10 seconds; switch sides.",
+    "Gently nod “yes” and shake “no” a few times, small and slow."
+   ],
+   "howItShouldFeel": "Loose neck and shoulders. Never stretch to the point of discomfort.",
+   "quiet": true
+  }
+ ],
+ "weeks": [
+  {
+   "week": 1,
+   "phase": 1,
+   "phaseTitle": "Foundations",
+   "title": "Breath, release and your first warm-up",
+   "summary": "Relaxed breathing, a loose jaw and throat, a warm-up routine, and what each meter means.",
+   "explanation": "Every later skill rests on an easy, unforced voice. This week you’ll learn low, quiet breathing, how to release the jaw, tongue and throat, and a short warm-up you’ll use before every session. You’ll also explore the meters: watch how pitch, resonance, weight and intonation move as you play with your voice.",
+   "whyItMatters": "Tension is the most common reason voice training stalls or hurts. A relaxed body and a reliable warm-up make every exercise easier and protect your voice for the months ahead.",
+   "steps": [
+    "Start each day with belly breathing: in through the nose for 4, out on “sss” for 6.",
+    "Release your jaw and tongue before you make any sound.",
+    "Warm up with lip trills and gentle humming, staying quiet and easy.",
+    "Open the Practice tab and watch the meters while you speak, hum and say “ee” and “oo”.",
+    "Finish with downward hums or yawn-sighs."
+   ],
+   "goal": {
+    "kind": "sessions",
+    "description": "Complete 5 warm-up sessions this week.",
+    "count": 5
+   },
+   "commonMistakes": [
+    "Breathing high in the chest and lifting the shoulders.",
+    "Rushing the warm-up or skipping it when short on time.",
+    "Trying to sound different already; this week is about awareness, not change."
+   ],
+   "howItShouldFeel": [
+    "Calm and unhurried, like stretching before a walk.",
+    "Your throat should never feel scratchy, tight or tired.",
+    "Light buzzing in the lips and face during trills and hums."
+   ],
+   "exercises": [
+    {
+     "id": "belly-breathing-long",
+     "title": "Belly breathing",
+     "skill": "breathing",
+     "kind": "timed",
+     "durationSeconds": 90,
+     "summary": "Low, slow breathing to support an easy voice.",
+     "instructions": [
+      "Sit tall with loose shoulders and one hand on your belly.",
+      "Breathe in through your nose for 4 counts; your hand moves out.",
+      "Breathe out on a soft “sss” for 6 counts.",
+      "Try stretching the “sss” to 8 counts as it gets easier."
+     ],
+     "howItShouldFeel": "Wide and calm around the waist; nothing rises in the chest or shoulders.",
+     "commonMistake": "Squeezing the last bit of air out. Stop while it still feels comfortable.",
+     "quiet": true
+    },
+    {
+     "id": "release-routine",
+     "title": "Jaw, tongue and throat release",
+     "skill": "warmUp",
+     "kind": "timed",
+     "durationSeconds": 90,
+     "summary": "A short routine to let go of the muscles that tighten the voice.",
+     "instructions": [
+      "Massage your jaw hinge in small circles.",
+      "Let your jaw drop open loosely, then close slowly, 5 times.",
+      "Stretch your tongue out and down for 3 seconds, 3 times.",
+      "Yawn slowly and notice the space at the back of your throat."
+     ],
+     "howItShouldFeel": "Heavy, loose jaw and an open throat.",
+     "commonMistake": "Forcing big movements instead of releasing.",
+     "quiet": true
+    },
+    {
+     "id": "warmup-routine",
+     "title": "Your warm-up routine",
+     "skill": "warmUp",
+     "kind": "timed",
+     "durationSeconds": 120,
+     "summary": "Lip trills then gentle hums: the warm-up you’ll use every session.",
+     "instructions": [
+      "Do 30 seconds of lip trills with a soft voice.",
+      "Add slow up-and-down slides to the trill for 30 seconds.",
+      "Hum on “mm” at a quiet speaking level for 30 seconds.",
+      "Finish with a few small hum slides, staying in a comfortable range."
+     ],
+     "howItShouldFeel": "Effortless and buzzy; you could do this for a long time without getting tired.",
+     "commonMistake": "Getting loud or pushing for high notes."
+    },
+    {
+     "id": "meet-the-meters",
+     "title": "Meet your meters",
+     "skill": "warmUp",
+     "kind": "timed",
+     "durationSeconds": 90,
+     "summary": "Play with your voice and watch what each meter does.",
+     "instructions": [
+      "Say “ee” then “oo” and watch the resonance meter change: “ee” reads brighter.",
+      "Hum a low note and then a higher one and watch the pitch line move.",
+      "Say “ha” firmly, then breathily, and watch the weight meter.",
+      "Say a sentence flatly, then like you’re excited, and watch intonation."
+     ],
+     "howItShouldFeel": "Curious and playful. There’s nothing to get right yet."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "read-and-notice",
+     "title": "Read and notice",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Read a few sentences in your everyday voice and notice the meters.",
+     "instructions": [
+      "Read the text in your normal voice; don’t try to change it.",
+      "Afterwards, look at your numbers: they’re your starting point."
+     ],
+     "howItShouldFeel": "Relaxed and natural.",
+     "text": "Hello! My name is Sam. Today I am getting to know my voice and how the meters move when I speak."
+    }
+   ]
+  },
+  {
+   "week": 2,
+   "phase": 1,
+   "phaseTitle": "Foundations",
+   "title": "Pitch awareness",
+   "summary": "Match reference tones, glide slowly, and find your current speaking average.",
+   "explanation": "Before changing pitch, you need to hear and control it. This week you’ll match reference tones, practice slow glides that move smoothly through your range, and measure your current average speaking pitch so you know where you’re starting from.",
+   "whyItMatters": "Accurate pitch control lets you raise your speaking pitch gradually later, in small steps your voice can keep, instead of jumping to a strained target.",
+   "steps": [
+    "Warm up first, every time.",
+    "Listen to each reference tone fully before you match it.",
+    "Hum or sing the tone back softly; quiet is more accurate than loud.",
+    "Do slow glides up and down, as smooth as a slide.",
+    "Read a short text to find your average speaking pitch."
+   ],
+   "goal": {
+    "kind": "pitchMatch",
+    "description": "Match 8 of 10 tones within ±10 Hz.",
+    "count": 8,
+    "total": 10
+   },
+   "commonMistakes": [
+    "Pushing volume up when going higher.",
+    "Guessing quickly instead of listening first.",
+    "Matching an octave lower than the tone."
+   ],
+   "howItShouldFeel": [
+    "Light and easy, more like humming along to music than performing.",
+    "Higher tones shouldn’t feel louder or tighter, just higher.",
+    "If anything strains, skip that tone and come back to it later."
+   ],
+   "exercises": [
+    {
+     "id": "pitch-match-10",
+     "title": "Match 10 tones",
+     "skill": "pitch",
+     "kind": "pitchMatch",
+     "durationSeconds": 180,
+     "summary": "Listen to each tone, then hum it back.",
+     "instructions": [
+      "Tap to hear a tone.",
+      "When the ring appears, hum or sing it back softly for 3 seconds.",
+      "Within ±10 Hz counts as a match."
+     ],
+     "howItShouldFeel": "Relaxed and accurate, at a soft volume.",
+     "commonMistake": "Getting louder on the higher tones.",
+     "toneCount": 10,
+     "toneMode": "comfortable"
+    },
+    {
+     "id": "slow-glides",
+     "title": "Slow glides",
+     "skill": "pitch",
+     "kind": "glide",
+     "durationSeconds": 90,
+     "summary": "Smooth slides through your range on “ng” or “oo”.",
+     "instructions": [
+      "On a soft “ng”, slide from low to high as slowly as you can.",
+      "Then slide back down just as slowly.",
+      "Watch the pitch line: aim for a smooth curve, not steps.",
+      "Stay within a range that feels easy."
+     ],
+     "howItShouldFeel": "Smooth and continuous, like a slow siren with no bumps.",
+     "commonMistake": "Rushing or getting louder at the top."
+    },
+    {
+     "id": "find-your-average",
+     "title": "Find your speaking average",
+     "skill": "pitch",
+     "kind": "reading",
+     "durationSeconds": 45,
+     "summary": "Count aloud to measure your current average pitch.",
+     "instructions": [
+      "Count from one to ten in your everyday voice.",
+      "Don’t try to change anything; this is your starting point."
+     ],
+     "howItShouldFeel": "Natural and relaxed.",
+     "text": "One, two, three, four, five, six, seven, eight, nine, ten."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "count-at-ease",
+     "title": "Counting at ease",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 45,
+     "summary": "Count aloud at a comfortable pitch, noticing where it sits.",
+     "instructions": [
+      "Count to ten slowly at a comfortable pitch.",
+      "Notice where your pitch line sits compared with the target band."
+     ],
+     "howItShouldFeel": "Easy, as if counting for a friend.",
+     "text": "One, two, three, four, five, six, seven, eight, nine, ten."
+    }
+   ]
+  },
+  {
+   "week": 3,
+   "phase": 2,
+   "phaseTitle": "Resonance",
+   "title": "Larynx awareness",
+   "summary": "Feel your voice box rise and fall: big dog / small dog, whisper sirens.",
+   "explanation": "Resonance is shaped by the size of the space above your vocal folds. Raising the larynx a little and pulling the tongue slightly forward makes that space smaller and the voice brighter. This week you’ll learn to feel and control that movement without squeezing.",
+   "whyItMatters": "Resonance is the biggest single factor in how a voice is heard. Controlling the larynx comfortably is the foundation for every bright sound you’ll make.",
+   "steps": [
+    "Warm up with trills and hums.",
+    "Pant like a big dog (low, open) then a small dog (high, light) and feel the change in your throat.",
+    "Do whisper sirens: whisper “ee” sliding up and down, feeling the larynx move.",
+    "Hold a small-dog “ee” and watch the resonance meter brighten.",
+    "Cool down with downward hums."
+   ],
+   "goal": {
+    "kind": "brightHold",
+    "description": "Keep a held “ee” in the bright zone 50% of the time.",
+    "threshold": 50
+   },
+   "commonMistakes": [
+    "Squeezing the throat to lift the larynx; lift should feel light, never pinched.",
+    "Raising pitch instead of brightening resonance.",
+    "Tensing the tongue or jaw."
+   ],
+   "howItShouldFeel": [
+    "A small, light lift in the throat, like the start of a smile or a swallow that stops halfway.",
+    "Your voice feels smaller and more forward, not tighter.",
+    "Whisper sirens should feel airy and easy."
+   ],
+   "exercises": [
+    {
+     "id": "big-dog-small-dog",
+     "title": "Big dog, small dog",
+     "skill": "resonance",
+     "kind": "timed",
+     "durationSeconds": 75,
+     "summary": "Pant to feel the larynx lower and rise.",
+     "instructions": [
+      "Pant slowly like a big, tired dog: low, open and dark.",
+      "Now pant like a small, excited dog: quick, light and high in the throat.",
+      "Switch between them every few breaths.",
+      "Gently feel your throat with your fingertips to notice the movement."
+     ],
+     "howItShouldFeel": "A clear sense of the throat space growing and shrinking, with no strain.",
+     "commonMistake": "Panting loudly or making voice; keep it whispered.",
+     "quiet": true
+    },
+    {
+     "id": "whisper-sirens",
+     "title": "Whisper sirens",
+     "skill": "resonance",
+     "kind": "glide",
+     "durationSeconds": 75,
+     "summary": "Whispered “ee” slides to feel the larynx move without voice.",
+     "instructions": [
+      "Whisper a long “ee”.",
+      "Slide the whisper up as if asking a question, then down.",
+      "Notice the larynx rising as the whisper gets brighter.",
+      "Keep the whisper relaxed and quiet."
+     ],
+     "howItShouldFeel": "Airy and light, with the brightness coming from the throat shape, not effort.",
+     "commonMistake": "Pushing breath hard; a gentle whisper is enough.",
+     "quiet": true
+    },
+    {
+     "id": "small-dog-ee",
+     "title": "Small-dog “ee”",
+     "skill": "resonance",
+     "kind": "hold",
+     "durationSeconds": 10,
+     "summary": "Hold a bright, light “ee” and watch the resonance meter.",
+     "instructions": [
+      "Find the small-dog feeling from the panting exercise.",
+      "Keep it and say a long, gentle “ee” at a comfortable pitch.",
+      "Hold for 10 seconds, watching the resonance meter brighten."
+     ],
+     "howItShouldFeel": "Bright and light, like a smile in the sound, with an easy throat.",
+     "commonMistake": "Going higher in pitch instead of brighter.",
+     "vowel": "ee"
+    }
+   ],
+   "carryover": [
+    {
+     "id": "bright-greetings",
+     "title": "Bright greetings",
+     "skill": "carryover",
+     "kind": "phrases",
+     "durationSeconds": 60,
+     "summary": "Short everyday words with the small-dog feeling.",
+     "instructions": [
+      "Say each word with the small-dog brightness.",
+      "Keep the pitch where it naturally is."
+     ],
+     "howItShouldFeel": "Friendly and bright.",
+     "items": [
+      "Hi!",
+      "Hey!",
+      "Sweet!",
+      "See you!",
+      "Yes, please!",
+      "Pleased to meet you!"
+     ]
+    }
+   ]
+  },
+  {
+   "week": 4,
+   "phase": 2,
+   "phaseTitle": "Resonance",
+   "title": "Bright vowels",
+   "summary": "Sustain “ee”, “ih” and “ay” in the bright resonance zone.",
+   "explanation": "Front vowels like “ee”, “ih” and “ay” are naturally brighter, which makes them the easiest place to build resonance. This week you’ll hold each one steady in the bright zone, then move between them without losing the brightness.",
+   "whyItMatters": "Steady bright vowels teach your mouth and throat the shape of a brighter voice, which you’ll carry into words and sentences next.",
+   "steps": [
+    "Warm up, then do a few small-dog pants to find the lift.",
+    "Hold “ee” for 10 seconds in the bright zone.",
+    "Hold “ih” and “ay” the same way.",
+    "Glide between vowels on one breath: ee–ih–ay, keeping the meter bright.",
+    "Cool down."
+   ],
+   "goal": {
+    "kind": "brightHold",
+    "description": "Hold a vowel in the bright zone 60% of the time.",
+    "threshold": 60
+   },
+   "commonMistakes": [
+    "Pitch creeping up as you brighten.",
+    "Spreading the lips into a forced smile.",
+    "Letting the tongue fall back on “ay”."
+   ],
+   "howItShouldFeel": [
+    "The sound sits forward, behind the teeth, rather than down in the chest.",
+    "The tongue feels slightly forward and high, but relaxed.",
+    "Easy enough to hold a long time without tiring."
+   ],
+   "exercises": [
+    {
+     "id": "hold-ee",
+     "title": "Bright “ee”",
+     "skill": "resonance",
+     "kind": "hold",
+     "durationSeconds": 10,
+     "summary": "Hold a bright “ee” for 10 seconds.",
+     "instructions": [
+      "Start from the small-dog lift.",
+      "Say a long, gentle “ee” at your usual pitch.",
+      "Keep the resonance meter in the bright zone."
+     ],
+     "howItShouldFeel": "Forward and bright, easy in the throat.",
+     "commonMistake": "Pushing pitch up.",
+     "vowel": "ee"
+    },
+    {
+     "id": "hold-ih",
+     "title": "Bright “ih”",
+     "skill": "resonance",
+     "kind": "hold",
+     "durationSeconds": 10,
+     "summary": "Hold a bright “ih” (as in “sit”).",
+     "instructions": [
+      "Keep the same lift as for “ee”.",
+      "Say a long “ih” and keep it bright.",
+      "Watch the meter: “ih” is a little darker than “ee” naturally."
+     ],
+     "howItShouldFeel": "Bright and relaxed.",
+     "vowel": "ih"
+    },
+    {
+     "id": "hold-ay",
+     "title": "Bright “ay”",
+     "skill": "resonance",
+     "kind": "hold",
+     "durationSeconds": 10,
+     "summary": "Hold a bright “ay” (as in “say”).",
+     "instructions": [
+      "Keep the tongue forward.",
+      "Hold a long “ay” in the bright zone."
+     ],
+     "howItShouldFeel": "Forward and smiley without forcing.",
+     "commonMistake": "Letting the tongue drop back.",
+     "vowel": "ay"
+    },
+    {
+     "id": "vowel-ladder",
+     "title": "Vowel ladder",
+     "skill": "resonance",
+     "kind": "timed",
+     "durationSeconds": 60,
+     "summary": "Glide ee–ih–ay–ih–ee on one breath, staying bright.",
+     "instructions": [
+      "Take an easy breath.",
+      "Glide slowly through ee, ih, ay, ih, ee without breaking the sound.",
+      "Keep the resonance meter bright the whole way.",
+      "Repeat 4–5 times."
+     ],
+     "howItShouldFeel": "Smooth and connected, with the brightness steady.",
+     "commonMistake": "Breaking the sound between vowels."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "bright-words",
+     "title": "Bright words",
+     "skill": "carryover",
+     "kind": "phrases",
+     "durationSeconds": 60,
+     "summary": "Words full of bright vowels.",
+     "instructions": [
+      "Say each word slowly with bright resonance."
+     ],
+     "howItShouldFeel": "Light and forward.",
+     "items": [
+      "see",
+      "keep",
+      "green",
+      "sweet",
+      "tea",
+      "please",
+      "dream",
+      "bee"
+     ]
+    }
+   ]
+  },
+  {
+   "week": 5,
+   "phase": 2,
+   "phaseTitle": "Resonance",
+   "title": "Bright words and phrases",
+   "summary": "Carry bright resonance into single words, then short phrases.",
+   "explanation": "Now you’ll take the brightness from held vowels into real words. Start with words full of bright vowels, then mix in darker vowels, and finally short phrases. The goal is to keep the throat shape steady as your mouth moves through different sounds.",
+   "whyItMatters": "Speech is made of quick changes between sounds. Keeping resonance bright through those changes is what makes it carry over into conversation.",
+   "steps": [
+    "Warm up and find your bright “ee”.",
+    "Say single words slowly, one bright breath each.",
+    "Move to two- and three-word phrases.",
+    "Speed up a little while keeping the meter bright.",
+    "Cool down."
+   ],
+   "goal": {
+    "kind": "brightReading",
+    "description": "Keep resonance bright for 60% of a phrase set.",
+    "threshold": 60
+   },
+   "commonMistakes": [
+    "Brightness dropping on darker vowels like “oh” and “ah”.",
+    "Words getting higher instead of brighter.",
+    "Over-articulating until the jaw tenses."
+   ],
+   "howItShouldFeel": [
+    "The same light, forward placement on every word.",
+    "Darker vowels still feel “small” and close to the front.",
+    "Relaxed jaw and lips."
+   ],
+   "exercises": [
+    {
+     "id": "bright-single-words",
+     "title": "Bright single words",
+     "skill": "resonance",
+     "kind": "phrases",
+     "durationSeconds": 75,
+     "summary": "Words from bright to darker vowels.",
+     "instructions": [
+      "Say each word on its own breath.",
+      "Keep the small-dog lift for every word, even the darker ones."
+     ],
+     "howItShouldFeel": "Each word bright and forward.",
+     "commonMistake": "Letting “oh” and “ah” words go dark.",
+     "items": [
+      "me",
+      "be",
+      "free",
+      "day",
+      "play",
+      "yes",
+      "sun",
+      "home",
+      "car",
+      "blue"
+     ]
+    },
+    {
+     "id": "bright-short-phrases",
+     "title": "Bright short phrases",
+     "skill": "resonance",
+     "kind": "phrases",
+     "durationSeconds": 90,
+     "summary": "Two- and three-word phrases with bright resonance.",
+     "instructions": [
+      "Say each phrase smoothly, keeping the meter bright.",
+      "Don’t push the pitch up; let resonance do the work."
+     ],
+     "howItShouldFeel": "Connected and bright.",
+     "items": [
+      "See you soon",
+      "Green tea, please",
+      "Nice to meet you",
+      "Have a good day",
+      "Sweet dreams",
+      "Thank you so much",
+      "Easy does it",
+      "What a lovely view"
+     ]
+    }
+   ],
+   "carryover": [
+    {
+     "id": "phrase-read",
+     "title": "Phrase reading",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Read short sentences with bright resonance.",
+     "instructions": [
+      "Read slowly, keeping every word bright."
+     ],
+     "howItShouldFeel": "Bright and natural.",
+     "text": "Sweet peas and green beans grow in the sunny garden. I see bright lights and silver keys. Please leave the little window open. We need three cups of iced tea."
+    }
+   ]
+  },
+  {
+   "week": 6,
+   "phase": 2,
+   "phaseTitle": "Resonance",
+   "title": "Sentences with resonance",
+   "summary": "Full sentences and a passage with bright resonance (pitch not scored).",
+   "explanation": "This week you’ll read full sentences and a short passage while keeping resonance bright. Pitch isn’t scored yet: let it sit wherever it naturally does, and give all your attention to resonance.",
+   "whyItMatters": "Being able to hold resonance through a whole passage is the bridge between exercises and real speech, and it’s the goal that completes the resonance phase.",
+   "steps": [
+    "Warm up and do a few bright vowel holds.",
+    "Read sentences one at a time, checking the meter after each.",
+    "Read the full passage in one go.",
+    "Re-read the parts where the meter dropped.",
+    "Cool down."
+   ],
+   "goal": {
+    "kind": "brightReading",
+    "description": "Bright resonance for 70% of a reading passage.",
+    "threshold": 70
+   },
+   "commonMistakes": [
+    "Throat tension creeping in on long sentences.",
+    "A nasal sound instead of a bright one (pinch your nose: if the sound changes a lot, it’s nasal).",
+    "Pitch rising instead of resonance brightening."
+   ],
+   "howItShouldFeel": [
+    "Bright but relaxed: you could talk like this for a while.",
+    "Breath stays low and easy through long sentences.",
+    "No scratchiness afterwards."
+   ],
+   "exercises": [
+    {
+     "id": "resonance-sentences",
+     "title": "Bright sentences",
+     "skill": "resonance",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Short sentences full of bright vowels.",
+     "instructions": [
+      "Read each sentence slowly.",
+      "Keep the small-dog lift through every word.",
+      "Check the meter after each sentence."
+     ],
+     "howItShouldFeel": "Bright and forward.",
+     "commonMistake": "Throat tension on longer sentences.",
+     "text": "Sweet peas and green beans grow in the sunny garden. I see bright lights and silver keys. Please leave the little window open. We need three cups of iced tea."
+    },
+    {
+     "id": "resonance-passage",
+     "title": "Bright passage",
+     "skill": "resonance",
+     "kind": "reading",
+     "durationSeconds": 75,
+     "summary": "A short passage read with bright resonance.",
+     "instructions": [
+      "Read the passage at a relaxed pace.",
+      "Let pitch be natural; focus only on resonance."
+     ],
+     "howItShouldFeel": "Bright, natural and easy.",
+     "commonMistake": "Pitch rising instead of resonance.",
+     "text": "Every evening the city lights flicker on, one by one, like tiny stars waking up. Lena likes to sit by her window and guess which light will be next. Tonight it was the bakery on the corner, glowing a soft and friendly yellow."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "bright-story",
+     "title": "Bright storytelling",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Re-read the passage as if telling it to a friend.",
+     "instructions": [
+      "Read with expression while keeping resonance bright."
+     ],
+     "howItShouldFeel": "Natural and friendly.",
+     "text": "Every evening the city lights flicker on, one by one, like tiny stars waking up. Lena likes to sit by her window and guess which light will be next. Tonight it was the bakery on the corner, glowing a soft and friendly yellow."
+    }
+   ]
+  },
+  {
+   "week": 7,
+   "phase": 3,
+   "phaseTitle": "Pitch",
+   "title": "Raising pitch in small steps",
+   "summary": "Move your speaking pitch up gradually, about 10–20 Hz at a time.",
+   "explanation": "With resonance in place, you’ll now raise your speaking pitch, but slowly. Each step is only about 10–20 Hz above where you are now. You practice a step until it feels natural, then take the next one. You never jump straight to the final target.",
+   "whyItMatters": "Small steps let the muscles adapt without strain, and they keep the voice sounding like you. Jumping straight to a high target is the usual cause of a strained or falsetto sound.",
+   "steps": [
+    "Warm up with sirens.",
+    "Match the step-up tones: your average, then +10, +15 and +20 Hz.",
+    "Read a sentence at the new step, keeping resonance bright.",
+    "Stay on a step for a few days before moving up.",
+    "Cool down with downward hums."
+   ],
+   "goal": {
+    "kind": "pitchRaise",
+    "description": "Read with your average pitch at least 15 Hz above your baseline.",
+    "threshold": 15
+   },
+   "commonMistakes": [
+    "Using falsetto or a breathy, squeaky sound.",
+    "Jumping too high too soon.",
+    "Letting resonance go dark as pitch rises."
+   ],
+   "howItShouldFeel": [
+    "Only slightly higher than usual, still easy and full.",
+    "The same bright placement as last week.",
+    "If your throat tires, go back down a step."
+   ],
+   "exercises": [
+    {
+     "id": "step-up-tones",
+     "title": "Step-up tones",
+     "skill": "pitch",
+     "kind": "pitchMatch",
+     "durationSeconds": 120,
+     "summary": "Match tones a little above your average.",
+     "instructions": [
+      "Listen to each tone.",
+      "Hum it back softly; then say “mm-hmm” on the same note.",
+      "Tones are only 10–20 Hz above your average."
+     ],
+     "howItShouldFeel": "Easy and only a little higher.",
+     "commonMistake": "Pushing volume to reach the tone.",
+     "toneCount": 6,
+     "toneMode": "stepUp"
+    },
+    {
+     "id": "step-glides",
+     "title": "Gentle step glides",
+     "skill": "pitch",
+     "kind": "glide",
+     "durationSeconds": 60,
+     "summary": "Glide up to your new step and stay there.",
+     "instructions": [
+      "Start at your usual speaking note on “mm”.",
+      "Glide up just a little to your new step.",
+      "Hold it, then say “one, two, three” on that note."
+     ],
+     "howItShouldFeel": "Smooth and comfortable."
+    },
+    {
+     "id": "step-reading",
+     "title": "Reading at the new step",
+     "skill": "pitch",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Read at your new, slightly higher pitch.",
+     "instructions": [
+      "Read at your new step, not your final target.",
+      "Keep resonance bright."
+     ],
+     "howItShouldFeel": "Natural and easy.",
+     "commonMistake": "Reading in a sing-song or falsetto voice.",
+     "text": "I am speaking a little higher today, and it feels easy and light. Each sentence is a small step, never a jump."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "step-phrases",
+     "title": "Everyday phrases at the new step",
+     "skill": "carryover",
+     "kind": "phrases",
+     "durationSeconds": 60,
+     "summary": "Short phrases at your new pitch.",
+     "instructions": [
+      "Say each phrase at your new step with bright resonance."
+     ],
+     "howItShouldFeel": "Like your normal voice, just lifted a little.",
+     "items": [
+      "Good morning!",
+      "How are you?",
+      "Thanks so much",
+      "See you later",
+      "That sounds great"
+     ]
+    }
+   ]
+  },
+  {
+   "week": 8,
+   "phase": 3,
+   "phaseTitle": "Pitch",
+   "title": "Pitch and resonance together",
+   "summary": "Combine your new pitch with bright resonance in sentences.",
+   "explanation": "This week you’ll put pitch and resonance together. Read sentences with your pitch in the target band and resonance bright, checking both meters. When one slips, slow down and fix that one before speeding up again.",
+   "whyItMatters": "Pitch without resonance can sound strained; resonance without pitch can sound unfinished. Together they make the biggest difference to how your voice is heard.",
+   "steps": [
+    "Warm up and do a few bright “ee” holds at your new pitch.",
+    "Read each sentence slowly with both meters in view.",
+    "If pitch drops, glide back up on the next word.",
+    "If resonance darkens, reset with a small-dog “ee”.",
+    "Cool down."
+   ],
+   "goal": {
+    "kind": "targetAndBright",
+    "description": "Read with 50%+ time in target and bright resonance 60%+.",
+    "threshold": 50,
+    "secondaryThreshold": 60
+   },
+   "commonMistakes": [
+    "Focusing on one meter and forgetting the other.",
+    "Pitch dropping at the end of each sentence.",
+    "Tension from trying too hard."
+   ],
+   "howItShouldFeel": [
+    "Light and forward, at a comfortable new pitch.",
+    "Breath steady through the sentence.",
+    "No tightness or scratchiness."
+   ],
+   "exercises": [
+    {
+     "id": "bright-ee-new-pitch",
+     "title": "Bright “ee” at your new pitch",
+     "skill": "pitch",
+     "kind": "hold",
+     "durationSeconds": 10,
+     "summary": "Hold a bright “ee” at your new speaking pitch.",
+     "instructions": [
+      "Find your new step.",
+      "Hold a bright “ee” there for 10 seconds."
+     ],
+     "howItShouldFeel": "Bright and comfortable.",
+     "vowel": "ee"
+    },
+    {
+     "id": "pitch-resonance-sentences",
+     "title": "Pitch + resonance sentences",
+     "skill": "pitch",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Everyday sentences with both meters in view.",
+     "instructions": [
+      "Read slowly, keeping pitch in the band and resonance bright."
+     ],
+     "howItShouldFeel": "Natural and bright.",
+     "commonMistake": "Pitch dropping at sentence ends.",
+     "text": "Could you pass me the cream, please? I think the meeting starts at eleven. This weekend I’m visiting my sister by the sea."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "pitch-resonance-phrases",
+     "title": "Everyday questions",
+     "skill": "carryover",
+     "kind": "phrases",
+     "durationSeconds": 60,
+     "summary": "Questions and answers with pitch and resonance.",
+     "instructions": [
+      "Say each line naturally, keeping both meters steady."
+     ],
+     "howItShouldFeel": "Conversational and easy.",
+     "items": [
+      "Is this seat free?",
+      "Yes, it is!",
+      "Could I have the bill?",
+      "Sure, one moment.",
+      "Where’s the station?",
+      "Just around the corner."
+     ]
+    }
+   ]
+  },
+  {
+   "week": 9,
+   "phase": 3,
+   "phaseTitle": "Pitch",
+   "title": "Stability",
+   "summary": "Full paragraphs in the target zone, with bright resonance and no strain.",
+   "explanation": "Now the goal is stability: keeping pitch and resonance steady through whole paragraphs. You’ll read longer passages, notice where you drift, and practice recovering smoothly without stopping.",
+   "whyItMatters": "Real conversations are long. Stability is what makes your new voice dependable outside practice.",
+   "steps": [
+    "Warm up thoroughly.",
+    "Read the paragraph once, just to feel it.",
+    "Read it again, watching the % in target.",
+    "When you drift, recover on the next phrase rather than stopping.",
+    "Check in after the session: comfort matters as much as numbers."
+   ],
+   "goal": {
+    "kind": "targetAndBright",
+    "description": "Read a paragraph 70%+ in target with bright resonance (60%+) and no sore check-ins this week.",
+    "threshold": 70,
+    "secondaryThreshold": 60,
+    "requiresNoStrain": true
+   },
+   "commonMistakes": [
+    "Using falsetto or a “breathy squeak” to stay high.",
+    "Holding the breath or reading too fast.",
+    "Ignoring tiredness to hit the number."
+   ],
+   "howItShouldFeel": [
+    "Steady and sustainable, like a comfortable walking pace.",
+    "Your voice should feel the same at the end of a paragraph as at the start.",
+    "No pain, tightness or hoarseness, ever."
+   ],
+   "exercises": [
+    {
+     "id": "stability-paragraph",
+     "title": "Stability paragraph",
+     "skill": "pitch",
+     "kind": "reading",
+     "durationSeconds": 75,
+     "summary": "A longer paragraph read in the target zone.",
+     "instructions": [
+      "Read at a relaxed pace.",
+      "Keep pitch in the band and resonance bright.",
+      "Recover drifts smoothly."
+     ],
+     "howItShouldFeel": "Steady and easy from start to finish.",
+     "commonMistake": "Reading faster to get through it.",
+     "text": "The train rolled gently through the hills as the sun came up. Inside, passengers sipped coffee and watched the fields turn gold. A little girl pressed her nose to the window and counted the sheep. By the time the train reached the city, everyone felt calm and ready for the day ahead."
+    },
+    {
+     "id": "stability-sentences",
+     "title": "Pitch + resonance sentences",
+     "skill": "pitch",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Warm-up sentences before the paragraph.",
+     "instructions": [
+      "Read each sentence with both meters steady."
+     ],
+     "howItShouldFeel": "Natural and bright.",
+     "text": "Could you pass me the cream, please? I think the meeting starts at eleven. This weekend I’m visiting my sister by the sea."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "stability-story",
+     "title": "Tell it back",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Re-read the paragraph as if telling a friend.",
+     "instructions": [
+      "Read naturally, with expression, staying in the zone."
+     ],
+     "howItShouldFeel": "Relaxed and conversational.",
+     "text": "The train rolled gently through the hills as the sun came up. Inside, passengers sipped coffee and watched the fields turn gold. A little girl pressed her nose to the window and counted the sheep. By the time the train reached the city, everyone felt calm and ready for the day ahead."
+    }
+   ]
+  },
+  {
+   "week": 10,
+   "phase": 4,
+   "phaseTitle": "Vocal weight",
+   "title": "Lighter vocal fold contact",
+   "summary": "Gentle onsets, breathy-to-clear slides and soft speaking.",
+   "explanation": "Vocal weight is about how firmly the vocal folds press together. A lighter contact gives a softer, less buzzy sound. This week you’ll practice gentle onsets (starting sounds without a click), slides from breathy to clear, and speaking softly but clearly.",
+   "whyItMatters": "A heavy, pressed voice can sound masculine even with good pitch and resonance. Lightening the weight completes the picture.",
+   "steps": [
+    "Warm up with straw phonation or lip trills.",
+    "Practice gentle onsets on vowels: start with a tiny “h” and let it fade.",
+    "Slide from a breathy “haa” to a clear “aa” and stop in the middle.",
+    "Read softly, aiming for light, not whispery.",
+    "Cool down."
+   ],
+   "goal": {
+    "kind": "lightWeight",
+    "description": "Keep the weight meter in the light range for 40% of a soft reading.",
+    "threshold": 40
+   },
+   "commonMistakes": [
+    "Becoming so breathy you can’t be heard.",
+    "Glottal clicks at the start of vowels (“uh-oh” style).",
+    "Dropping resonance when speaking softly."
+   ],
+   "howItShouldFeel": [
+    "Soft and easy, with a little air in the sound but still clear.",
+    "Like speaking to someone right next to you.",
+    "Your throat feels looser, not tighter."
+   ],
+   "exercises": [
+    {
+     "id": "gentle-onsets",
+     "title": "Gentle onsets",
+     "skill": "weight",
+     "kind": "timed",
+     "durationSeconds": 75,
+     "summary": "Start vowels softly without a click.",
+     "instructions": [
+      "Say “h-ee”, “h-ay”, “h-ah” with a tiny breath before each vowel.",
+      "Gradually make the “h” smaller until it’s almost gone.",
+      "Each vowel should start smoothly, like a feather landing."
+     ],
+     "howItShouldFeel": "Soft, smooth starts with no click or catch.",
+     "commonMistake": "A hard glottal start on each vowel."
+    },
+    {
+     "id": "breathy-to-clear",
+     "title": "Breathy-to-clear slides",
+     "skill": "weight",
+     "kind": "timed",
+     "durationSeconds": 75,
+     "summary": "Find the light middle between breathy and pressed.",
+     "instructions": [
+      "Say a very breathy “haaa”.",
+      "Slowly let it become clearer.",
+      "Stop at the point that is clear but still light, and hold it.",
+      "Repeat on “ee” and “oo”."
+     ],
+     "howItShouldFeel": "A clear but gentle tone, never pressed.",
+     "commonMistake": "Going past clear into a pressed, buzzy sound."
+    },
+    {
+     "id": "soft-speaking",
+     "title": "Soft speaking",
+     "skill": "weight",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Read softly and clearly.",
+     "instructions": [
+      "Read at a gentle volume, as if to someone right beside you.",
+      "Keep pitch and resonance from earlier weeks."
+     ],
+     "howItShouldFeel": "Light, gentle and clear.",
+     "commonMistake": "Whispering instead of speaking softly.",
+     "text": "Hi, it’s lovely to see you. Would you like some tea? I made a fresh pot just a few minutes ago."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "soft-phrases",
+     "title": "Soft everyday phrases",
+     "skill": "carryover",
+     "kind": "phrases",
+     "durationSeconds": 60,
+     "summary": "Short phrases with a light voice.",
+     "instructions": [
+      "Say each phrase lightly but clearly."
+     ],
+     "howItShouldFeel": "Gentle and natural.",
+     "items": [
+      "Hello there",
+      "Oh, how lovely",
+      "I’d like that",
+      "Me too",
+      "Have a nice evening"
+     ]
+    }
+   ]
+  },
+  {
+   "week": 11,
+   "phase": 4,
+   "phaseTitle": "Vocal weight",
+   "title": "Light weight with pitch and resonance",
+   "summary": "Put a light voice together with your pitch and resonance.",
+   "explanation": "Now you’ll combine everything so far: target pitch, bright resonance and light weight. Read passages watching all three meters, and practice speaking a little louder without the weight getting heavy.",
+   "whyItMatters": "Light weight is the last of the three core voice qualities. Combining all three is what makes a voice consistent and convincing.",
+   "steps": [
+    "Warm up with gentle onsets.",
+    "Read a passage watching the weight meter first.",
+    "Add pitch and resonance once the weight is light.",
+    "Try a slightly louder reading while keeping the weight light.",
+    "Cool down."
+   ],
+   "goal": {
+    "kind": "lightWeight",
+    "description": "Weight meter in the light range for 60% of a passage.",
+    "threshold": 60
+   },
+   "commonMistakes": [
+    "Becoming too breathy and quiet to be heard.",
+    "Weight getting heavy as volume goes up.",
+    "Losing pitch while focusing on weight."
+   ],
+   "howItShouldFeel": [
+    "Light and clear, with enough volume for normal conversation.",
+    "Easy breath support from the belly.",
+    "Comfortable for several minutes of reading."
+   ],
+   "exercises": [
+    {
+     "id": "light-combo-reading",
+     "title": "All together: light, bright, in target",
+     "skill": "weight",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Read with pitch, resonance and light weight together.",
+     "instructions": [
+      "Read slowly with all three meters in view."
+     ],
+     "howItShouldFeel": "Light, bright and easy.",
+     "commonMistake": "Getting breathy and quiet.",
+     "text": "I’m really happy you could make it today. The weather is perfect, the garden looks beautiful, and there’s plenty of cake for everyone."
+    },
+    {
+     "id": "light-louder",
+     "title": "A little louder, still light",
+     "skill": "weight",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Read at a normal speaking volume with light weight.",
+     "instructions": [
+      "Read as if to someone across a table.",
+      "Keep the weight meter light as volume rises."
+     ],
+     "howItShouldFeel": "Clear and present, but never pressed.",
+     "commonMistake": "Pressing to get louder.",
+     "text": "Hi, it’s lovely to see you. Would you like some tea? I made a fresh pot just a few minutes ago."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "light-story",
+     "title": "Light storytelling",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Tell a short story in your full new voice.",
+     "instructions": [
+      "Read with expression while keeping everything light and bright."
+     ],
+     "howItShouldFeel": "Natural and expressive.",
+     "text": "The train rolled gently through the hills as the sun came up. Inside, passengers sipped coffee and watched the fields turn gold. A little girl pressed her nose to the window and counted the sheep. By the time the train reached the city, everyone felt calm and ready for the day ahead."
+    }
+   ]
+  },
+  {
+   "week": 12,
+   "phase": 5,
+   "phaseTitle": "Intonation and expression",
+   "title": "Melodic speech",
+   "summary": "Rising and falling patterns, word emphasis and wider pitch variety.",
+   "explanation": "Feminine speech patterns often use more pitch movement: rises on questions, lifts on important words, and a wider melody overall. This week you’ll practice those patterns on short lines and expressive passages.",
+   "whyItMatters": "Intonation makes a voice sound alive and natural. Flat speech can sound monotone even with perfect pitch, resonance and weight.",
+   "steps": [
+    "Warm up with sirens.",
+    "Say lines with a clear rise at the end, then a clear fall.",
+    "Emphasize a different word each time you repeat a sentence.",
+    "Read an expressive passage with wide melody.",
+    "Cool down."
+   ],
+   "goal": {
+    "kind": "intonation",
+    "description": "Reach an intonation score of 60 on an expressive reading.",
+    "threshold": 60
+   },
+   "commonMistakes": [
+    "Moving the whole voice higher instead of adding movement.",
+    "A sing-song pattern that repeats the same melody.",
+    "Losing resonance on the low points of the melody."
+   ],
+   "howItShouldFeel": [
+    "Playful and expressive, like reading to a child.",
+    "Pitch moves freely but stays comfortable.",
+    "Low points stay bright and light."
+   ],
+   "exercises": [
+    {
+     "id": "rise-fall",
+     "title": "Rises and falls",
+     "skill": "intonation",
+     "kind": "phrases",
+     "durationSeconds": 75,
+     "summary": "Practice clear rising and falling patterns.",
+     "instructions": [
+      "Say each line with a clear melody: questions rise, statements fall."
+     ],
+     "howItShouldFeel": "Expressive and relaxed.",
+     "commonMistake": "Exaggerating until it sounds sing-song.",
+     "items": [
+      "Really?",
+      "Really.",
+      "You’re coming?",
+      "You’re coming!",
+      "Is it Tuesday?",
+      "It’s Tuesday.",
+      "Oh, wow!",
+      "Oh. Okay."
+     ]
+    },
+    {
+     "id": "word-emphasis",
+     "title": "Word emphasis",
+     "skill": "intonation",
+     "kind": "phrases",
+     "durationSeconds": 75,
+     "summary": "Move the emphasis to a different word each time.",
+     "instructions": [
+      "Lift the pitch on the word in capitals."
+     ],
+     "howItShouldFeel": "Natural emphasis, like real conversation.",
+     "items": [
+      "I LOVE your new coat",
+      "I love YOUR new coat",
+      "I love your NEW coat",
+      "I love your new COAT"
+     ]
+    },
+    {
+     "id": "melody-reading",
+     "title": "Melody reading",
+     "skill": "intonation",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "An expressive passage with wide melody.",
+     "instructions": [
+      "Read with lots of pitch movement, as if surprised and delighted."
+     ],
+     "howItShouldFeel": "Animated and fun.",
+     "text": "Oh, really? That’s wonderful news! Wait, you mean the blue one? No way! I can’t believe you found it after all this time."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "expressive-story",
+     "title": "Expressive story",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "A short story to read with melody.",
+     "instructions": [
+      "Read as if to a child, with a lively melody."
+     ],
+     "howItShouldFeel": "Warm and expressive.",
+     "text": "Once upon a time, a tiny hedgehog found a shiny red apple. “Is it mine?” she wondered. She looked left, she looked right, and then she rolled it all the way home, giggling the whole way."
+    }
+   ]
+  },
+  {
+   "week": 13,
+   "phase": 5,
+   "phaseTitle": "Intonation and expression",
+   "title": "Non-speech sounds",
+   "summary": "Laughing, sighing, soft coughs, “mm-hmm”, surprise and agreement.",
+   "explanation": "The little sounds between words often give an old voice away: a deep laugh, a heavy sigh, a low “mm-hmm”. This week you’ll practice these sounds in your new voice so they match your speech.",
+   "whyItMatters": "Non-speech sounds happen without thinking. Practicing them makes your new voice feel natural even when you’re not concentrating.",
+   "steps": [
+    "Warm up with hums and sirens.",
+    "Practice a light, bright laugh: “ha-ha”, “hee-hee”.",
+    "Sigh upward and downward in your new voice.",
+    "Practice “mm-hmm”, “uh-huh” and “oh!” in your new pitch.",
+    "Mix the sounds into short phrases."
+   ],
+   "goal": {
+    "kind": "sessions",
+    "description": "Complete 5 sessions with the non-speech sound exercises.",
+    "count": 5
+   },
+   "commonMistakes": [
+    "Laughs dropping into the old, low voice.",
+    "Coughing hard; keep it a soft throat-clear or skip it.",
+    "Forcing sounds instead of letting them happen."
+   ],
+   "howItShouldFeel": [
+    "Playful and spontaneous.",
+    "The same bright, light placement as your speech.",
+    "Easy enough to do without thinking."
+   ],
+   "exercises": [
+    {
+     "id": "light-laugh",
+     "title": "Light laughter",
+     "skill": "expression",
+     "kind": "timed",
+     "durationSeconds": 60,
+     "summary": "Practice a light, bright laugh.",
+     "instructions": [
+      "Say “ha-ha-ha” lightly at your new pitch.",
+      "Try “hee-hee” and “ho-ho” with bright resonance.",
+      "Let it turn into a real laugh if it wants to."
+     ],
+     "howItShouldFeel": "Bubbly and light, high in the face.",
+     "commonMistake": "Laughing from the chest in the old voice."
+    },
+    {
+     "id": "sighs-and-reactions",
+     "title": "Sighs and reactions",
+     "skill": "expression",
+     "kind": "phrases",
+     "durationSeconds": 75,
+     "summary": "Everyday reactions in your new voice.",
+     "instructions": [
+      "Say each sound naturally, keeping it bright and light."
+     ],
+     "howItShouldFeel": "Spontaneous and natural.",
+     "items": [
+      "Mm-hmm",
+      "Uh-huh",
+      "Oh!",
+      "Aww",
+      "Hmm?",
+      "Ooh!",
+      "Yay!",
+      "Oh no…"
+     ]
+    },
+    {
+     "id": "soft-throat-clear",
+     "title": "Soft throat clearing",
+     "skill": "expression",
+     "kind": "timed",
+     "durationSeconds": 45,
+     "summary": "A gentle alternative to coughing.",
+     "instructions": [
+      "Instead of a hard cough, swallow or do a tiny, soft “hm”.",
+      "Sip water if your throat feels dry."
+     ],
+     "howItShouldFeel": "Gentle; nothing scratchy.",
+     "commonMistake": "Hard coughing that strains the voice.",
+     "quiet": true
+    }
+   ],
+   "carryover": [
+    {
+     "id": "reactions-in-context",
+     "title": "Reactions in conversation",
+     "skill": "carryover",
+     "kind": "phrases",
+     "durationSeconds": 60,
+     "summary": "Reactions inside short sentences.",
+     "instructions": [
+      "Say each line naturally, letting the reaction sound match your voice."
+     ],
+     "howItShouldFeel": "Natural and bright.",
+     "items": [
+      "Mm-hmm, that makes sense.",
+      "Oh! I didn’t know that.",
+      "Haha, that’s so funny.",
+      "Aww, how sweet.",
+      "Hmm, let me think."
+     ]
+    }
+   ]
+  },
+  {
+   "week": 14,
+   "phase": 6,
+   "phaseTitle": "Real-world use",
+   "title": "Scenario practice",
+   "summary": "Use your voice in everyday situations: ordering, calls, introductions.",
+   "explanation": "Now you’ll use your voice in realistic situations with scenario practice: ordering coffee, answering a call, introducing yourself. Each turn is scored, so you can see which situations still pull you back to the old voice.",
+   "whyItMatters": "Real conversations bring stress, speed and surprise. Practicing them safely makes it easier to keep your voice when it counts.",
+   "steps": [
+    "Warm up as usual.",
+    "Choose an easy scenario and speak each turn naturally.",
+    "Review the scores for each turn.",
+    "Repeat the scenario, then try a medium one.",
+    "Cool down."
+   ],
+   "goal": {
+    "kind": "scenarios",
+    "description": "Complete 3 scenario practices.",
+    "count": 3
+   },
+   "commonMistakes": [
+    "Rushing because it feels like a real conversation.",
+    "Dropping into the old voice on the first word of each turn.",
+    "Choosing hard scenarios too soon."
+   ],
+   "howItShouldFeel": [
+    "Like a friendly rehearsal: no pressure.",
+    "Your voice stays easy even when you’re thinking about what to say.",
+    "Confident by the second or third try."
+   ],
+   "exercises": [
+    {
+     "id": "scenario-warmup-lines",
+     "title": "Everyday lines",
+     "skill": "carryover",
+     "kind": "phrases",
+     "durationSeconds": 75,
+     "summary": "Lines you might say in a café or shop.",
+     "instructions": [
+      "Say each line as if you were really there."
+     ],
+     "howItShouldFeel": "Natural and relaxed.",
+     "commonMistake": "Dropping pitch on the first word.",
+     "items": [
+      "Hi, could I get a latte, please?",
+      "Medium, with oat milk.",
+      "That’s everything, thanks!",
+      "Do you have this in a smaller size?",
+      "Hello, this is Alex speaking."
+     ]
+    },
+    {
+     "id": "projection-lines",
+     "title": "Speaking up",
+     "skill": "carryover",
+     "kind": "phrases",
+     "durationSeconds": 60,
+     "summary": "Louder lines without dropping into the old voice.",
+     "instructions": [
+      "Say each line as if to someone across a room.",
+      "Use breath, not throat, to get louder."
+     ],
+     "howItShouldFeel": "Strong but light and bright.",
+     "commonMistake": "Pressing or shouting.",
+     "items": [
+      "Excuse me!",
+      "Over here!",
+      "Hold the door, please!",
+      "Thank you!",
+      "Dinner’s ready!"
+     ]
+    }
+   ],
+   "carryover": [
+    {
+     "id": "scenario-practice",
+     "title": "A scenario",
+     "skill": "carryover",
+     "kind": "scenario",
+     "durationSeconds": 180,
+     "summary": "Practice a full scenario (Tools › Scenarios).",
+     "instructions": [
+      "Pick a scenario and difficulty.",
+      "Speak each turn when it’s your line."
+     ],
+     "howItShouldFeel": "Like a friendly rehearsal."
+    }
+   ]
+  },
+  {
+   "week": 15,
+   "phase": 6,
+   "phaseTitle": "Real-world use",
+   "title": "Louder and tired voice",
+   "summary": "Speak louder without dropping into the old voice, and practice when tired.",
+   "explanation": "Two situations challenge a new voice most: speaking loudly and speaking when tired. This week you’ll practice projecting with breath instead of pressure, and do a short session at the end of the day to keep your voice steady when energy is low.",
+   "whyItMatters": "Busy places and long days are where an old voice tends to come back. Practicing them makes your voice dependable when it matters.",
+   "steps": [
+    "Warm up with belly breathing and sirens.",
+    "Read a projection passage, using breath support to get louder.",
+    "Keep resonance bright and weight light while louder.",
+    "Do one session in the evening when you’re tired.",
+    "Stop at any sign of strain."
+   ],
+   "goal": {
+    "kind": "targetAndBright",
+    "description": "Read a projection passage 60%+ in target with bright resonance (50%+).",
+    "threshold": 60,
+    "secondaryThreshold": 50
+   },
+   "commonMistakes": [
+    "Pressing or shouting to get louder.",
+    "Dropping pitch when volume rises.",
+    "Pushing through tiredness or soreness."
+   ],
+   "howItShouldFeel": [
+    "Louder but still light; the energy comes from the belly.",
+    "Tired-voice practice should be short and gentle.",
+    "If it hurts, stop and rest."
+   ],
+   "exercises": [
+    {
+     "id": "projection-reading",
+     "title": "Projection reading",
+     "skill": "pitch",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Read loudly with breath support.",
+     "instructions": [
+      "Read as if to someone across a room.",
+      "Breathe low and let the breath carry the sound."
+     ],
+     "howItShouldFeel": "Strong but easy.",
+     "commonMistake": "Pressing the voice to get louder.",
+     "text": "Excuse me! Over here! Could you hold the door, please? Thank you so much! Sarah, dinner’s ready!"
+    },
+    {
+     "id": "tired-voice",
+     "title": "Tired-voice reading",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "A gentle reading for the end of the day.",
+     "instructions": [
+      "Read softly but keep it bright and light.",
+      "Keep it short; stop if your voice feels strained."
+     ],
+     "howItShouldFeel": "Gentle and steady.",
+     "commonMistake": "Pushing through fatigue.",
+     "text": "It’s been a long day, but I can still use my easy, bright voice. I’ll keep it light and relaxed, even when I’m tired."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "call-across-room",
+     "title": "Calling across a room",
+     "skill": "carryover",
+     "kind": "phrases",
+     "durationSeconds": 60,
+     "summary": "Call out in your new voice.",
+     "instructions": [
+      "Call each line as if to someone in another room.",
+      "Stay bright and light."
+     ],
+     "howItShouldFeel": "Present and easy.",
+     "items": [
+      "Sam, the taxi is here!",
+      "Can you hear me?",
+      "I’m in the kitchen!",
+      "Come and see this!"
+     ]
+    }
+   ]
+  },
+  {
+   "week": 16,
+   "phase": 6,
+   "phaseTitle": "Real-world use",
+   "title": "Then vs Now",
+   "summary": "Re-record your Day 1 baseline and hear how far you’ve come.",
+   "explanation": "In the final week you’ll re-record the same passage and free speech as on Day 1, using your new voice. Then you can play both back to back in the Progress tab (Then vs Now) and see your numbers side by side.",
+   "whyItMatters": "Progress is gradual and easy to miss day to day. Comparing with Day 1 shows how much you’ve changed, and what to keep working on.",
+   "steps": [
+    "Warm up thoroughly.",
+    "Re-record your baseline (button below) in your new voice.",
+    "Open Progress › Then vs Now and listen to both.",
+    "Note one thing you’re proud of and one to keep practicing.",
+    "Move on to maintenance mode."
+   ],
+   "goal": {
+    "kind": "baseline",
+    "description": "Re-record your baseline passage and free speech."
+   },
+   "commonMistakes": [
+    "Judging yourself harshly: compare with Day 1, not with an ideal.",
+    "Recording while tired; pick a time your voice feels fresh."
+   ],
+   "howItShouldFeel": [
+    "Proud of the work you’ve put in.",
+    "Your new voice should feel like yours."
+   ],
+   "exercises": [
+    {
+     "id": "week16-full-review",
+     "title": "Full review reading",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 75,
+     "summary": "A final reading with everything together.",
+     "instructions": [
+      "Read with pitch, resonance, weight and intonation together."
+     ],
+     "howItShouldFeel": "Natural and confident.",
+     "text": "The train rolled gently through the hills as the sun came up. Inside, passengers sipped coffee and watched the fields turn gold. A little girl pressed her nose to the window and counted the sheep. By the time the train reached the city, everyone felt calm and ready for the day ahead."
+    },
+    {
+     "id": "week16-baseline-passage",
+     "title": "Your Day 1 passage",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Read the baseline passage in your new voice.",
+     "instructions": [
+      "Read the same passage you read on Day 1."
+     ],
+     "howItShouldFeel": "Confident and relaxed.",
+     "text": "The morning market was already busy when Maya arrived. She wandered past baskets of bright oranges, warm bread fresh from the oven, and a little stall hung with paper lanterns. A friendly vendor waved and offered her a slice of peach. She laughed, said yes, and decided this was going to be a very good day."
+    }
+   ],
+   "carryover": [
+    {
+     "id": "week16-expressive",
+     "title": "Expressive story",
+     "skill": "carryover",
+     "kind": "reading",
+     "durationSeconds": 60,
+     "summary": "Celebrate with an expressive reading.",
+     "instructions": [
+      "Read with all your skills together."
+     ],
+     "howItShouldFeel": "Joyful and natural.",
+     "text": "Once upon a time, a tiny hedgehog found a shiny red apple. “Is it mine?” she wondered. She looked left, she looked right, and then she rolled it all the way home, giggling the whole way."
+    }
+   ]
+  }
+ ],
+ "maintenance": {
+  "title": "Maintenance mode",
+  "explanation": "You’ve finished the 16-week plan. Keep your voice strong with short daily routines that mix every skill, a weekly scenario challenge, and a focus area chosen from your recent sessions.",
+  "dailyMinutes": 8,
+  "routines": [
+   {
+    "id": "balanced",
+    "title": "Balanced routine",
+    "focus": "inTarget",
+    "summary": "A bit of everything: warm-up, resonance, pitch, weight and melody.",
+    "exercises": [
+     {
+      "id": "m-bright-ee",
+      "title": "Bright “ee” check",
+      "skill": "resonance",
+      "kind": "hold",
+      "durationSeconds": 10,
+      "summary": "Hold a bright “ee”.",
+      "instructions": [
+       "Hold a bright “ee” at your speaking pitch."
+      ],
+      "howItShouldFeel": "Bright and easy.",
+      "vowel": "ee"
+     },
+     {
+      "id": "m-pitch-resonance",
+      "title": "Pitch + resonance sentences",
+      "skill": "pitch",
+      "kind": "reading",
+      "durationSeconds": 60,
+      "summary": "Everyday sentences.",
+      "instructions": [
+       "Read with pitch in the band and bright resonance."
+      ],
+      "howItShouldFeel": "Natural.",
+      "text": "Could you pass me the cream, please? I think the meeting starts at eleven. This weekend I’m visiting my sister by the sea."
+     },
+     {
+      "id": "m-melody",
+      "title": "Melody lines",
+      "skill": "intonation",
+      "kind": "phrases",
+      "durationSeconds": 60,
+      "summary": "Rises and falls.",
+      "instructions": [
+       "Say each line with melody."
+      ],
+      "howItShouldFeel": "Expressive.",
+      "items": [
+       "Really?",
+       "Really.",
+       "Oh, wow!",
+       "Is it ready?",
+       "It’s ready."
+      ]
+     }
+    ]
+   },
+   {
+    "id": "resonance",
+    "title": "Resonance focus",
+    "focus": "resonance",
+    "summary": "Bright vowels and a resonance passage.",
+    "exercises": [
+     {
+      "id": "m-res-ee",
+      "title": "Bright “ee”",
+      "skill": "resonance",
+      "kind": "hold",
+      "durationSeconds": 10,
+      "summary": "Hold a bright “ee”.",
+      "instructions": [
+       "Hold a bright “ee”."
+      ],
+      "howItShouldFeel": "Bright.",
+      "vowel": "ee"
+     },
+     {
+      "id": "m-res-ay",
+      "title": "Bright “ay”",
+      "skill": "resonance",
+      "kind": "hold",
+      "durationSeconds": 10,
+      "summary": "Hold a bright “ay”.",
+      "instructions": [
+       "Hold a bright “ay”."
+      ],
+      "howItShouldFeel": "Bright.",
+      "vowel": "ay"
+     },
+     {
+      "id": "m-res-passage",
+      "title": "Bright passage",
+      "skill": "resonance",
+      "kind": "reading",
+      "durationSeconds": 75,
+      "summary": "Read with bright resonance.",
+      "instructions": [
+       "Read with bright resonance."
+      ],
+      "howItShouldFeel": "Bright and easy.",
+      "text": "Every evening the city lights flicker on, one by one, like tiny stars waking up. Lena likes to sit by her window and guess which light will be next. Tonight it was the bakery on the corner, glowing a soft and friendly yellow."
+     }
+    ]
+   },
+   {
+    "id": "pitch",
+    "title": "Pitch focus",
+    "focus": "inTarget",
+    "summary": "Tone matching and a stability paragraph.",
+    "exercises": [
+     {
+      "id": "m-pitch-match",
+      "title": "Match tones in your target",
+      "skill": "pitch",
+      "kind": "pitchMatch",
+      "durationSeconds": 120,
+      "summary": "Match tones in your target zone.",
+      "instructions": [
+       "Listen, then hum each tone back."
+      ],
+      "howItShouldFeel": "Easy and accurate.",
+      "toneCount": 6,
+      "toneMode": "target"
+     },
+     {
+      "id": "m-pitch-paragraph",
+      "title": "Stability paragraph",
+      "skill": "pitch",
+      "kind": "reading",
+      "durationSeconds": 75,
+      "summary": "A paragraph in the target zone.",
+      "instructions": [
+       "Read in your target zone."
+      ],
+      "howItShouldFeel": "Steady.",
+      "text": "The train rolled gently through the hills as the sun came up. Inside, passengers sipped coffee and watched the fields turn gold. A little girl pressed her nose to the window and counted the sheep. By the time the train reached the city, everyone felt calm and ready for the day ahead."
+     }
+    ]
+   },
+   {
+    "id": "weight",
+    "title": "Vocal weight focus",
+    "focus": "weight",
+    "summary": "Gentle onsets and light reading.",
+    "exercises": [
+     {
+      "id": "m-onsets",
+      "title": "Gentle onsets",
+      "skill": "weight",
+      "kind": "timed",
+      "durationSeconds": 60,
+      "summary": "Soft starts on vowels.",
+      "instructions": [
+       "Start each vowel with a tiny “h”."
+      ],
+      "howItShouldFeel": "Soft and smooth."
+     },
+     {
+      "id": "m-light-reading",
+      "title": "Light reading",
+      "skill": "weight",
+      "kind": "reading",
+      "durationSeconds": 60,
+      "summary": "Read with a light voice.",
+      "instructions": [
+       "Read lightly but clearly."
+      ],
+      "howItShouldFeel": "Light and clear.",
+      "text": "I’m really happy you could make it today. The weather is perfect, the garden looks beautiful, and there’s plenty of cake for everyone."
+     }
+    ]
+   },
+   {
+    "id": "intonation",
+    "title": "Intonation focus",
+    "focus": "intonation",
+    "summary": "Emphasis drills and an expressive story.",
+    "exercises": [
+     {
+      "id": "m-emphasis",
+      "title": "Word emphasis",
+      "skill": "intonation",
+      "kind": "phrases",
+      "durationSeconds": 60,
+      "summary": "Move the emphasis around.",
+      "instructions": [
+       "Lift the capitalized word."
+      ],
+      "howItShouldFeel": "Natural emphasis.",
+      "items": [
+       "I LOVE this song",
+       "I love THIS song",
+       "I love this SONG"
+      ]
+     },
+     {
+      "id": "m-story",
+      "title": "Expressive story",
+      "skill": "intonation",
+      "kind": "reading",
+      "durationSeconds": 60,
+      "summary": "Read with melody.",
+      "instructions": [
+       "Read as if to a child."
+      ],
+      "howItShouldFeel": "Warm and lively.",
+      "text": "Once upon a time, a tiny hedgehog found a shiny red apple. “Is it mine?” she wondered. She looked left, she looked right, and then she rolled it all the way home, giggling the whole way."
+     }
+    ]
+   }
+  ],
+  "weeklyChallenges": [
+   "Order a drink (Scenarios › Ordering coffee) on Medium, then Hard.",
+   "Leave a voicemail (Scenarios › Phone call) without dropping pitch on your name.",
+   "Give a one-minute presentation on your favorite hobby.",
+   "Read a story aloud with three different character voices, all in your new voice.",
+   "Practice “calling across a room” five times in a row while staying light.",
+   "Do a tired-voice session after a long day, keeping it short and gentle."
+  ]
+ }
+}

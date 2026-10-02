@@ -36,6 +36,7 @@ final class VoiceTakeRecorder {
     @ObservationIgnored private var firstFrameTime: Double?
     @ObservationIgnored private var wasListening = false
     @ObservationIgnored private var lastPublish = 0.0
+    @ObservationIgnored private var excludesFromSession = true
 
     init(monitor: LiveVoiceMonitor) {
         self.monitor = monitor
@@ -48,11 +49,14 @@ final class VoiceTakeRecorder {
     var isRecording: Bool { phase == .recording || phase == .starting }
 
     /// Starts listening (if needed) and records for `duration` seconds.
+    /// - Parameter countsTowardSession: True inside guided sessions, where the
+    ///   take is part of practice; false for tests like the baseline.
     func start(
         duration: Double,
         target: PitchTargetZone,
         resonanceMode: ResonanceMode = .speech,
-        references: PersonalReferences = .none
+        references: PersonalReferences = .none,
+        countsTowardSession: Bool = false
     ) async {
         guard !isRecording else { return }
         phase = .starting
@@ -63,13 +67,18 @@ final class VoiceTakeRecorder {
         plannedDuration = duration
         firstFrameTime = nil
         wasListening = monitor.status.isRunning
-        monitor.isCalibrating = true
+        excludesFromSession = !countsTowardSession
+        if excludesFromSession {
+            monitor.isCalibrating = true
+        }
 
         if !monitor.status.isRunning {
             await monitor.start()
         }
         guard monitor.status.isRunning else {
-            monitor.isCalibrating = false
+            if excludesFromSession {
+                monitor.isCalibrating = false
+            }
             phase = .failed(Self.message(for: monitor.status))
             return
         }
@@ -160,7 +169,9 @@ final class VoiceTakeRecorder {
         analyzer = nil
         watchdog?.cancel()
         watchdog = nil
-        monitor.isCalibrating = false
+        if excludesFromSession {
+            monitor.isCalibrating = false
+        }
         lastPublish = 0
     }
 

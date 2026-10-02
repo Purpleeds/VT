@@ -25,12 +25,18 @@ struct SessionStore {
     /// so opening the app by accident doesn't fill the history.
     /// - Returns: The stored session, or nil if it is too short to keep.
     @discardableResult
-    func save(_ snapshot: SessionSnapshot, finished: Bool, now: Date = Date()) throws -> PracticeSession? {
+    func save(
+        _ snapshot: SessionSnapshot,
+        finished: Bool,
+        kind: PracticeSessionKind = .freePractice,
+        lessonID: String? = nil,
+        now: Date = Date()
+    ) throws -> PracticeSession? {
         let existing = session(id: snapshot.id)
         guard existing != nil || snapshot.voicedDuration >= Self.minimumVoicedDuration else {
             return nil
         }
-        let stored = existing ?? insertSession(for: snapshot)
+        let stored = existing ?? insertSession(for: snapshot, kind: kind, lessonID: lessonID)
         stored.apply(snapshot)
         if finished {
             stored.endDate = now
@@ -41,16 +47,28 @@ struct SessionStore {
 
     /// The stored session for a snapshot, created if needed (e.g. when a clip
     /// is saved before the session is long enough to be kept on its own).
-    func ensureSession(for snapshot: SessionSnapshot) -> PracticeSession {
-        let stored = session(id: snapshot.id) ?? insertSession(for: snapshot)
+    func ensureSession(for snapshot: SessionSnapshot, kind: PracticeSessionKind = .freePractice, lessonID: String? = nil) -> PracticeSession {
+        let stored = session(id: snapshot.id) ?? insertSession(for: snapshot, kind: kind, lessonID: lessonID)
         stored.apply(snapshot)
         return stored
     }
 
-    private func insertSession(for snapshot: SessionSnapshot) -> PracticeSession {
-        let newSession = PracticeSession(id: snapshot.id, startDate: snapshot.startDate, kind: .freePractice)
+    private func insertSession(for snapshot: SessionSnapshot, kind: PracticeSessionKind, lessonID: String?) -> PracticeSession {
+        let newSession = PracticeSession(id: snapshot.id, startDate: snapshot.startDate, kind: kind)
         context.insert(newSession)
+        newSession.lessonID = lessonID
         return newSession
+    }
+
+    /// Minutes practiced today (for the 45-minute soft cap).
+    func minutesPracticed(on day: Date, calendar: Calendar = .current) -> Double {
+        let start = calendar.startOfDay(for: day)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { return 0 }
+        let descriptor = FetchDescriptor<PracticeSession>(
+            predicate: #Predicate<PracticeSession> { $0.startDate >= start && $0.startDate < end }
+        )
+        let sessions = (try? context.fetch(descriptor)) ?? []
+        return sessions.reduce(0) { $0 + $1.duration } / 60
     }
 
     /// Marks sessions left in progress by an earlier launch as finished

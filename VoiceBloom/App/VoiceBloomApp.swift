@@ -8,6 +8,7 @@ struct VoiceBloomApp: App {
     @State private var appLock = AppLock()
     /// Nil only if no data store at all could be opened.
     @State private var sessionController: PracticeSessionController?
+    @State private var guidedSessions: GuidedSessionCoordinator?
     private let container: ModelContainer?
     @Environment(\.scenePhase) private var scenePhase
 
@@ -29,16 +30,20 @@ struct VoiceBloomApp: App {
         _monitor = State(initialValue: monitor)
         _player = State(initialValue: player)
         _sessionController = State(initialValue: controller)
+        _guidedSessions = State(initialValue: controller.flatMap { controller in
+            database.map { GuidedSessionCoordinator(controller: controller, container: $0.container) }
+        })
         container = database?.container
     }
 
     var body: some Scene {
         WindowGroup {
-            if let sessionController, let container {
+            if let sessionController, let guidedSessions, let container {
                 AppRootView()
                     .environment(monitor)
                     .environment(player)
                     .environment(sessionController)
+                    .environment(guidedSessions)
                     .environment(appLock)
                     .modelContainer(container)
             } else {

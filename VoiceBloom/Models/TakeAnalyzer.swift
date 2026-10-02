@@ -31,6 +31,8 @@ nonisolated struct TakeResult: Sendable, Equatable {
     let h1MinusH2: Double?
     let spectralTilt: Double?
     let weightScore: Double?
+    /// Share (0–100) of measured frames whose weight is in the light zone.
+    let lightWeightPercent: Double?
     /// Average pitch variability of the take's phrases (semitones).
     let intonationSD: Double?
     let intonationScore: Double?
@@ -80,6 +82,7 @@ nonisolated struct TakeAnalyzer: Sendable {
     private var harmonicValues: [Double] = []
     private var tiltValues: [Double] = []
     private var weightScores: [Double] = []
+    private var lightFrames = 0
     private var phraseDeviations: [Double] = []
 
     init(
@@ -130,7 +133,11 @@ nonisolated struct TakeAnalyzer: Sendable {
             if let tilt = weight.spectralTilt {
                 tiltValues.append(tilt)
             }
-            weightScores.append(weightReference.score(h1MinusH2: weight.effectiveH1MinusH2, spectralTilt: weight.spectralTilt))
+            let score = weightReference.score(h1MinusH2: weight.effectiveH1MinusH2, spectralTilt: weight.spectralTilt)
+            weightScores.append(score)
+            if MeterZone(score: score) == .high {
+                lightFrames += 1
+            }
         }
     }
 
@@ -172,6 +179,7 @@ nonisolated struct TakeAnalyzer: Sendable {
             h1MinusH2: PitchMath.median(of: harmonicValues),
             spectralTilt: PitchMath.median(of: tiltValues),
             weightScore: Self.mean(weightScores),
+            lightWeightPercent: weightScores.isEmpty ? nil : Double(lightFrames) / Double(weightScores.count) * 100,
             intonationSD: intonationSD,
             intonationScore: intonationSD.map { intonationReference.score(standardDeviationSemitones: $0) },
             phraseCount: deviations.count,

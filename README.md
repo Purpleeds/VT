@@ -2,13 +2,14 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–6 of 14 are done:
+**Status:** Stages 1–7 of 14 are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
 - **Stage 4:** SwiftData storage, automatic session saving, "save this as a recording" with playback, live on-device transcripts, and the post-session check-in with rest-day advice.
 - **Stage 5:** the Progress tab: trend charts, practice calendar, check-in history, scenario radar, Then vs Now, weekly summary, CSV export and a shareable progress image.
 - **Stage 6:** first-launch onboarding (9 steps, with the placement test and the Day 1 baseline recording) and the Settings screen.
+- **Stage 7:** the 16-week lesson plan (all content in `Lessons.json`), guided sessions (warm-up, main practice, carryover, cool-down) in Quick/Standard/Deep lengths, unlock rules, and maintenance mode.
 
 > **Building in Xcode yourself?** Stage 4 added a speech recognition entry and Stage 6 a Face ID entry to Info.plist: see [steps 3.4 and 3.5](#3-target-settings). The GitHub build already includes both.
 
@@ -119,6 +120,20 @@ git commit -m "Add Xcode project"
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
 
+**Stage 7:**
+- **Lessons tab:** the current week at the top (Start a Quick 5, Standard 15 or Deep 25 minute session), then all 16 weeks by phase: Foundations, Resonance, Pitch, Vocal weight, Intonation and expression, Real-world use. A tick means complete; a lock means not yet.
+- **Unlocking:** a week opens after 5 sessions of the week before it **and** reaching that week's goal (e.g. week 2: match 8 of 10 tones within ±10 Hz; week 6: bright resonance 70% of a passage; week 9: 70% in target with bright resonance and no "Sore" check-ins). Any unlocked week can be repeated. The placement test (Stage 6) can unlock later weeks directly. To try everything: **More ▸ Debug & Tuning ▸ Unlock all lesson weeks**.
+- **Week pages:** what you'll do, why it matters, step-by-step instructions, the goal, common mistakes, how it should feel, and every exercise. Tap an exercise for its full instructions and **Practice this exercise** on its own.
+- **Guided session player** (full screen): each exercise with numbered instructions, "how it should feel" and the common mistake, a timer, the live pitch and meters, and Back / Pause / Next.
+  - *Timed* exercises (breathing, trills, sirens, yawn-sighs…) count down and move on by themselves.
+  - *Scored* exercises record when you tap **Start**: vowel holds (bright resonance %), readings and phrase lists (time in target, bright resonance, light weight, melody), and **pitch matching** (a tone plays, then you hum it back for 3 s; the mic ignores the tone itself).
+  - When a scored exercise reaches the week's goal you'll see "Goal reached".
+  - A session counts toward the week once you've done at least half of it. Ending it saves it (as "Lesson") and brings up the check-in.
+- **45-minute soft cap:** starting a session after 45 minutes of practice today asks whether you'd rather rest.
+- **Week 16:** re-record your baseline from the week page; Then vs Now (Progress tab) then compares Day 1 with today.
+- **Maintenance mode** (after week 16): a daily 8-minute routine (focused on your weakest measure this week), a weekly challenge, and the other routines on demand.
+- **Editing lessons:** everything is in `VoiceBloom/Content/Lessons.json` (weeks, exercises, goals, passages). The unit tests check the file still matches what the app expects.
+
 **Stage 6:**
 - **Onboarding** appears on first launch only (**More ▸ Debug & Tuning ▸ Show onboarding again** replays it without deleting anything). Nine steps:
   1. Welcome: what pitch, resonance, vocal weight and intonation are.
@@ -226,7 +241,9 @@ VoiceBloom/
                   HapticsService (Core Haptics), FeedbackOutput
   Services/       NotificationService (daily reminder), KeychainStore, AppLock (Face ID), AppPreferences,
                   BaselineStore, PlacementStore, DataEraser
-  Content/        Original reading passages
+  Content/        Original reading passages, Lessons.json (the 16-week plan + maintenance)
+  Lessons/        LessonCatalog (JSON models), SessionPlanner, unlock rules and goal evaluation,
+                  LessonProgressStore, GuidedSessionModel, GuidedSessionCoordinator
   Persistence/    SwiftData schema (VoiceBloomSchemaV1: UserProfile, PracticeSession, Recording,
                   LessonProgress, TargetVoiceProfile, ScenarioResult, Achievement, DailyJournalEntry),
                   migration plan, enums stored as raw strings, VoiceBloomDatabase (opens the store)
@@ -243,6 +260,7 @@ VoiceBloom/
                   slip/strain banners, voice comfort card, transcript card, Alerts & Feedback,
                   eyes-free practice), History (session list, session detail, check-in),
                   Onboarding (9 steps, placement test, baseline recording), Settings,
+                  Lessons (lesson list, week detail, exercise detail, maintenance, guided session player),
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
 VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels

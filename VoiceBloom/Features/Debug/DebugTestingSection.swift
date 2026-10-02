@@ -9,6 +9,7 @@ struct DebugTestingSection: View {
     @State private var isWorking = false
     @State private var message: String?
     @State private var hasSampleData = SampleDataGenerator.hasSampleData
+    @AppStorage(LessonProgressStore.unlockAllKey) private var unlockAllLessons = false
 
     var body: some View {
         Section {
@@ -32,6 +33,10 @@ struct DebugTestingSection: View {
                 .disabled(isWorking)
             }
 
+            Toggle(isOn: $unlockAllLessons) {
+                Label("Unlock all lesson weeks", systemImage: "lock.open")
+            }
+
             Button("Show onboarding again", systemImage: "arrow.uturn.backward.circle") {
                 profiles.first?.hasCompletedOnboarding = false
                 try? modelContext.save()
@@ -45,7 +50,7 @@ struct DebugTestingSection: View {
         } header: {
             Text("Testing tools")
         } footer: {
-            Text("Sample history adds about 90 days of improving sessions, check-ins, scenario scores and two synthetic recordings for “Then vs Now”, so the Progress tab can be tried out. Only the sample items are removed; your real sessions are never touched. “Show onboarding again” replays first-launch setup without deleting anything.")
+            Text("Sample history adds about 90 days of improving sessions, check-ins, scenario scores and two synthetic recordings for “Then vs Now”, so the Progress tab can be tried out. Only the sample items are removed; your real sessions are never touched. “Unlock all lesson weeks” opens every week and maintenance mode for testing. “Show onboarding again” replays first-launch setup without deleting anything.")
         }
     }
 

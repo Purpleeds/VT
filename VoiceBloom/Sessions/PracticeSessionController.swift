@@ -36,6 +36,9 @@ final class PracticeSessionController {
     private(set) var isRestDaySuggested = false
     /// Shown when saved data couldn't be opened and nothing will be kept.
     let storageWarning: String?
+    /// What the current session is (free practice, or a lesson's guided session).
+    private(set) var sessionKind: PracticeSessionKind = .freePractice
+    private(set) var sessionLessonID: String?
 
     let monitor: LiveVoiceMonitor
     let player: RecordingPlayer
@@ -92,7 +95,7 @@ final class PracticeSessionController {
     func saveProgress() {
         guard let snapshot = monitor.sessionSnapshot(), snapshot != lastSaved else { return }
         do {
-            if try store.save(snapshot, finished: false) != nil {
+            if try store.save(snapshot, finished: false, kind: sessionKind, lessonID: sessionLessonID) != nil {
                 lastSaved = snapshot
             }
         } catch {
@@ -108,27 +111,64 @@ final class PracticeSessionController {
     }
 
     /// Ends the session: saves it, starts a fresh one and asks for a check-in.
-    func finishSession() async {
+    /// - Returns: The saved session, if it was long enough to keep.
+    @discardableResult
+    func finishSession(askForCheckIn: Bool = true) async -> PracticeSession? {
         await monitor.pause(.user)
         var finished: PracticeSession?
         if let snapshot = monitor.sessionSnapshot() {
             do {
-                finished = try store.save(snapshot, finished: true)
+                finished = try store.save(snapshot, finished: true, kind: sessionKind, lessonID: sessionLessonID)
             } catch {
                 // Keep the session on screen so the user can try again.
                 showToast("Your session couldn’t be saved. Please try again.", isError: true)
-                return
+                return nil
             }
         }
         monitor.resetSession()
         lastSaved = nil
         if let finished {
-            checkInReminder = nil
-            checkInRequest = CheckInRequest(id: finished.id)
-        } else {
+            if askForCheckIn {
+                checkInReminder = nil
+                checkInRequest = CheckInRequest(id: finished.id)
+            }
+        } else if askForCheckIn {
             showToast("Session cleared. Sessions are saved once you’ve spoken for a few seconds.")
         }
+        return finished
     }
+
+    // MARK: Guided sessions
+
+    /// Starts a lesson (or other guided) session: any free practice in
+    /// progress is saved first, then listening starts on a fresh session.
+    func beginGuidedSession(kind: PracticeSessionKind, lessonID: String?) async {
+        if hasSessionInProgress {
+            await finishSession(askForCheckIn: false)
+        } else {
+            monitor.resetSession()
+        }
+        sessionKind = kind
+        sessionLessonID = lessonID
+        await monitor.start()
+    }
+
+    /// Ends a guided session: saves it and asks for the check-in.
+    @discardableResult
+    func endGuidedSession() async -> PracticeSession? {
+        let finished = await finishSession(askForCheckIn: true)
+        sessionKind = .freePractice
+        sessionLessonID = nil
+        return finished
+    }
+
+    /// Minutes practiced today, including the session in progress.
+    func minutesPracticedToday(now: Date = Date()) -> Double {
+        store.minutesPracticed(on: now) + (monitor.sessionSnapshot()?.activeDuration ?? 0) / 60
+    }
+
+    /// The SPEC's soft cap on daily practice.
+    static let dailySoftCapMinutes = 45.0
 
     /// Throws the current session away, including any recordings saved in it.
     func discardSession() async {
@@ -165,7 +205,7 @@ final class PracticeSessionController {
             try await Task.detached(priority: .userInitiated) {
                 try RecordingFileStore.write(audio, fileName: fileName)
             }.value
-            let session = store.ensureSession(for: snapshot)
+            let session = store.ensureSession(for: snapshot, kind: sessionKind, lessonID: sessionLessonID)
             try store.addRecording(id: id, fileName: fileName, clip: clip, to: session)
             lastSaved = snapshot
             showToast("Saved the last \(Self.durationText(audio.duration)) as a recording.")

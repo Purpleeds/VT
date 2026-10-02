@@ -31,7 +31,6 @@ struct PracticeView: View {
     }
 
     var body: some View {
-        @Bindable var controller = sessionController
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
@@ -194,9 +193,6 @@ struct PracticeView: View {
             }
             .fullScreenCover(isPresented: $isShowingEyesFree) {
                 EyesFreePracticeView()
-            }
-            .sheet(item: $controller.checkInRequest) { request in
-                CheckInSheet(request: request)
             }
             .confirmationDialog(
                 "Discard this session?",

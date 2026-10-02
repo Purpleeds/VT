@@ -248,6 +248,7 @@ struct OnboardingStorageTests {
             h1MinusH2: 4,
             spectralTilt: -5,
             weightScore: 30,
+            lightWeightPercent: 10,
             intonationSD: intonationSD,
             intonationScore: 25,
             phraseCount: 3,
