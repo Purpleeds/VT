@@ -193,6 +193,22 @@ final class PracticeSessionController {
         player.play(url: url, id: recording.id)
     }
 
+    /// Plays recordings back to back ("Then vs Now"), after pausing listening.
+    func playInSequence(_ recordings: [Recording]) async {
+        await monitor.pause(.user)
+        var items: [(url: URL, id: UUID)] = []
+        for recording in recordings {
+            guard let url = recording.fileURL,
+                  FileManager.default.fileExists(atPath: url.path(percentEncoded: false))
+            else {
+                showToast("A recording’s audio file is missing.", isError: true)
+                return
+            }
+            items.append((url: url, id: recording.id))
+        }
+        player.playSequence(items)
+    }
+
     func delete(_ recording: Recording) {
         if player.playingID == recording.id {
             player.stop()

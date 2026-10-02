@@ -8,6 +8,8 @@ struct DebugView: View {
 
     var body: some View {
         List {
+            DebugTestingSection()
+
             Section {
                 LivePitchGraph(showsRawEstimates: true)
                     .frame(height: 200)

@@ -21,7 +21,7 @@ struct RootTabView: View {
                 )
             }
             Tab("Progress", systemImage: "chart.xyaxis.line") {
-                SessionHistoryView()
+                ProgressDashboardView()
             }
             Tab("More", systemImage: "ellipsis.circle") {
                 MoreView()

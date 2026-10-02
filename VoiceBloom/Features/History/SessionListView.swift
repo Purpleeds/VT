@@ -2,43 +2,39 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-/// Every saved practice session, newest first. Charts arrive in Stage 5;
-/// for now this is the list of sessions with their details and recordings.
-struct SessionHistoryView: View {
+/// Every saved practice session, newest first ("All sessions" on the
+/// Progress tab).
+struct SessionListView: View {
     @Environment(PracticeSessionController.self) private var sessionController
     @Query(sort: \PracticeSession.startDate, order: .reverse) private var sessions: [PracticeSession]
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if sessions.isEmpty {
-                    ContentUnavailableView(
-                        "No sessions yet",
-                        systemImage: "waveform",
-                        description: Text("Practice for a few seconds and your session will appear here with its stats, check-in, and recordings.")
-                    )
-                } else {
-                    List {
-                        Section {
-                            ForEach(sessions) { session in
-                                NavigationLink {
-                                    SessionDetailView(session: session)
-                                } label: {
-                                    SessionRow(session: session, isCurrent: session.id == sessionController.monitor.sessionID)
-                                }
-                                .deleteDisabled(!sessionController.canDelete(session))
+        Group {
+            if sessions.isEmpty {
+                ContentUnavailableView(
+                    "No sessions yet",
+                    systemImage: "waveform",
+                    description: Text("Practice for a few seconds and your session will appear here with its stats, check-in, and recordings.")
+                )
+            } else {
+                List {
+                    Section {
+                        ForEach(sessions) { session in
+                            NavigationLink {
+                                SessionDetailView(session: session)
+                            } label: {
+                                SessionRow(session: session, isCurrent: session.id == sessionController.monitor.sessionID)
                             }
-                            .onDelete(perform: delete)
-                        } header: {
-                            Text("Sessions")
-                        } footer: {
-                            Text("Swipe left on a session to delete it with its recordings. Charts of your progress are coming soon.")
+                            .deleteDisabled(!sessionController.canDelete(session))
                         }
+                        .onDelete(perform: delete)
+                    } footer: {
+                        Text("Swipe left on a session to delete it with its recordings.")
                     }
                 }
             }
-            .navigationTitle("Progress")
         }
+        .navigationTitle("All sessions")
     }
 
     private func delete(at offsets: IndexSet) {

@@ -2,11 +2,12 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–4 of 14 are done:
+**Status:** Stages 1–5 of 14 are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
 - **Stage 4:** SwiftData storage, automatic session saving, "save this as a recording" with playback, live on-device transcripts, and the post-session check-in with rest-day advice.
+- **Stage 5:** the Progress tab: trend charts, practice calendar, check-in history, scenario radar, Then vs Now, weekly summary, CSV export and a shareable progress image.
 
 > **Updating from Stage 3?** Stage 4 needs one new Info.plist entry: see [step 3.4](#3-target-settings). Without it the app still runs, but the live transcript can't be turned on.
 
@@ -113,6 +114,21 @@ git commit -m "Add Xcode project"
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
 
+**Stage 5:**
+- **No data yet?** Open **More ▸ Debug & Tuning ▸ Generate sample history**. It adds ~90 days of slowly improving sessions, check-ins (a few "Sore"), scenario scores and two synthetic recordings, all marked so **Remove sample history** deletes only them.
+- **Progress tab**, with a **7D / 30D / 90D / All** range picker at the top:
+  - **This week:** practice time, sessions, active days, best day (highest % in target), biggest improvement on last week, and the area to focus on with a tip.
+  - **Average pitch** per session with your target zone shaded and each session's low–high range as a faint bar.
+  - **Resonance, weight & intonation** lines; tap the chips to show or hide each one.
+  - **Time in target** per session with the 70% lesson goal.
+  - **Practice time** per day or week, with your daily goal line.
+  - **Practice calendar:** a heatmap of practice days (darker = more minutes, a dot = goal met). Tap a day for its minutes.
+  - **Comfort check-ins:** throat comfort (shape and color) and how natural it felt, over time.
+  - **Scenario skills:** a radar chart of pitch, resonance, weight, intonation and consistency from scenario practice (filled in by Stage 10; sample data shows it now).
+  - **Then vs Now:** your baseline (or first) recording next to the latest, with stats side by side and a button that plays both back to back.
+  - **Export:** share a CSV of every session's stats, or a picture of your progress.
+- **Tap any point** on the pitch, scores, in-target or check-in charts to open that session (its stats, check-in and recordings). **All sessions** at the bottom lists everything.
+
 **Stage 4:**
 - **Sessions save themselves.** Practice for a few seconds: once you've spoken for 3+ seconds the session is stored, and it's updated every 20 seconds and whenever you leave the app. Nothing is lost if iOS closes the app; a session left open is closed on the next launch.
 - **Finish:** tap **Finish** (bottom bar, or **⋯ ▸ Finish Session**). Listening stops, the session is saved, and a fresh session starts. **⋯ ▸ Discard Session** deletes the current one, including its recordings, after confirming.
@@ -197,7 +213,11 @@ VoiceBloom/
                   ClipStats + FrameLog, RecordingFileStore (.m4a files), RecordingPlayer
   Transcription/  LiveTranscriber (SFSpeechRecognizer, on-device only), TranscriptAccumulator,
                   TranscriptionService (live transcript state)
-  Features/       Practice (LiveVoiceMonitor, PracticeView, pitch graph, voice meters, % in target,
+  Progress/       ProgressAnalytics (ranges, daily/weekly minutes, heatmap, weekly summary, radar,
+                  Then vs Now), ProgressCSV, SampleDataGenerator (debug sample history)
+  Features/       Progress (dashboard, Swift Charts trend charts, calendar heatmap, radar chart,
+                  Then vs Now, weekly summary, export),
+                  Practice (LiveVoiceMonitor, PracticeView, pitch graph, voice meters, % in target,
                   slip/strain banners, voice comfort card, transcript card, Alerts & Feedback,
                   eyes-free practice), History (session list, session detail, check-in),
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More

@@ -12,6 +12,11 @@ enum Theme {
     static let targetZone = Color("TargetZone")
     static let warning = Color("Warning")
     static let backgroundTint = Color("BackgroundTint")
+    // Extra Okabe–Ito colors for charts with several series. Series are also
+    // told apart by symbol shape and labels, never by color alone.
+    static let resonanceSeries = Color(red: 0.80, green: 0.47, blue: 0.65)
+    static let weightSeries = Color(red: 0.0, green: 0.62, blue: 0.45)
+    static let intonationSeries = Color(red: 0.90, green: 0.62, blue: 0.0)
     static let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
     static let groupedBackground = Color(uiColor: .systemGroupedBackground)
     static let cornerRadius: CGFloat = 22
