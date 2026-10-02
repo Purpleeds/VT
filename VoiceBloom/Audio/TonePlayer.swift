@@ -119,29 +119,35 @@ final class TonePlayer {
     }
 
     /// Plays one decaying note.
-    func playNote(_ frequency: Double, duration: Double = 1.4, timbre: ToneTimbre = .warm) {
-        guard canPlay() else { return }
+    /// - Returns: False when it couldn't play (see `errorMessage`).
+    @discardableResult
+    func playNote(_ frequency: Double, duration: Double = 1.4, timbre: ToneTimbre = .warm) -> Bool {
+        guard canPlay() else { return false }
         stopDrone()
-        guard let format = prepare() else { return }
+        guard let format = prepare() else { return false }
         let samples = ToneSynthesis.note(frequency: frequency, duration: duration, sampleRate: format.sampleRate, timbre: timbre)
-        guard let buffer = Self.buffer(samples, format: format), let node else { return }
+        guard let buffer = Self.buffer(samples, format: format), let node else { return false }
         node.stop()
         node.scheduleBuffer(buffer, at: nil, options: [], completionHandler: nil)
         node.play()
         lastNote = frequency
+        return true
     }
 
     /// Starts a steady tone until `stopDrone()`.
-    func startDrone(_ frequency: Double, timbre: ToneTimbre = .pure) {
-        guard canPlay() else { return }
-        guard let format = prepare() else { return }
+    /// - Returns: False when it couldn't play (see `errorMessage`).
+    @discardableResult
+    func startDrone(_ frequency: Double, timbre: ToneTimbre = .pure) -> Bool {
+        guard canPlay() else { return false }
+        guard let format = prepare() else { return false }
         let samples = ToneSynthesis.loop(frequency: frequency, sampleRate: format.sampleRate, timbre: timbre)
-        guard let buffer = Self.buffer(samples, format: format), let node else { return }
+        guard let buffer = Self.buffer(samples, format: format), let node else { return false }
         node.stop()
         node.scheduleBuffer(buffer, at: nil, options: [.loops], completionHandler: nil)
         node.play()
         droneFrequency = frequency
         lastNote = frequency
+        return true
     }
 
     func stopDrone() {
@@ -156,8 +162,11 @@ final class TonePlayer {
         droneFrequency = nil
     }
 
+    /// True when tones may only play through headphones (Discreet Mode).
+    var isHeadphonesOnly: Bool { requiresHeadphones || DiscreetMode.isEnabled }
+
     private func canPlay() -> Bool {
-        if requiresHeadphones, !Self.headphonesConnected {
+        if isHeadphonesOnly, !Self.headphonesConnected {
             errorMessage = "Discreet Mode plays tones through headphones only. Connect headphones to hear them."
             return false
         }

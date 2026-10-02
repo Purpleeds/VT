@@ -165,6 +165,94 @@
    "quiet": true
   }
  ],
+ "discreet": [
+  {
+   "id": "whisper-resonance",
+   "title": "Whisper resonance",
+   "skill": "resonance",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Practice bright resonance in a whisper: nobody nearby will notice.",
+   "instructions": [
+    "Find the small-dog lift: a light, high feeling in the throat.",
+    "Whisper “ee”, “see”, “keep”, “green”, keeping the whisper bright and forward.",
+    "Whisper a short sentence: “Please keep the green key.”",
+    "Compare with a big-dog whisper to feel the difference, then return to bright."
+   ],
+   "howItShouldFeel": "A bright, small whisper, with the tongue forward and the throat light.",
+   "commonMistake": "Whispering loudly or harshly; keep it gentle.",
+   "quiet": true
+  },
+  {
+   "id": "silent-larynx",
+   "title": "Silent larynx awareness",
+   "skill": "resonance",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Feel and control the larynx without making any sound.",
+   "instructions": [
+    "Rest a fingertip lightly on the bump of your larynx.",
+    "Swallow and notice it rise; stop halfway and hold it gently for 3 seconds.",
+    "Breathe calmly through your nose while holding the light lift.",
+    "Release and repeat 5 times. No sound at all."
+   ],
+   "howItShouldFeel": "A light, easy lift with relaxed breathing. Never squeeze.",
+   "commonMistake": "Clenching the throat to hold the larynx up.",
+   "quiet": true
+  },
+  {
+   "id": "very-soft-humming",
+   "title": "Very soft humming",
+   "skill": "warmUp",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Barely-there humming that still wakes up the voice.",
+   "instructions": [
+    "Close your lips and hum as quietly as you can while keeping a steady tone.",
+    "Feel a faint buzz at the lips.",
+    "Make tiny slides up and down.",
+    "Keep it so soft only you can hear it."
+   ],
+   "howItShouldFeel": "A faint, easy buzz with no effort in the throat.",
+   "commonMistake": "Pushing the sound down into the chest.",
+   "quiet": true
+  },
+  {
+   "id": "silent-tongue-forward",
+   "title": "Silent tongue placement",
+   "skill": "resonance",
+   "kind": "timed",
+   "durationSeconds": 45,
+   "summary": "Train the forward tongue position for bright vowels, silently.",
+   "instructions": [
+    "Rest your tongue tip behind your lower front teeth.",
+    "Arch the middle of your tongue forward and up, as for “ee”, without sound.",
+    "Hold for 3 seconds, relax, and repeat 8 times.",
+    "Breathe through your nose the whole time."
+   ],
+   "howItShouldFeel": "A gentle forward stretch of the tongue, with a loose jaw.",
+   "quiet": true
+  },
+  {
+   "id": "whisper-reading",
+   "title": "Whispered reading",
+   "skill": "resonance",
+   "kind": "timed",
+   "durationSeconds": 60,
+   "summary": "Read a short passage in a bright whisper.",
+   "instructions": [
+    "Start with two quiet breaths, letting your shoulders drop.",
+    "Whisper the passage slowly, one phrase at a time.",
+    "Keep every word bright and forward, as in the whisper resonance exercise: smile slightly and keep the tongue high.",
+    "Read it a second time and let the brightness carry through the whole sentence, not just the “ee” words.",
+    "Stop and swallow if your throat feels dry or scratchy."
+   ],
+   "howItShouldFeel": "Light and bright, never harsh. The whisper should feel like it comes from just behind your front teeth.",
+   "commonMistake": "Pushing a loud, breathy stage whisper. Keep it soft enough that only you can hear it.",
+   "quiet": true,
+   "text": "Sweet peas and green beans grow in the sunny garden. I see bright lights and silver keys. Please leave the little window open."
+  }
+ ],
  "weeks": [
   {
    "week": 1,

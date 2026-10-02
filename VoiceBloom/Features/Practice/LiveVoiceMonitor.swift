@@ -410,7 +410,11 @@ final class LiveVoiceMonitor {
 
     private func deliver(_ cue: FeedbackCue) {
         let useHaptics = isEyesFreeActive || feedbackSettings.hapticAlerts
-        let useSound = isEyesFreeActive ? feedbackSettings.eyesFreeTones : feedbackSettings.soundAlerts
+        var useSound = isEyesFreeActive ? feedbackSettings.eyesFreeTones : feedbackSettings.soundAlerts
+        // Discreet Mode: chimes only through headphones.
+        if DiscreetMode.isEnabled, !TonePlayer.headphonesConnected {
+            useSound = false
+        }
         let busy = feedback.play(cue, haptic: useHaptics, sound: useSound)
         if busy > 0 {
             feedbackQuietUntil = max(feedbackQuietUntil, Date().addingTimeInterval(busy))

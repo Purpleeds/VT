@@ -17,6 +17,7 @@ struct PracticeView: View {
     @State private var isShowingEyesFree = false
     @State private var isConfirmingDiscard = false
     @State private var isRestBannerDismissed = false
+    @AppStorage(DiscreetMode.key) private var isDiscreet = false
 
     /// Whether to show slip alerts on screen right now.
     private var visibleSlips: Set<SlipChannel> {
@@ -42,6 +43,15 @@ struct PracticeView: View {
                         RestDayBanner {
                             isRestBannerDismissed = true
                         }
+                    }
+
+                    if isDiscreet {
+                        Label("Discreet Mode: chimes and tones through headphones only", systemImage: "speaker.slash.fill")
+                            .font(.footnote.weight(.medium))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.secondary.opacity(0.12), in: Capsule())
                     }
 
                     if let reminder = sessionController.checkInReminder {

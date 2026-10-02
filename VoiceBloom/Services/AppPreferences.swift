@@ -52,3 +52,13 @@ nonisolated enum AppPreferences {
         }
     }
 }
+
+/// Discreet Mode (SPEC section 8): quiet exercises for when others are
+/// nearby, with reference tones and chimes through headphones only.
+nonisolated enum DiscreetMode {
+    static let key = "discreetMode"
+
+    static var isEnabled: Bool {
+        UserDefaults.standard.bool(forKey: key)
+    }
+}

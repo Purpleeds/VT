@@ -2,7 +2,7 @@
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–7 of 14 are done:
+**Status:** Stages 1–8 of 14 are done:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
@@ -10,6 +10,7 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 5:** the Progress tab: trend charts, practice calendar, check-in history, scenario radar, Then vs Now, weekly summary, CSV export and a shareable progress image.
 - **Stage 6:** first-launch onboarding (9 steps, with the placement test and the Day 1 baseline recording) and the Settings screen.
 - **Stage 7:** the 16-week lesson plan (all content in `Lessons.json`), guided sessions (warm-up, main practice, carryover, cool-down) in Quick/Standard/Deep lengths, unlock rules, and maintenance mode.
+- **Stage 8:** Tools: the searchable exercise library, a reference tone generator with a mini piano, the Daily Sentence Journal with a timeline, Quick Check, and Discreet Mode.
 
 > **Building in Xcode yourself?** Stage 4 added a speech recognition entry and Stage 6 a Face ID entry to Info.plist: see [steps 3.4 and 3.5](#3-target-settings). The GitHub build already includes both.
 
@@ -119,6 +120,13 @@ git commit -m "Add Xcode project"
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Stage 8** (**More ▸ Tools**):
+- **Quick Check:** read one sentence for 10 seconds. You get pitch, % in target, resonance, weight and intonation, each with the change since your last check (green when it moved the right way; for pitch, "right" means toward your target zone). It's saved as a "Quick Check" session (so it shows in Progress) with its recording; tap **Listen** to hear it.
+- **Daily Sentence Journal:** record the same sentence once a day (recording again replaces today's entry; **Change** picks your own sentence). The timeline shows your pitch day by day against the target band. Drag the slider to any day to see its numbers and **Listen to this day**. **Play my progress** plays up to eight days in order, from the first to the latest. Entries can be deleted from the ••• menu.
+- **Exercise Library:** all 85 exercises from the lessons, warm-ups, cool-downs, maintenance and Discreet Mode. Search by any word (title, instructions, notes), filter by skill (Warm-up, Pitch, Resonance, Weight, Intonation, Real speech, Cool-down) or **Quiet**. Tap one for its full instructions and **Practice this exercise** to run it on its own in the guided player.
+- **Tone Generator & Piano:** a steady tone from 80 to 600 Hz (slider, semitone steps, or your target's low/middle/high), as a pure or warm sound, plus a two-octave keyboard (C3–C5) where dots mark the keys inside your target range. If listening is on, it pauses first so the microphone doesn't count the tone as your voice.
+- **Discreet Mode:** a switch that stays on until you turn it off. Tones, the piano and lesson pitch-matching only play through headphones (otherwise they show a message instead), and slip-alert chimes go silent unless headphones are connected (vibration still works). It also lists the quiet exercises: whisper resonance, silent larynx awareness, very soft humming, silent tongue-forward placement and whispered reading. Practice shows a small "Discreet Mode" tag while it's on.
 
 **Stage 7:**
 - **Lessons tab:** the current week at the top (Start a Quick 5, Standard 15 or Deep 25 minute session), then all 16 weeks by phase: Foundations, Resonance, Pitch, Vocal weight, Intonation and expression, Real-world use. A tick means complete; a lock means not yet.
@@ -244,12 +252,15 @@ VoiceBloom/
   Content/        Original reading passages, Lessons.json (the 16-week plan + maintenance)
   Lessons/        LessonCatalog (JSON models), SessionPlanner, unlock rules and goal evaluation,
                   LessonProgressStore, GuidedSessionModel, GuidedSessionCoordinator
+  Tools/          Exercise library search and filters, piano layout, tone-generator maths,
+                  journal timeline (scrubber, streaks, highlights), Quick Check comparison
   Persistence/    SwiftData schema (VoiceBloomSchemaV1: UserProfile, PracticeSession, Recording,
                   LessonProgress, TargetVoiceProfile, ScenarioResult, Achievement, DailyJournalEntry),
                   migration plan, enums stored as raw strings, VoiceBloomDatabase (opens the store)
   Sessions/       SessionSnapshot, SessionStore (save/upsert, delete, check-ins), CheckInRules,
                   PracticeSessionController (autosave, finish, discard, clips, playback),
-                  ClipStats + FrameLog, RecordingFileStore (.m4a files), RecordingPlayer
+                  ClipStats + FrameLog, RecordingFileStore (.m4a files), RecordingPlayer,
+                  VoiceTakeRecorder (short measured takes), JournalStore, QuickCheckStore
   Transcription/  LiveTranscriber (SFSpeechRecognizer, on-device only), TranscriptAccumulator,
                   TranscriptionService (live transcript state)
   Progress/       ProgressAnalytics (ranges, daily/weekly minutes, heatmap, weekly summary, radar,
@@ -261,6 +272,8 @@ VoiceBloom/
                   eyes-free practice), History (session list, session detail, check-in),
                   Onboarding (9 steps, placement test, baseline recording), Settings,
                   Lessons (lesson list, week detail, exercise detail, maintenance, guided session player),
+                  Tools (hub, exercise library, tone generator + mini piano, journal, Quick Check,
+                  Discreet Mode),
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
 VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels

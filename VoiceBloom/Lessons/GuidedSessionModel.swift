@@ -290,7 +290,11 @@ final class GuidedSessionModel {
         stage = .playingTone
         // Keep the tone itself out of the session statistics.
         recorder.monitor.excludeFromStatistics(for: 2.2)
-        tones.playNote(toneFrequency, duration: 1.6, timbre: .warm)
+        guard tones.playNote(toneFrequency, duration: 1.6, timbre: .warm) else {
+            // No tone (Discreet Mode without headphones): wait for the user.
+            stage = .ready
+            return
+        }
         try? await Task.sleep(for: .milliseconds(1_900))
         guard stage == .playingTone, index == stepIndex else { return }
 

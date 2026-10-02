@@ -289,9 +289,10 @@ struct PlacementTestView: View {
         errorMessage = nil
         isPlayingTone = true
         let target = PlacementScoring.tones[index]
-        tones.playNote(target, duration: 1.6, timbre: .warm)
-        if let message = tones.errorMessage {
-            errorMessage = message
+        guard tones.playNote(target, duration: 1.6, timbre: .warm) else {
+            errorMessage = tones.errorMessage ?? "The tone couldn’t play. Please try again."
+            isPlayingTone = false
+            return
         }
         // Wait for the tone (and the room's echo) to end before listening.
         try? await Task.sleep(for: .milliseconds(1_900))

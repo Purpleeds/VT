@@ -204,6 +204,8 @@ nonisolated struct LessonCatalog: Codable, Sendable {
     let version: Int
     let warmups: [Exercise]
     let cooldowns: [Exercise]
+    /// Quiet exercises for Discreet Mode.
+    let discreet: [Exercise]
     let weeks: [LessonWeek]
     let maintenance: MaintenancePlan
 
@@ -253,7 +255,7 @@ nonisolated struct LessonCatalog: Codable, Sendable {
     var allExercises: [Exercise] {
         var seen = Set<String>()
         var result: [Exercise] = []
-        let everything = warmups + weeks.flatMap { $0.exercises + $0.carryover } + maintenance.routines.flatMap(\.exercises) + cooldowns
+        let everything = warmups + weeks.flatMap { $0.exercises + $0.carryover } + maintenance.routines.flatMap(\.exercises) + discreet + cooldowns
         for exercise in everything where !seen.contains(exercise.id) {
             seen.insert(exercise.id)
             result.append(exercise)
