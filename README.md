@@ -12,6 +12,30 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 
 ---
 
+## Install without a Mac (Windows)
+
+You can't run Xcode on Windows, so GitHub builds the app for you on one of its Macs (free for public repos, and within the free monthly minutes for private ones).
+
+**1. Build `VoiceBloom.ipa` on GitHub**
+1. Open the repo on github.com and click the **Actions** tab.
+2. Pick **Build iPhone app** on the left, click **Run workflow**, then the green **Run workflow** button. (It also runs by itself after each change to the app code.)
+3. Wait for the green tick (about 10–15 minutes).
+4. Open the run, scroll to **Artifacts**, and download **VoiceBloom-ipa**. Unzip it to get `VoiceBloom.ipa`.
+
+If the run turns red, open it, click the failed step, and copy the lines containing `error:`.
+
+**2. Install with Sideloadly**
+1. On Windows, install Apple's **Apple Devices** app (Microsoft Store) or iTunes, then **Sideloadly** from sideloadly.io.
+2. Plug in the iPhone, unlock it, and tap **Trust** if asked.
+3. Drag `VoiceBloom.ipa` into Sideloadly, enter your Apple ID, and click **Start**.
+4. On the iPhone: **Settings ▸ General ▸ VPN & Device Management**, tap your Apple ID, then **Trust**. If iOS asks, turn on **Settings ▸ Privacy & Security ▸ Developer Mode** and restart.
+
+With a free Apple ID the app stops opening after 7 days. Install the same `.ipa` again to refresh it; your saved sessions are kept.
+
+The workflow uses [XcodeGen](https://github.com/yonaskolb/XcodeGen) to create the Xcode project from `project.yml` (same settings as the steps below), then builds an unsigned app that Sideloadly signs.
+
+---
+
 ## Xcode setup (one time)
 
 Requires **Xcode 26+** and an iPhone on **iOS 26+**. The repo has all the source files but no `.xcodeproj`. You create the project once in Xcode and then move it into the repo.

@@ -1,0 +1,49 @@
+# XcodeGen project description. GitHub Actions turns this into
+# VoiceBloom.xcodeproj on a Mac and builds VoiceBloom.ipa
+# (see .github/workflows/build-ipa.yml). The settings match the README's
+# Xcode setup steps.
+name: VoiceBloom
+options:
+  bundleIdPrefix: com.williamzhao
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    # Xcode 26 new-project defaults.
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY: YES
+targets:
+  VoiceBloom:
+    type: application
+    platform: iOS
+    sources:
+      - VoiceBloom
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.williamzhao.voicebloom
+        MARKETING_VERSION: "0.4"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: VoiceBloom
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "VoiceBloom listens to your voice while you practice to measure pitch and resonance. Audio is analyzed on your iPhone and never leaves it."
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "VoiceBloom can show a live transcript of what you say while you practice. Speech is recognized on your iPhone and never leaves it."
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  VoiceBloomTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - VoiceBloomTests
+    dependencies:
+      - target: VoiceBloom
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.williamzhao.voicebloom.tests
