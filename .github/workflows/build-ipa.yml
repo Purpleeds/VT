@@ -1,5 +1,6 @@
-# Builds an unsigned VoiceBloom.ipa on a GitHub Mac with Xcode.
-# Download it from the run's "Artifacts" section and install it with
+# Builds an unsigned VoiceBloom.ipa on a GitHub Mac with Xcode, and runs the
+# unit tests on an iPhone simulator.
+# Download the .ipa from the run's "Artifacts" section and install it with
 # Sideloadly (which signs it with your Apple ID). See README › Install
 # without a Mac.
 name: Build iPhone app
@@ -9,6 +10,7 @@ on:
   push:
     paths:
       - "VoiceBloom/**"
+      - "VoiceBloomTests/**"
       - "project.yml"
       - ".github/workflows/build-ipa.yml"
 
@@ -31,7 +33,7 @@ jobs:
 
       - name: Build (unsigned)
         run: |
-          set -o pipefail
+          status=0
           xcodebuild build \
             -project VoiceBloom.xcodeproj \
             -scheme VoiceBloom \
@@ -40,9 +42,13 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            | tee build.log | grep -E "error:|warning: .*VoiceBloom/|BUILD (SUCCEEDED|FAILED)" || true
-          test -d build/Build/Products/Release-iphoneos/VoiceBloom.app
+            CODE_SIGN_IDENTITY="" > build.log 2>&1 || status=$?
+          echo "::group::Errors and warnings in VoiceBloom code"
+          grep -E ": (error|warning): " build.log | grep "/VoiceBloom/" | sed "s|$PWD/||" | sort -u | head -300 || true
+          echo "::endgroup::"
+          grep -E ": error: " build.log | sed "s|$PWD/||" | sort -u | head -100 || true
+          grep -E "\*\* BUILD (SUCCEEDED|FAILED) \*\*" build.log || true
+          exit $status
 
       - name: Package VoiceBloom.ipa
         run: |
@@ -62,3 +68,52 @@ jobs:
         with:
           name: build-log
           path: build.log
+
+  test:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use the newest Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Run unit tests on an iPhone simulator
+        run: |
+          udid=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          phones = [d for runtime, list_ in devices.items() if "iOS" in runtime for d in list_ if d["name"].startswith("iPhone")]
+          print(phones[-1]["udid"] if phones else "")
+          ')
+          echo "Simulator: $udid"
+          status=0
+          xcodebuild test \
+            -project VoiceBloom.xcodeproj \
+            -scheme VoiceBloom \
+            -destination "id=$udid" \
+            -only-testing:VoiceBloomTests \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO > test.log 2>&1 || status=$?
+          echo "::group::Compile errors"
+          grep -E ": error: " test.log | sed "s|$PWD/||" | sort -u | head -100 || true
+          echo "::endgroup::"
+          echo "::group::Failed tests"
+          grep -E "✘|Expectation failed|recorded an issue|Test .* failed|failed \(" test.log | sed "s|$PWD/||" | head -300 || true
+          echo "::endgroup::"
+          grep -E "Test run with|Executed [0-9]+ test|\*\* TEST (SUCCEEDED|FAILED) \*\*" test.log || true
+          exit $status
+
+      - name: Keep the full test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: test.log

@@ -21,6 +21,9 @@ targets:
     platform: iOS
     sources:
       - VoiceBloom
+    scheme:
+      testTargets:
+        - VoiceBloomTests
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.williamzhao.voicebloom
