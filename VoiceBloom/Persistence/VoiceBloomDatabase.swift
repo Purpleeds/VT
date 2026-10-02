@@ -12,6 +12,11 @@ nonisolated enum VoiceBloomDatabase {
     }
 
     static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
+        if !inMemory {
+            // The store lives in Application Support, which doesn't exist on a
+            // fresh install; creating it first avoids a failed first attempt.
+            _ = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        }
         let schema = Schema(versionedSchema: VoiceBloomSchemaV1.self)
         // Local only for now. iCloud sync (private database) is opt-in in a later stage.
         // In-memory stores get their own name so they never share data (tests).

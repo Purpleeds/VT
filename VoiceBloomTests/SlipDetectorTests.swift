@@ -193,8 +193,9 @@ struct TallyTests {
             tally.add(second < 5, at: Double(second))
         }
         #expect(tally.fraction == 0.5)
-        // Five more misses push the early hits out of the 10 s window.
-        for second in 10..<15 {
+        // Six more misses push the early hits out of the 10 s window (a value
+        // exactly 10 s old is still inside it).
+        for second in 10..<16 {
             tally.add(false, at: Double(second))
         }
         #expect(tally.count == 11)
