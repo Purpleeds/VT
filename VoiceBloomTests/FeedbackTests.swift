@@ -82,7 +82,7 @@ struct FeedbackCueTests {
 
     @Test("Pitch and resonance slips feel different")
     func distinctPatterns() {
-        #expect(HapticPatternDescription.pitchSlip.events.allSatisfy(\.isTransient))
+        #expect(HapticPatternDescription.pitchSlip.events.allSatisfy { $0.isTransient })
         #expect(HapticPatternDescription.pitchSlip.events.count == 2)
         #expect(HapticPatternDescription.resonanceSlip.events.contains { !$0.isTransient })
         #expect(FeedbackCue.slip([.pitch]).haptic == .pitchSlip)

@@ -78,12 +78,12 @@ struct VoiceAnalysisPipelineTests {
         let voice = TestSignal.sawtooth(frequency: 180, count: 24_000, amplitude: 0.3)
         let frames = process(quietRoom + voice, with: pipeline)
 
-        let firstVoiced = try #require(frames.firstIndex(where: \.isVoiced))
+        let firstVoiced = try #require(frames.firstIndex(where: { $0.isVoiced }))
         // No pitch during the quiet room, and the floor learned the room level.
         #expect(frames[..<firstVoiced].allSatisfy { $0.displayFrequency == nil })
         #expect(frames[firstVoiced].noiseFloorDb < -60)
         let laterFrames = frames.suffix(20)
-        #expect(laterFrames.allSatisfy(\.isVoiced))
+        #expect(laterFrames.allSatisfy { $0.isVoiced })
         for frame in laterFrames {
             let filtered = try #require(frame.filteredFrequency)
             #expect(abs(filtered - 180) <= 2)
@@ -186,8 +186,8 @@ struct VoiceAnalysisPipelineTests {
         let tone = TestSignal.sine(frequency: 200, count: 12_000, amplitude: 0.005)
         let adaptive = VoiceAnalysisPipeline(configuration: configuration)
         let calibrated = VoiceAnalysisPipeline(configuration: configuration, noiseFloor: .calibrated(floorDb: -45))
-        #expect(process(tone, with: adaptive).contains(where: \.isVoiced))
-        #expect(!process(tone, with: calibrated).contains(where: \.isVoiced))
+        #expect(process(tone, with: adaptive).contains(where: { $0.isVoiced }))
+        #expect(!process(tone, with: calibrated).contains(where: { $0.isVoiced }))
     }
 
     @Test("Draining the ring hands every raw sample to the audio tap with its time")
