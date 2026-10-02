@@ -14,6 +14,10 @@ struct TargetClipEditorView: View {
     @Query(sort: \TargetVoiceProfile.createdAt) private var targets: [TargetVoiceProfile]
 
     @State private var selection: TrimSelection
+    @State private var audio: AudioClip
+    @State private var splitSource: SplitSource?
+    @State private var splitTrackID: UUID?
+    @State private var isLoadingVocals = false
     @State private var peaks: [Float] = []
     @State private var player = SamplePlayer()
     @State private var report: TargetClipReport?
@@ -27,9 +31,11 @@ struct TargetClipEditorView: View {
     init(imported: ImportedClip) {
         self.imported = imported
         _selection = State(initialValue: TrimSelection.initial(clipDuration: imported.decoded.audio.duration))
+        _audio = State(initialValue: imported.decoded.audio)
     }
 
-    private var clip: AudioClip { imported.decoded.audio }
+    private var clip: AudioClip { audio }
+    private var isUsingVocals: Bool { splitTrackID != nil }
     private var isReportCurrent: Bool { report != nil && analyzedSelection == selection }
 
     var body: some View {
@@ -75,6 +81,15 @@ struct TargetClipEditorView: View {
             }
             .onDisappear {
                 player.shutDown()
+                if let url = imported.sourceURL {
+                    TargetImportFiles.remove(url)
+                }
+            }
+            .sheet(item: $splitSource) { source in
+                SplitSetupView(source: source) { id in
+                    splitSource = nil
+                    Task { await useVocals(fromSplit: id) }
+                }
             }
         }
     }
@@ -95,6 +110,25 @@ struct TargetClipEditorView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+            }
+
+            if isUsingVocals {
+                Label("Using the isolated vocals from the split, so the music doesn’t throw off the analysis.", systemImage: "waveform.path")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.targetZone)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else if imported.sourceURL != nil {
+                Button {
+                    startSplit()
+                } label: {
+                    if isLoadingVocals {
+                        ProgressView()
+                    } else {
+                        Label("Split Vocals / Backing", systemImage: "waveform.path")
+                    }
+                }
+                .buttonStyle(.glass)
+                .disabled(isLoadingVocals)
             }
 
             Text("Drag the handles to choose 10–60 seconds of clear speech from just one person.")
@@ -182,6 +216,15 @@ struct TargetClipEditorView: View {
                     tint: warning.isSerious ? Theme.warning : Color.secondary
                 )
             }
+            if report.quality.warnings.contains(.music), !isUsingVocals, imported.sourceURL != nil {
+                Button {
+                    startSplit()
+                } label: {
+                    Label("Split First for Best Results", systemImage: "waveform.path")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.glassProminent)
+            }
 
             if report.take.hasVoice {
                 TargetStatsGrid(snapshot: VoiceSnapshot(take: report.take), low: report.take.lowPitch, high: report.take.highPitch, tilt: report.take.spectralTilt)
@@ -241,6 +284,36 @@ struct TargetClipEditorView: View {
         player.play(clip, range: selection.start...selection.end)
     }
 
+    private func startSplit() {
+        guard let url = imported.sourceURL else { return }
+        player.stop()
+        splitSource = SplitSource(url: url, title: imported.sourceName, removesFileWhenDone: false)
+    }
+
+    /// Swaps the clip for the split's isolated vocals (SPEC section 23.4).
+    private func useVocals(fromSplit id: UUID) async {
+        guard let track = SeparationStore(context: modelContext).track(id: id), let vocals = track.vocalsURL else {
+            errorMessage = "That split has no vocals. Split again and keep the vocals."
+            return
+        }
+        isLoadingVocals = true
+        defer { isLoadingVocals = false }
+        do {
+            let decoded = try await AudioFileDecoder.decodeInBackground(url: vocals)
+            audio = decoded.audio
+            selection = TrimSelection.initial(clipDuration: decoded.audio.duration)
+            report = nil
+            analyzedSelection = nil
+            splitTrackID = id
+            let samples = decoded.audio.samples
+            peaks = await Task.detached(priority: .userInitiated) {
+                WaveformSummary.peaks(samples, bucketCount: 160)
+            }.value
+        } catch {
+            errorMessage = "The isolated vocals couldn’t be opened."
+        }
+    }
+
     private func analyze() async {
         player.stop()
         errorMessage = nil
@@ -263,7 +336,8 @@ struct TargetClipEditorView: View {
         let store = TargetVoiceStore(context: modelContext)
         do {
             let range = selection.start...selection.end
-            let saved = try await store.save(name: name, report: report, clip: clip, range: range)
+            let split = splitTrackID.flatMap { SeparationStore(context: modelContext).track(id: $0) }
+            let saved = try await store.save(name: name, report: report, clip: clip, range: range, separatedTrack: split)
             if let user = profiles.first {
                 try store.activate(saved, for: user, applyTargets: setsTargets)
                 monitor.targetZone = user.targetZone

@@ -1,4 +1,5 @@
 import Foundation
+import os
 import SwiftUI
 
 /// Raw analysis values for tuning on a real device.
@@ -145,6 +146,8 @@ struct DebugView: View {
                 LabeledContent("DSP load", value: loadText)
                 LabeledContent("Dropped samples", value: "\(monitor.droppedSampleCount)")
             }
+
+            SplitterDebugSection()
         }
         .monospacedDigit()
         .navigationTitle("Debug")
@@ -325,5 +328,41 @@ private struct LevelMeter: View {
     private static func fraction(_ decibels: Double) -> CGFloat {
         let clamped = min(max(decibels, range.lowerBound), range.upperBound)
         return CGFloat((clamped - range.lowerBound) / (range.upperBound - range.lowerBound))
+    }
+}
+
+/// Vocal splitter timing per chunk and memory (SPEC section 23.6).
+private struct SplitterDebugSection: View {
+    @State private var availableMemory = os_proc_available_memory()
+
+    var body: some View {
+        Section {
+            LabeledContent("Memory available to Chirp", value: StorageFormat.text(Int64(availableMemory)))
+            if let run = SeparationDiagnostics.lastRun {
+                LabeledContent("Last split engine", value: run.engine.title)
+                if let factor = run.averageRealTimeFactor {
+                    LabeledContent("Speed", value: "\((factor * 100).roundedInt)% of real time")
+                }
+                if let memory = run.availableMemoryBytes {
+                    LabeledContent("Memory free after split", value: StorageFormat.text(Int64(memory)))
+                }
+                ForEach(run.chunks, id: \.index) { chunk in
+                    LabeledContent("Chunk \(chunk.index + 1)", value: "\((chunk.processingSeconds * 1000).roundedInt) ms for \(chunk.audioSeconds.roundedInt) s")
+                }
+            } else {
+                Text("Split a song in More › Tools › Vocal Splitter to see timing here.")
+                    .foregroundStyle(.secondary)
+            }
+        } header: {
+            Text("Vocal splitter")
+        } footer: {
+            Text("Processing time per chunk (10 s of audio each, 1 s overlap). Below 100 % of real time means faster than the song plays.")
+        }
+        .task {
+            while !Task.isCancelled {
+                availableMemory = os_proc_available_memory()
+                try? await Task.sleep(for: .seconds(1))
+            }
+        }
     }
 }

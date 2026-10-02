@@ -1,17 +1,12 @@
 import Foundation
 import SwiftData
 
-/// Version 1 of the stored data (SPEC section 18).
-///
-/// Models are designed to be CloudKit-compatible from the start (optional
-/// iCloud sync arrives in a later stage): every stored property has a default
-/// or is optional, relationships are optional with inverses, and there are no
-/// unique constraints. Enums are stored as raw strings.
-///
-/// Later stages that change a model add a `VoiceBloomSchemaV2` plus a
-/// migration stage in `VoiceBloomMigrationPlan`.
-nonisolated enum VoiceBloomSchemaV1: VersionedSchema {
-    static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
+/// Version 2 of the stored data: version 1 plus `SeparatedTrack` (the vocal
+/// splitter, SPEC section 23) and a link from target voices to the split they
+/// were measured from. Version 1 stays as shipped; the migration is lightweight
+/// (a new model and a new optional relationship).
+nonisolated enum VoiceBloomSchemaV2: VersionedSchema {
+    static var versionIdentifier: Schema.Version { Schema.Version(2, 0, 0) }
 
     static var models: [any PersistentModel.Type] {
         [
@@ -23,6 +18,7 @@ nonisolated enum VoiceBloomSchemaV1: VersionedSchema {
             ScenarioResult.self,
             Achievement.self,
             DailyJournalEntry.self,
+            SeparatedTrack.self,
         ]
     }
 
@@ -290,6 +286,8 @@ nonisolated enum VoiceBloomSchemaV1: VersionedSchema {
         var sourceClipFileName: String?
         var clipStart: Double?
         var clipEnd: Double?
+        /// The split this voice was measured from (its isolated vocals).
+        var separatedTrack: SeparatedTrack?
 
         init(name: String) {
             self.name = name
@@ -358,4 +356,72 @@ nonisolated enum VoiceBloomSchemaV1: VersionedSchema {
             self.sentence = sentence
         }
     }
+
+    // MARK: - SeparatedTrack (SPEC section 23.5)
+
+    /// A song or video split into vocals and backing. Files live in
+    /// Application Support/Separations/<id>/ (see `SeparationFiles`).
+    @Model
+    nonisolated final class SeparatedTrack {
+        var id: UUID = UUID()
+        var title: String = ""
+        var createdAt: Date = Date()
+        /// A copy of the original, kept for video exports.
+        var sourceFileName: String?
+        var sourceTypeRawValue: String = SeparationSourceType.audio.rawValue
+        var engineRawValue: String = SeparationEngineKind.basic.rawValue
+        var qualityRawValue: String = SeparationQuality.fast.rawValue
+        var vocalsFileName: String?
+        var backingFileName: String?
+        var duration: Double = 0
+        var sourceFileSize: Int64 = 0
+        var vocalsFileSize: Int64 = 0
+        var backingFileSize: Int64 = 0
+        @Relationship(deleteRule: .nullify, inverse: \TargetVoiceProfile.separatedTrack)
+        var targetVoices: [TargetVoiceProfile]? = []
+
+        init(id: UUID = UUID(), title: String) {
+            self.id = id
+            self.title = title
+        }
+
+        var sourceType: SeparationSourceType {
+            get { SeparationSourceType(rawValue: sourceTypeRawValue) ?? .audio }
+            set { sourceTypeRawValue = newValue.rawValue }
+        }
+
+        var engine: SeparationEngineKind {
+            get { SeparationEngineKind(rawValue: engineRawValue) ?? .basic }
+            set { engineRawValue = newValue.rawValue }
+        }
+
+        var quality: SeparationQuality {
+            get { SeparationQuality(rawValue: qualityRawValue) ?? .fast }
+            set { qualityRawValue = newValue.rawValue }
+        }
+
+        var totalFileSize: Int64 { sourceFileSize + vocalsFileSize + backingFileSize }
+    }
 }
+
+/// Plans how to upgrade stored data between schema versions.
+nonisolated enum VoiceBloomMigrationPlan: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] {
+        [VoiceBloomSchemaV1.self, VoiceBloomSchemaV2.self]
+    }
+
+    static var stages: [MigrationStage] {
+        [.lightweight(fromVersion: VoiceBloomSchemaV1.self, toVersion: VoiceBloomSchemaV2.self)]
+    }
+}
+
+// The rest of the app refers to the current schema's models by these names.
+typealias UserProfile = VoiceBloomSchemaV2.UserProfile
+typealias PracticeSession = VoiceBloomSchemaV2.PracticeSession
+typealias Recording = VoiceBloomSchemaV2.Recording
+typealias LessonProgress = VoiceBloomSchemaV2.LessonProgress
+typealias TargetVoiceProfile = VoiceBloomSchemaV2.TargetVoiceProfile
+typealias ScenarioResult = VoiceBloomSchemaV2.ScenarioResult
+typealias Achievement = VoiceBloomSchemaV2.Achievement
+typealias DailyJournalEntry = VoiceBloomSchemaV2.DailyJournalEntry
+typealias SeparatedTrack = VoiceBloomSchemaV2.SeparatedTrack

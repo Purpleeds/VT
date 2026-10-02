@@ -107,8 +107,10 @@ enum DataEraser {
         try context.delete(model: LessonProgress.self)
         try context.delete(model: Achievement.self)
         try context.delete(model: UserProfile.self)
+        try context.delete(model: SeparatedTrack.self)
         try context.save()
 
+        SeparationFiles.deleteAll()
         if let folder = try? RecordingFileStore.directory() {
             try? FileManager.default.removeItem(at: folder)
         }

@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Tools (SPEC sections 7 and 8): Quick Check, the Daily Sentence Journal,
 /// scenarios, the exercise library, the tone generator and mini piano,
-/// Voice Preview and Discreet Mode.
+/// Voice Preview, the Vocal Splitter and Discreet Mode.
 struct ToolsView: View {
     @AppStorage(DiscreetMode.key) private var discreetMode = false
 
@@ -83,6 +83,15 @@ struct ToolsView: View {
             }
 
             Section {
+                NavigationLink {
+                    SplitterView()
+                } label: {
+                    ToolRow(
+                        title: "Vocal Splitter",
+                        detail: "Split a song or video into vocals and backing, mix them, record over the backing, or export.",
+                        systemImage: "waveform.path"
+                    )
+                }
                 NavigationLink {
                     VoicePreviewView()
                 } label: {

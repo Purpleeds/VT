@@ -145,9 +145,14 @@ struct TargetVoiceView: View {
         defer { isLoading = false }
         do {
             let local = try await copy()
-            defer { TargetImportFiles.remove(local) }
-            let decoded = try await AudioFileDecoder.decodeInBackground(url: local)
-            editorClip = ImportedClip(decoded: decoded, sourceName: name)
+            do {
+                let decoded = try await AudioFileDecoder.decodeInBackground(url: local)
+                // The copy stays until the editor closes, so it can be split.
+                editorClip = ImportedClip(decoded: decoded, sourceName: name, sourceURL: local)
+            } catch {
+                TargetImportFiles.remove(local)
+                throw error
+            }
         } catch {
             importError = (error as? TargetImportError)?.errorDescription ?? TargetImportError.unreadable.errorDescription
         }
@@ -159,6 +164,8 @@ struct ImportedClip: Identifiable {
     let id = UUID()
     let decoded: DecodedClip
     let sourceName: String
+    /// A temporary copy of the picked file (deleted when the editor closes).
+    var sourceURL: URL?
 }
 
 /// A video picked from Photos, copied to a temporary file.

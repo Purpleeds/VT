@@ -78,6 +78,7 @@ struct TargetVoiceStore {
         report: TargetClipReport,
         clip: AudioClip,
         range: ClosedRange<Double>,
+        separatedTrack: SeparatedTrack? = nil,
         now: Date = Date()
     ) async throws -> TargetVoiceProfile {
         let section = TargetClipAnalyzer.section(of: clip, range: range)
@@ -90,6 +91,7 @@ struct TargetVoiceStore {
             profile.sourceClipFileName = file?.fileName
             profile.clipStart = range.lowerBound
             profile.clipEnd = range.upperBound
+            profile.separatedTrack = separatedTrack
             try context.save()
             return profile
         } catch {

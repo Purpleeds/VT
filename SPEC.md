@@ -309,5 +309,87 @@ Build ONE stage at a time. Each stage must compile and run on a real iPhone befo
 12. Motivation: streaks, achievements, pitch game, notifications, widgets, Siri Shortcuts
 13. Privacy features, iCloud sync, backup/restore, accessibility pass
 14. Voice Preview (advanced) and final polish
+(Stages 15–16 and section 22, Pitch Track Mode, are not in this copy of the spec yet.)
+17. Splitter with the BASIC engine: SeparationService protocol, splitter screen, preview mixer, save/export/discard (including video audio replacement), storage screen, and all integrations from 23.4
+18. HIGH QUALITY engine: convert and add the ML model, chunked processing, Fast/Best settings, automatic fallback
 
 Start with Stage 1 now.
+
+==================================================
+23. VOCAL / BACKING SPLITTER
+==================================================
+Lets the user split any imported song or video into separate VOCALS and BACKING (instrumental) tracks, then play, mix, export, or use either part elsewhere in the app. All processing is on-device and free.
+
+--------------------------------------------------
+23.1 SEPARATION ENGINES
+--------------------------------------------------
+Two engines behind a SeparationService protocol:
+
+1. HIGH QUALITY (machine learning)
+- Use an open-source music source-separation model with a permissive license (e.g. Demucs or Spleeter, both MIT) converted to Core ML. Check the license before using any model.
+- 2-stem output: vocals + accompaniment.
+- Process audio in overlapping chunks (e.g. 10 s chunks, 1 s overlap, crossfaded) to keep memory low and avoid crashes on long songs.
+- Run on the Neural Engine/GPU (MLComputeUnits.all). Fall back to CPU if needed.
+- Quality setting: Fast (single pass) or Best (extra pass / larger model if available).
+- If the model file is missing or the device can't run it, fall back to engine 2 automatically and tell the user.
+
+2. BASIC (no model, works on every device)
+- Stereo only: vocals are usually panned to the center, so:
+  - Backing ≈ left minus right (center cancellation), with a low-frequency restore so bass and kick drum aren't lost
+  - Vocals ≈ mid channel with the extracted backing subtracted, plus a vocal-range band-pass filter (~100 Hz–8 kHz)
+- Use vDSP for speed.
+- Label clearly as "Basic quality": works best on studio songs with centered vocals, and won't work on mono files (detect mono and explain).
+
+--------------------------------------------------
+23.2 SPLITTER SCREEN
+--------------------------------------------------
+- Entry points: a "Split vocals / backing" button on any imported clip (Target Voice tab, Pitch Track import, and a Splitter tool in More > Tools).
+- Choose output: Vocals only, Backing only, or Both.
+- Choose engine: High Quality or Basic (default High Quality when available).
+- Progress screen with percentage, estimated time left, and cancel. Keep processing if the screen locks briefly (request extra background time); warn that very long songs may take several minutes and use battery.
+- Detect if the clip has no music (e.g. plain speech) and tell the user splitting isn't needed.
+
+PREVIEW AND MIXER
+- Waveforms for Vocals and Backing, stacked.
+- Play/pause, scrub, loop selection.
+- Solo / mute buttons for each part, and a volume slider for each (0–150%).
+- A/B toggle to instantly compare original vs vocals vs backing.
+- "Clean up" options for vocals: noise gate and light de-reverb (simple, optional).
+
+--------------------------------------------------
+23.3 SAVE, EXPORT, AND DISCARD
+--------------------------------------------------
+- Save stems to the app's library (SeparatedTrack model) so they never need reprocessing.
+- Export options via share sheet / Save to Files:
+  - Vocals only (M4A or WAV)
+  - Backing only (M4A or WAV)
+  - Custom mix from the mixer sliders (M4A or WAV)
+  - For VIDEO sources: export the original video with its audio replaced by vocals only, backing only, or the custom mix (AVMutableComposition + AVAssetExportSession), keeping the video untouched.
+- Discard button (with confirmation) deletes the stems.
+- Storage screen in Settings: list saved stems with file sizes, delete individually or all.
+- Small note in the UI: separated audio is for personal practice; respect the rights of the original creators when sharing.
+
+--------------------------------------------------
+23.4 INTEGRATION WITH OTHER FEATURES
+--------------------------------------------------
+- PITCH TRACK MODE (section 22):
+  - When a clip has music, offer "Split first for best results." Bars are generated from the isolated VOCALS.
+  - New audio option during play: "Backing only (karaoke)", where the user sings/speaks over the instrumental while matching the bars. This becomes the default for split songs.
+  - Keep "Original," "Vocals only," "Guide tones," and "Silent" as other options.
+  - Results screen: "Play my take with the backing" mixes the user's recording with the instrumental.
+- TARGET VOICE (section 9): analyze the isolated vocals instead of the full mix for much more accurate pitch, resonance, and weight profiles.
+- Record over backing: a simple mode where the user records themselves over the backing track (no bars, no scoring), then saves/discards and can export the mix.
+
+--------------------------------------------------
+23.5 DATA MODEL ADDITIONS
+--------------------------------------------------
+- SeparatedTrack: id, source file URL, source type (audio/video), engine used, quality, vocals file URL, backing file URL, duration, file sizes, created date
+- Link PitchTrack and TargetVoiceProfile to an optional SeparatedTrack
+
+--------------------------------------------------
+23.6 TESTING
+--------------------------------------------------
+- Unit tests for the Basic engine using synthetic stereo audio (a centered tone + side-panned tones): backing should strongly reduce the centered tone.
+- Test chunk crossfading produces no clicks at chunk boundaries.
+- Test mono detection, cancel mid-process, and low-storage handling.
+- Debug screen showing processing time per chunk and memory use.

@@ -157,6 +157,8 @@ nonisolated enum RecordingKind: String, CaseIterable, Identifiable, Sendable, Co
     case quickCheck
     case scenario
     case placement
+    /// Sung or spoken over a split song's backing (SPEC section 23.4).
+    case overBacking
 
     var id: String { rawValue }
 
@@ -168,6 +170,7 @@ nonisolated enum RecordingKind: String, CaseIterable, Identifiable, Sendable, Co
         case .quickCheck: "Quick Check"
         case .scenario: "Scenario"
         case .placement: "Placement"
+        case .overBacking: "Over backing"
         }
     }
 }

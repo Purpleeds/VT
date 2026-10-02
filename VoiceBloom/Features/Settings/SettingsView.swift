@@ -297,6 +297,11 @@ private struct SettingsForm: View {
                 Text("App icon")
             }
             NavigationLink {
+                SplitStorageView()
+            } label: {
+                Text("Split Tracks Storage")
+            }
+            NavigationLink {
                 BackupRestoreView()
             } label: {
                 Text("Backup & restore")
