@@ -168,7 +168,7 @@ final class PracticeSessionController {
     }
 
     /// The SPEC's soft cap on daily practice.
-    static let dailySoftCapMinutes = 45.0
+    static let dailySoftCapMinutes = BreakAdvisor.dailyLimitMinutes
 
     /// Throws the current session away, including any recordings saved in it.
     func discardSession() async {

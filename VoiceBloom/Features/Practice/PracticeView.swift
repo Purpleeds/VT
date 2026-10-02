@@ -17,6 +17,9 @@ struct PracticeView: View {
     @State private var isShowingEyesFree = false
     @State private var isConfirmingDiscard = false
     @State private var isRestBannerDismissed = false
+    @State private var breakAdvice = BreakAdvice.none
+    @State private var dismissedBreakAdvice: BreakAdvice?
+    @State private var breakHapticCount = 0
     @AppStorage(DiscreetMode.key) private var isDiscreet = false
 
     /// Whether to show slip alerts on screen right now.
@@ -42,6 +45,12 @@ struct PracticeView: View {
                     if sessionController.isRestDaySuggested, !isRestBannerDismissed {
                         RestDayBanner {
                             isRestBannerDismissed = true
+                        }
+                    }
+
+                    if breakAdvice != .none, breakAdvice != dismissedBreakAdvice {
+                        BreakAdviceBanner(advice: breakAdvice) {
+                            dismissedBreakAdvice = breakAdvice
                         }
                     }
 
@@ -136,6 +145,15 @@ struct PracticeView: View {
                 .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: visibleSlips)
             }
             .background { AppBackground() }
+            .task {
+                // Break suggestions and the 45-minute soft limit (SPEC section 14).
+                while !Task.isCancelled {
+                    refreshBreakAdvice()
+                    try? await Task.sleep(for: .seconds(30))
+                }
+            }
+            // A gentle tap when a break suggestion appears, for eyes-off practice.
+            .sensoryFeedback(.warning, trigger: breakHapticCount)
             // Start/pause, save and finish stay reachable without scrolling.
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 8) {
@@ -215,6 +233,18 @@ struct PracticeView: View {
             } message: {
                 Text("Its statistics and any recordings saved during it will be deleted.")
             }
+        }
+    }
+
+    private func refreshBreakAdvice() {
+        let sessionMinutes = (monitor.sessionSnapshot()?.activeDuration ?? 0) / 60
+        let advice = BreakAdvisor.advice(todayMinutes: sessionController.minutesPracticedToday(), sessionMinutes: sessionMinutes)
+        guard advice != breakAdvice else { return }
+        breakAdvice = advice
+        if advice != .none, monitor.status.isRunning {
+            // The tap mustn't be measured as voice.
+            monitor.excludeFromStatistics(for: 0.6)
+            breakHapticCount += 1
         }
     }
 }

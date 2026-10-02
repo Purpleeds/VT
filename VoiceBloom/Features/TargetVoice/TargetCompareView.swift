@@ -120,7 +120,7 @@ private struct CompareResults: View {
                 if let overall = TargetComparison.overall(matches) {
                     HStack(alignment: .firstTextBaseline) {
                         Text("\(Int(overall.rounded()))%")
-                            .font(.system(size: 44, weight: .semibold, design: .rounded))
+                            .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                             .monospacedDigit()
                         Text("overall match")
                             .foregroundStyle(.secondary)

@@ -13,7 +13,10 @@ struct SettingsView: View {
     var body: some View {
         Group {
             if let profile = profiles.first {
+                // A new profile (after restoring a backup or deleting all
+                // data) gets a fresh form, so no change handlers fire on it.
                 SettingsForm(profile: profile)
+                    .id(profile.persistentModelID)
             } else {
                 ContentUnavailableView("Settings unavailable", systemImage: "gearshape", description: Text("Please restart VoiceBloom."))
             }
@@ -36,6 +39,8 @@ private struct SettingsForm: View {
     @State private var isConfirmingDelete = false
     @State private var remindersOn = false
     @AppStorage(MotivationCenter.nudgeKey) private var eveningNudge = true
+    @AppStorage(PrivacyPreferences.appSwitcherCoverKey) private var coversAppSwitcher = true
+    @AppStorage(PrivacyPreferences.notificationStyleKey) private var notificationStyleRawValue = NotificationWordingStyle.neutral.rawValue
     @State private var reminderTime = Calendar.current.date(bySettingHour: 18, minute: 30, second: 0, of: Date()) ?? Date()
     @State private var lockOn = false
     @State private var message: String?
@@ -77,6 +82,13 @@ private struct SettingsForm: View {
         .onChange(of: remindersOn) { _, _ in Task { await updateReminder() } }
         .onChange(of: eveningNudge) { _, _ in _ = MotivationCenter.refresh(context: modelContext) }
         .onChange(of: reminderTime) { _, _ in Task { await updateReminder() } }
+        .onChange(of: notificationStyleRawValue) { _, _ in
+            // Reschedule so pending reminders use the new wording.
+            if remindersOn {
+                Task { await updateReminder() }
+            }
+            _ = MotivationCenter.refresh(context: modelContext)
+        }
         .onChange(of: lockOn) { _, newValue in
             guard newValue != profile.faceIDLockEnabled else { return }
             Task { await setLock(newValue) }
@@ -273,15 +285,30 @@ private struct SettingsForm: View {
     private var privacySection: some View {
         Section {
             Toggle("Lock with \(AppLock.methodName)", isOn: $lockOn)
-            LabeledContent("iCloud sync", value: "Coming soon")
-            LabeledContent("Backup & restore", value: "Coming soon")
+            Toggle("Hide in app switcher", isOn: $coversAppSwitcher)
+            Picker("Notification wording", selection: $notificationStyleRawValue) {
+                ForEach(NotificationWordingStyle.allCases) { style in
+                    Text(style.title).tag(style.rawValue)
+                }
+            }
+            NavigationLink {
+                AppIconPickerView()
+            } label: {
+                Text("App icon")
+            }
+            NavigationLink {
+                BackupRestoreView()
+            } label: {
+                Text("Backup & restore")
+            }
+            LabeledContent("iCloud sync", value: "Not available")
             Button("Delete all data", role: .destructive) {
                 isConfirmingDelete = true
             }
         } header: {
             Text("Privacy & data")
         } footer: {
-            Text("All data is stored on this iPhone only. Recordings are excluded from iCloud and computer backups.")
+            Text("All data is stored on this iPhone only. Recordings are excluded from iCloud and computer backups; use Backup & restore to keep a copy. iCloud sync needs a paid Apple Developer account, so it’s off in this build. Neutral notifications just say “Time for practice”. No analytics, no tracking, no ads.")
         }
     }
 

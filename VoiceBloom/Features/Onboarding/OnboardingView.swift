@@ -132,7 +132,8 @@ private struct OnboardingWelcomeStep: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Image(systemName: "waveform.circle.fill")
-                .font(.system(size: 64))
+                .font(.largeTitle)
+                .imageScale(.large)
                 .foregroundStyle(.tint)
                 .accessibilityHidden(true)
             Text("Welcome to VoiceBloom")
@@ -202,7 +203,8 @@ private struct OnboardingHealthStep: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Image(systemName: "heart.text.square.fill")
-                .font(.system(size: 52))
+                .font(.largeTitle)
+                .imageScale(.large)
                 .foregroundStyle(Theme.warning)
                 .accessibilityHidden(true)
             Text("Training should never hurt")

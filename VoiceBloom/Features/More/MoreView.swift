@@ -30,6 +30,11 @@ struct MoreView: View {
                         Label("Ask the Coach", systemImage: "bubble.left.and.text.bubble.right")
                     }
                     NavigationLink {
+                        HealthCenterView()
+                    } label: {
+                        Label("Vocal Health Center", systemImage: "heart.text.square")
+                    }
+                    NavigationLink {
                         ToolsView()
                     } label: {
                         Label("Tools", systemImage: "wrench.and.screwdriver")
@@ -40,13 +45,6 @@ struct MoreView: View {
                         Label("Settings", systemImage: "gearshape")
                     }
                 }
-
-                Section {
-                    Label("Vocal Health Center", systemImage: "heart.text.square")
-                } header: {
-                    Text("Coming soon")
-                }
-                .foregroundStyle(.secondary)
 
                 Section {
                     NavigationLink {

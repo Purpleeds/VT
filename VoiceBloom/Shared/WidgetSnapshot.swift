@@ -24,6 +24,11 @@ nonisolated struct WidgetSnapshot: Codable, Sendable, Equatable {
         return try? JSONDecoder().decode(WidgetSnapshot.self, from: data)
     }
 
+    /// Removes the shared snapshot (Delete all data).
+    static func clear() {
+        sharedDefaults?.removeObject(forKey: key)
+    }
+
     func save() {
         guard let data = try? JSONEncoder().encode(self) else { return }
         WidgetSnapshot.sharedDefaults?.set(data, forKey: WidgetSnapshot.key)

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import WidgetKit
 
 /// Saves the Day 1 baseline (or the week 16 re-recording): a practice session
 /// of kind `.baseline` with the reading and free-speech recordings.
@@ -115,6 +116,12 @@ enum DataEraser {
             UserDefaults.standard.removePersistentDomain(forName: bundleID)
         }
         KeychainStore.set(nil, account: KeychainStore.geminiAPIKeyAccount)
-        NotificationService.cancelDailyReminder()
+        NotificationService.cancelAll()
+        WidgetSnapshot.clear()
+        WidgetCenter.shared.reloadAllTimelines()
+        // Back to the standard icon (iOS confirms the change with an alert).
+        if AppIconService.current != .standard {
+            Task { _ = await AppIconService.set(.standard) }
+        }
     }
 }

@@ -71,7 +71,8 @@ struct MicCalibrationView: View {
     private var introContent: some View {
         VStack(spacing: 20) {
             Image(systemName: "mic.and.signal.meter")
-                .font(.system(size: 56))
+                .font(.largeTitle)
+                .imageScale(.large)
                 .foregroundStyle(.tint)
                 .accessibilityHidden(true)
             Text("Calibrate your microphone")
@@ -103,7 +104,8 @@ struct MicCalibrationView: View {
     private var resultsContent: some View {
         VStack(spacing: 20) {
             Image(systemName: model.isSaved ? "checkmark.seal.fill" : "list.bullet.clipboard")
-                .font(.system(size: 52))
+                .font(.largeTitle)
+                .imageScale(.large)
                 .foregroundStyle(.tint)
                 .accessibilityHidden(true)
             Text(model.isSaved ? "Calibration saved" : "Results")
@@ -238,13 +240,15 @@ private struct MeasuringStepView: View {
     let message: String
     let progress: Double
     let levelDb: Double?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: systemImage)
-                .font(.system(size: 56))
+                .font(.largeTitle)
+                .imageScale(.large)
                 .foregroundStyle(.tint)
-                .symbolEffect(.pulse)
+                .symbolEffect(.pulse, isActive: !reduceMotion)
                 .accessibilityHidden(true)
             Text(title)
                 .font(.title2.bold())

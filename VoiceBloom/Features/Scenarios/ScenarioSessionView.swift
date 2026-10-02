@@ -236,7 +236,7 @@ struct ScenarioSessionView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .firstTextBaseline) {
                         Text(summary.overall.map { "\(Int($0.rounded()))" } ?? "—")
-                            .font(.system(size: 52, weight: .semibold, design: .rounded))
+                            .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                             .monospacedDigit()
                         Text("overall · \(summary.turnCount) of \(model.level.turns.count) turns")
                             .foregroundStyle(.secondary)

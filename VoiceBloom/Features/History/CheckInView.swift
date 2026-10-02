@@ -32,6 +32,7 @@ struct CheckInSheet: View {
 private struct CheckInForm: View {
     @Environment(PracticeSessionController.self) private var sessionController
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let session: PracticeSession
 
     @State private var comfort: ComfortRating?
@@ -139,7 +140,7 @@ private struct CheckInForm: View {
         if result == .none {
             dismiss()
         } else {
-            withAnimation {
+            withAnimation(reduceMotion ? nil : .default) {
                 advice = result
             }
         }
@@ -231,7 +232,8 @@ struct CheckInAdviceView: View {
         ScrollView {
             VStack(spacing: 20) {
                 Image(systemName: advice == .seeSpecialist ? "stethoscope" : "bed.double.fill")
-                    .font(.system(size: 48))
+                    .font(.largeTitle)
+                    .imageScale(.large)
                     .foregroundStyle(Theme.warning)
                     .accessibilityHidden(true)
                 Text(advice.title)

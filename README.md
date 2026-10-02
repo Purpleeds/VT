@@ -13,6 +13,7 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 8:** Tools: the searchable exercise library, a reference tone generator with a mini piano, the Daily Sentence Journal with a timeline, Quick Check, and Discreet Mode.
 - **Stage 9:** Target Voice: import audio or video from Files or Photos, trim it on a waveform, quality warnings, a Target Voice Profile, automatic targets, Compare to Target, shadowing, and several saved profiles.
 - **Stage 12:** motivation: streaks with a weekly streak freeze, achievements, a daily challenge, the balloon pitch game, an evening nudge, Home Screen and Lock Screen widgets, and Siri shortcuts.
+- **Stage 13:** privacy (app lock, app-switcher cover, a neutral app icon, neutral notification wording, backup/restore to a file, delete all data), the Vocal Health Center (articles, a 45-minute daily soft limit with break suggestions, rest suggestions) and an accessibility pass. iCloud sync is left out: it needs a paid Apple Developer account.
 - **Stage 11:** the AI Coach: Apple's on-device model, optional Gemini with your own key, or simple built-in tips; post-session feedback, an AI scenario partner, weekly review, practice texts and Ask the Coach.
 - **Stage 10:** scenario practice: 11 everyday situations at Easy, Medium and Hard with pre-written scripts, each turn scored, results saved for the Progress radar.
 
@@ -139,6 +140,18 @@ If the App Group is missing (for example with some sideloading tools), the widge
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Stage 13** (privacy, vocal health, accessibility):
+- **Settings ▸ Privacy & data:**
+  - **Lock with Face ID** (from Stage 6) covers the app until you unlock it.
+  - **Hide in app switcher** (on by default) shows a plain screen instead of your data when you swipe between apps.
+  - **Notification wording:** *Neutral* (the default: "Time for practice") or *Mention voice practice*. Pending reminders are rescheduled with the new words.
+  - **App icon:** switch to a plain grey "list" icon; iOS confirms with an alert. iOS doesn't let apps change the name under the icon, so the screen explains how to make a Shortcuts bookmark with any name and icon instead.
+  - **Backup & restore:** back up everything (sessions, check-ins, lessons, target voices, scenario results, journal, achievements, settings, and optionally the recordings) to one `.json` file you save anywhere in Files. Restore shows what's in a file before replacing anything. The Gemini key and mic calibration are never in a backup.
+  - **Delete all data** now also removes notifications, the widget data and the alternate icon.
+- **More ▸ Vocal Health Center:** today's practice against the 45-minute soft limit, a rest suggestion after sore check-ins or repeated strain warnings, the last 7 days' check-ins and strain warnings, and seven short articles (how the voice works, safe habits, hydration, rest, signs of strain, why forcing pitch or falsetto is risky, when to see a speech-language pathologist).
+- **Break suggestions on Practice:** a banner with a gentle tap after every 15 minutes in a session, near 40 minutes for the day, and at 45. Practice is never blocked.
+- **Accessibility:** big numbers and icons now follow Dynamic Type everywhere, animations respect Reduce Motion, the scenario radar has an audio graph for VoiceOver (Swift Charts have one built in), and break suggestions, backups and icon changes come with haptics.
 
 **Stage 12** (motivation):
 - **Today card** (top of the Lessons tab): your streak, today's minutes against your daily goal, and today's challenge with **Go** and **Mark done**. One missed day per week is covered by a **streak freeze**, so a rest day for your voice doesn't break the streak (a practice day is any session of a minute or more).
@@ -301,7 +314,8 @@ VoiceBloom/
   Feedback/       FeedbackSettings, FeedbackCues (haptic patterns + chimes as data),
                   HapticsService (Core Haptics), FeedbackOutput
   Services/       NotificationService (daily reminder), KeychainStore, AppLock (Face ID), AppPreferences,
-                  BaselineStore, PlacementStore, DataEraser
+                  BaselineStore, PlacementStore, DataEraser, PrivacySettings (wording, icon choice),
+                  BackupService (archive, restore, BackupDocument)
   Content/        Original reading passages, Lessons.json (the 16-week plan + maintenance),
                   Scenarios.json (11 scenarios × Easy/Medium/Hard)
   Lessons/        LessonCatalog (JSON models), SessionPlanner, unlock rules and goal evaluation,
@@ -313,6 +327,8 @@ VoiceBloom/
                   CoachPrompts, CoachRouter (choice + fallback), CoachContextBuilder
   Motivation/     StreakCalculator (weekly freezes), AchievementKind, DailyChallenge, NudgeScheduler,
                   PitchGameEngine + scores, MotivationCenter (refresh achievements, widgets, nudge)
+  Health/         BreakAdvisor (soft limit, breaks), VocalHealthSummary (week of check-ins/strain),
+                  HealthLibrary (Vocal Health Center articles)
   Shared/         WidgetSnapshot (App Group data) and LaunchIntents (App Intents), also in the widget
   Scenarios/      ScenarioCatalog (Scenarios.json models, script text), ScenarioScoring (turn scores,
                   consistency, summary), ScenarioResultStore, ScenarioSessionModel
@@ -341,7 +357,8 @@ VoiceBloom/
                   Tools (hub, exercise library, tone generator + mini piano, journal, Quick Check,
                   Discreet Mode), TargetVoice (list + import, trim editor, profile, Compare to
                   Target, shadowing), Scenarios (list, detail, full-screen practice),
-                  Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More
+                  Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More,
+                  Health (Vocal Health Center, articles, break banner), Settings ▸ Backup & App Icon
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
 VoiceBloomWidget/ WidgetKit extension: streak, today's minutes, quick start (Home and Lock Screen)
 VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels

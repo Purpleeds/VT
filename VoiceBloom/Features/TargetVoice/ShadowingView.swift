@@ -307,7 +307,7 @@ private struct AttemptResult: View {
                 HStack(alignment: .firstTextBaseline) {
                     if let shape = attempt.comparison.shapeMatch {
                         Text("\(Int(shape.rounded()))%")
-                            .font(.system(size: 36, weight: .semibold, design: .rounded))
+                            .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                             .monospacedDigit()
                         Text("melody match")
                             .foregroundStyle(.secondary)

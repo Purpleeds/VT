@@ -49,6 +49,7 @@ struct CoachChatView: View {
     @Query(sort: \UserProfile.createdAt) private var profiles: [UserProfile]
     @State private var model = CoachChatModel()
     @FocusState private var isInputFocused: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var enabled: Bool { profiles.first?.aiCoachEnabled ?? false }
     private var engine: CoachEngine { CoachRouter.engine(enabled: enabled) }
@@ -84,7 +85,7 @@ struct CoachChatView: View {
             }
             .onChange(of: model.messages.count) { _, _ in
                 if let last = model.messages.last {
-                    withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
+                    withAnimation(reduceMotion ? nil : .default) { proxy.scrollTo(last.id, anchor: .bottom) }
                 }
             }
         }

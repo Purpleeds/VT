@@ -1,3 +1,4 @@
+import Accessibility
 import Foundation
 import SwiftUI
 
@@ -18,10 +19,37 @@ struct ScenarioRadarChart: View {
                     .accessibilityValue(RadarValues.Axis.allCases.compactMap { axis in
                         values.value(axis).map { "\(axis.title) \(Int($0.rounded()))" }
                     }.joined(separator: ", "))
+                    // Lets VoiceOver users explore the values as an audio graph.
+                    .accessibilityChartDescriptor(RadarChartDescriptor(values: values))
             } else {
                 EmptyChartMessage(message: "Practice a scenario (More › Tools › Scenarios) to see your pitch, resonance, weight, intonation and consistency here.")
             }
         }
+    }
+}
+
+/// The radar's values for VoiceOver's audio graphs and chart summary.
+private nonisolated struct RadarChartDescriptor: AXChartDescriptorRepresentable {
+    let values: RadarValues
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let axes = RadarValues.Axis.allCases
+        let xAxis = AXCategoricalDataAxisDescriptor(title: "Skill", categoryOrder: axes.map(\.title))
+        let yAxis = AXNumericDataAxisDescriptor(title: "Score", range: 0...100, gridlinePositions: [0, 25, 50, 75, 100]) { value in
+            "\(Int(value.rounded())) out of 100"
+        }
+        let points = axes.compactMap { axis in
+            values.value(axis).map { AXDataPoint(x: axis.title, y: $0) }
+        }
+        let series = AXDataSeriesDescriptor(name: "Average score", isContinuous: false, dataPoints: points)
+        return AXChartDescriptor(
+            title: "Scenario skills",
+            summary: "Average scenario scores from 0 to 100 for each skill.",
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [series]
+        )
     }
 }
 

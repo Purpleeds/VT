@@ -74,7 +74,7 @@ struct ToneGeneratorView: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .firstTextBaseline) {
                 Text("\(Int(frequency.rounded())) Hz")
-                    .font(.system(size: 44, weight: .semibold, design: .rounded))
+                    .font(.system(.largeTitle, design: .rounded, weight: .semibold))
                     .monospacedDigit()
                     .contentTransition(.numericText())
                 VStack(alignment: .leading, spacing: 2) {
@@ -345,7 +345,8 @@ private struct PianoLegendLabelStyle: LabelStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: 6) {
             configuration.icon
-                .font(.system(size: 7))
+                .font(.caption2)
+                .imageScale(.small)
                 .foregroundStyle(Theme.targetZone)
             configuration.title
         }

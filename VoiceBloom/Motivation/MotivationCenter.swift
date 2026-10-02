@@ -103,9 +103,10 @@ enum MotivationCenter {
               await center.notificationSettings().authorizationStatus == .authorized,
               let date = NudgeScheduler.nextNudge(now: now, practicedToday: practicedToday)
         else { return }
+        let wording = NotificationWording.eveningNudge(PrivacyPreferences.notificationStyle)
         let content = UNMutableNotificationContent()
-        content.title = "Time for practice"
-        content.body = "Even five easy minutes count. Or take a rest day; that’s part of practice too."
+        content.title = wording.title
+        content.body = wording.body
         content.sound = .default
         let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
         let request = UNNotificationRequest(

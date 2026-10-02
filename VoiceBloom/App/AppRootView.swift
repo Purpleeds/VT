@@ -8,6 +8,9 @@ struct AppRootView: View {
     @Environment(AppLock.self) private var appLock
     @Environment(LiveVoiceMonitor.self) private var monitor
     @Query(sort: \UserProfile.createdAt) private var profiles: [UserProfile]
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage(PrivacyPreferences.appSwitcherCoverKey) private var coversAppSwitcher = true
     @State private var hasCheckedLock = false
 
     /// UI tests launch with this argument to go straight to the tab bar.
@@ -31,7 +34,10 @@ struct AppRootView: View {
         .overlay {
             if appLock.isLocked {
                 LockScreenView()
-                    .transition(.opacity)
+                    .transition(reduceMotion ? .identity : .opacity)
+            } else if coversAppSwitcher, scenePhase != .active {
+                // Hides practice data in the app switcher (SPEC section 13).
+                PrivacyCoverView()
             }
         }
         .preferredColorScheme(profile?.theme.colorScheme)
@@ -62,7 +68,8 @@ private struct LockScreenView: View {
                 .ignoresSafeArea()
             VStack(spacing: 20) {
                 Image(systemName: "lock.fill")
-                    .font(.system(size: 44))
+                    .font(.largeTitle)
+                    .imageScale(.large)
                     .foregroundStyle(.tint)
                     .accessibilityHidden(true)
                 Text("VoiceBloom is locked")
@@ -94,6 +101,23 @@ private struct LockScreenView: View {
             if phase == .active {
                 Task { await appLock.authenticate() }
             }
+        }
+    }
+}
+
+/// A plain cover shown while the app isn't active, so the app switcher
+/// snapshot shows nothing personal.
+private struct PrivacyCoverView: View {
+    var body: some View {
+        ZStack {
+            // Opaque, so not even blurred shapes or colors show through.
+            Theme.groupedBackground
+                .ignoresSafeArea()
+            Image(systemName: "list.bullet.rectangle")
+                .font(.largeTitle)
+                .imageScale(.large)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
         }
     }
 }

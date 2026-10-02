@@ -24,9 +24,10 @@ enum NotificationService {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [dailyReminderID])
 
+        let wording = NotificationWording.dailyReminder(PrivacyPreferences.notificationStyle)
         let content = UNMutableNotificationContent()
-        content.title = "Time for practice"
-        content.body = "A few gentle minutes is all it takes today."
+        content.title = wording.title
+        content.body = wording.body
         content.sound = .default
 
         let components = calendar.dateComponents([.hour, .minute], from: time)
@@ -42,5 +43,12 @@ enum NotificationService {
 
     static func cancelDailyReminder() {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [dailyReminderID])
+    }
+
+    /// Removes every scheduled and delivered notification (Delete all data).
+    static func cancelAll() {
+        let center = UNUserNotificationCenter.current()
+        center.removeAllPendingNotificationRequests()
+        center.removeAllDeliveredNotifications()
     }
 }
