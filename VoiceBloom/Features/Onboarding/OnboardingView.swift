@@ -57,26 +57,26 @@ struct OnboardingView: View {
     private var content: some View {
         switch step {
         case .welcome:
-            WelcomeStep { next() }
+            OnboardingWelcomeStep { next() }
         case .health:
-            HealthStep { next() }
+            OnboardingHealthStep { next() }
         case .permissions:
-            PermissionsStep { next() }
+            OnboardingPermissionsStep { next() }
         case .calibration:
-            CalibrationStep { next() }
+            OnboardingCalibrationStep { next() }
         case .goal:
-            GoalStep(profile: profile) {
+            OnboardingGoalStep(profile: profile) {
                 monitor.targetZone = profile.targetZone
                 save()
                 next()
             }
         case .experience:
-            ExperienceStep(profile: profile) {
+            OnboardingExperienceStep(profile: profile) {
                 save()
                 next()
             }
         case .dailyGoal:
-            DailyGoalStep(profile: profile) {
+            OnboardingDailyGoalStep(profile: profile) {
                 save()
                 next()
             }
@@ -95,7 +95,7 @@ struct OnboardingView: View {
                     .foregroundStyle(.secondary)
             }
         case .extras:
-            ExtrasStep(profile: profile) {
+            OnboardingExtrasStep(profile: profile) {
                 finish()
             }
         }
@@ -126,7 +126,7 @@ struct OnboardingView: View {
 
 // MARK: - 1. Welcome
 
-private struct WelcomeStep: View {
+private struct OnboardingWelcomeStep: View {
     let onContinue: () -> Void
 
     var body: some View {
@@ -140,19 +140,19 @@ private struct WelcomeStep: View {
             Text("Voice training is like learning an instrument: small, regular practice changes four things your ear hears as feminine or masculine.")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-            ConceptRow(symbol: "music.note", title: "Pitch", detail: "How high or low your voice is. It matters, but less than most people think.")
-            ConceptRow(symbol: "speaker.wave.2", title: "Resonance", detail: "How bright or dark your voice sounds, shaped by your throat and mouth. The biggest factor of all.")
-            ConceptRow(symbol: "leaf", title: "Vocal weight", detail: "How heavy or light your voice feels, from how firmly your vocal folds meet.")
-            ConceptRow(symbol: "waveform.path", title: "Intonation", detail: "The melody of your speech: how your pitch moves up and down.")
+            OnboardingConceptRow(symbol: "music.note", title: "Pitch", detail: "How high or low your voice is. It matters, but less than most people think.")
+            OnboardingConceptRow(symbol: "speaker.wave.2", title: "Resonance", detail: "How bright or dark your voice sounds, shaped by your throat and mouth. The biggest factor of all.")
+            OnboardingConceptRow(symbol: "leaf", title: "Vocal weight", detail: "How heavy or light your voice feels, from how firmly your vocal folds meet.")
+            OnboardingConceptRow(symbol: "waveform.path", title: "Intonation", detail: "The melody of your speech: how your pitch moves up and down.")
             Label("Everything is analyzed on this iPhone. Your recordings never leave it.", systemImage: "lock.shield")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-            ContinueButton(title: "Get started", action: onContinue)
+            OnboardingContinueButton(title: "Get started", action: onContinue)
         }
     }
 }
 
-private struct ConceptRow: View {
+private struct OnboardingConceptRow: View {
     let symbol: String
     let title: String
     let detail: String
@@ -177,7 +177,7 @@ private struct ConceptRow: View {
     }
 }
 
-private struct ContinueButton: View {
+private struct OnboardingContinueButton: View {
     var title = "Continue"
     var isEnabled = true
     let action: () -> Void
@@ -196,7 +196,7 @@ private struct ContinueButton: View {
 
 // MARK: - 2. Health notice
 
-private struct HealthStep: View {
+private struct OnboardingHealthStep: View {
     let onContinue: () -> Void
 
     var body: some View {
@@ -215,7 +215,7 @@ private struct HealthStep: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-            ContinueButton(title: "I understand", action: onContinue)
+            OnboardingContinueButton(title: "I understand", action: onContinue)
         }
     }
 
@@ -232,7 +232,7 @@ private struct HealthStep: View {
 
 // MARK: - 3. Permissions
 
-private struct PermissionsStep: View {
+private struct OnboardingPermissionsStep: View {
     let onContinue: () -> Void
     @Environment(\.openURL) private var openURL
     @State private var microphone = MicrophonePermission.current
@@ -277,7 +277,7 @@ private struct PermissionsStep: View {
                 }
             }
 
-            ContinueButton(title: microphone == .granted ? "Continue" : "Continue without the microphone", action: onContinue)
+            OnboardingContinueButton(title: microphone == .granted ? "Continue" : "Continue without the microphone", action: onContinue)
             if microphone != .granted {
                 Text("You can allow the microphone later in the Settings app.")
                     .font(.footnote)
@@ -333,7 +333,7 @@ private struct PermissionsStep: View {
 
 // MARK: - 4. Calibration
 
-private struct CalibrationStep: View {
+private struct OnboardingCalibrationStep: View {
     let onContinue: () -> Void
     @Environment(LiveVoiceMonitor.self) private var monitor
     @State private var isShowingCalibration = false
@@ -349,14 +349,14 @@ private struct CalibrationStep: View {
             if let calibration = monitor.calibration {
                 Label("Calibrated (room noise \(Int(calibration.noiseFloorDb.rounded())) dB)", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(Theme.targetZone)
-                ContinueButton(action: onContinue)
+                OnboardingContinueButton(action: onContinue)
                 Button("Calibrate again") {
                     isShowingCalibration = true
                 }
                 .buttonStyle(.glass)
                 .frame(maxWidth: .infinity)
             } else {
-                ContinueButton(title: "Start calibration") {
+                OnboardingContinueButton(title: "Start calibration") {
                     isShowingCalibration = true
                 }
                 Button("Skip for now", action: onContinue)
@@ -372,7 +372,7 @@ private struct CalibrationStep: View {
 
 // MARK: - 5. Goal
 
-private struct GoalStep: View {
+private struct OnboardingGoalStep: View {
     @Bindable var profile: UserProfile
     let onContinue: () -> Void
 
@@ -399,7 +399,7 @@ private struct GoalStep: View {
                     .cardStyle()
             }
 
-            ContinueButton(action: onContinue)
+            OnboardingContinueButton(action: onContinue)
         }
     }
 
@@ -467,7 +467,7 @@ struct SelectableCard: View {
 
 // MARK: - 6. Experience
 
-private struct ExperienceStep: View {
+private struct OnboardingExperienceStep: View {
     @Bindable var profile: UserProfile
     let onContinue: () -> Void
     @Environment(LiveVoiceMonitor.self) private var monitor
@@ -504,7 +504,7 @@ private struct ExperienceStep: View {
                 }
             }
 
-            ContinueButton(action: onContinue)
+            OnboardingContinueButton(action: onContinue)
         }
         .sheet(isPresented: $isShowingPlacement) {
             PlacementTestView(profile: profile, monitor: monitor) { week in
@@ -526,7 +526,7 @@ private struct ExperienceStep: View {
 
 // MARK: - 7. Daily goal
 
-private struct DailyGoalStep: View {
+private struct OnboardingDailyGoalStep: View {
     @Bindable var profile: UserProfile
     let onContinue: () -> Void
     @State private var remindersOn = false
@@ -566,7 +566,7 @@ private struct DailyGoalStep: View {
                     .foregroundStyle(Theme.warning)
             }
 
-            ContinueButton {
+            OnboardingContinueButton {
                 Task {
                     if remindersOn {
                         let scheduled = await NotificationService.scheduleDailyReminder(at: reminderTime)
@@ -592,7 +592,7 @@ private struct DailyGoalStep: View {
 
 // MARK: - 9. Extras
 
-private struct ExtrasStep: View {
+private struct OnboardingExtrasStep: View {
     @Bindable var profile: UserProfile
     let onFinish: () -> Void
     @Environment(AppLock.self) private var appLock
@@ -633,7 +633,7 @@ private struct ExtrasStep: View {
             }
             .cardStyle()
 
-            ContinueButton(title: "Start practicing", action: onFinish)
+            OnboardingContinueButton(title: "Start practicing", action: onFinish)
         }
         .onAppear {
             lockOn = profile.faceIDLockEnabled
