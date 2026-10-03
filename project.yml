@@ -41,7 +41,8 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Chirp
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        # Portrait everywhere except the Pitch Track game (AppDelegate/OrientationLock).
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "Chirp listens to your voice while you practice to measure pitch and resonance. Audio is analyzed on your iPhone and never leaves it."
         INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "Chirp can show a live transcript of what you say while you practice. Speech is recognized on your iPhone and never leaves it."
         INFOPLIST_KEY_NSFaceIDUsageDescription: "Chirp can lock with Face ID so your practice stays private."

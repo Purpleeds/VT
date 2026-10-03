@@ -108,6 +108,9 @@ final class LiveVoiceMonitor {
     }
     /// While true (during mic calibration), frames don't count toward session statistics.
     var isCalibrating = false
+    /// While true (Pitch Track games), slip alerts stay quiet: singing below
+    /// the target zone is part of the exercise there.
+    var suppressesSlipAlerts = false
     /// The user's baseline and targets for resonance, weight and intonation
     /// (from the Day 1 recording and Settings).
     private(set) var personalReferences = PersonalReferences.none
@@ -408,6 +411,15 @@ final class LiveVoiceMonitor {
         deliver(cue)
     }
 
+    /// A light haptic tap only (no sound), e.g. for a perfect Pitch Track
+    /// note. The microphone input during the vibration is left out.
+    func tapHaptic() {
+        let busy = feedback.play(.recovered, haptic: true, sound: false)
+        if busy > 0 {
+            feedbackQuietUntil = max(feedbackQuietUntil, Date().addingTimeInterval(busy))
+        }
+    }
+
     private func deliver(_ cue: FeedbackCue) {
         let useHaptics = isEyesFreeActive || feedbackSettings.hapticAlerts
         var useSound = isEyesFreeActive ? feedbackSettings.eyesFreeTones : feedbackSettings.soundAlerts
@@ -590,7 +602,7 @@ final class LiveVoiceMonitor {
         // Frames that may contain our own chime or vibration are skipped.
         let isHearingFeedback = now < feedbackQuietUntil
         let isPractice = !isCalibrating && !isHearingFeedback
-        let watchesSlips = isPractice && status == .running
+        let watchesSlips = isPractice && status == .running && !suppressesSlipAlerts
         let interval = frameInterval
         if !isCalibrating, sessionStartDate == nil {
             sessionStartDate = now

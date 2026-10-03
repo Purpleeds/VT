@@ -27,6 +27,8 @@ struct TargetClipEditorView: View {
     @State private var name = ""
     @State private var setsTargets = true
     @State private var errorMessage: String?
+    @State private var pitchTrackClip: ImportedClip?
+    @State private var pitchTrackMessage: String?
 
     init(imported: ImportedClip) {
         self.imported = imported
@@ -91,6 +93,12 @@ struct TargetClipEditorView: View {
                     Task { await useVocals(fromSplit: id) }
                 }
             }
+            .sheet(item: $pitchTrackClip) { clip in
+                PitchTrackBuilderView(imported: clip, selection: selection, splitTrackID: splitTrackID) { _ in
+                    pitchTrackClip = nil
+                    pitchTrackMessage = "Track saved. Find it in More › Tools › Pitch Track."
+                }
+            }
         }
     }
 
@@ -129,6 +137,18 @@ struct TargetClipEditorView: View {
                 }
                 .buttonStyle(.glass)
                 .disabled(isLoadingVocals)
+            }
+
+            Button {
+                makePitchTrack()
+            } label: {
+                Label("Make a Pitch Track", systemImage: "chart.bar.xaxis")
+            }
+            .buttonStyle(.glass)
+            if let pitchTrackMessage {
+                Label(pitchTrackMessage, systemImage: "checkmark.circle.fill")
+                    .font(.footnote)
+                    .foregroundStyle(Theme.targetZone)
             }
 
             Text("Drag the handles to choose 10–60 seconds of clear speech from just one person.")
@@ -282,6 +302,15 @@ struct TargetClipEditorView: View {
             await monitor.pause(.user)
         }
         player.play(clip, range: selection.start...selection.end)
+    }
+
+    /// SPEC section 22.1: a clip imported here can also become a Pitch Track
+    /// (from the split's vocals when it was split).
+    private func makePitchTrack() {
+        player.stop()
+        // The builder deletes its file when it closes, so it gets its own copy.
+        let copy = imported.sourceURL.flatMap { try? TargetImportFiles.copy($0) }
+        pitchTrackClip = ImportedClip(decoded: imported.decoded, sourceName: imported.sourceName, sourceURL: copy)
     }
 
     private func startSplit() {

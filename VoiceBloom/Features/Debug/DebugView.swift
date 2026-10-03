@@ -148,6 +148,7 @@ struct DebugView: View {
             }
 
             SplitterDebugSection()
+            PitchTrackDebugSection()
         }
         .monospacedDigit()
         .navigationTitle("Debug")
@@ -363,6 +364,22 @@ private struct SplitterDebugSection: View {
                 availableMemory = os_proc_available_memory()
                 try? await Task.sleep(for: .seconds(1))
             }
+        }
+    }
+}
+
+/// SPEC section 22.9: play tracks with a simulated perfect voice to check
+/// that scoring gives about 100.
+private struct PitchTrackDebugSection: View {
+    @AppStorage(PitchTrackDebug.perfectVoiceKey) private var simulatesPerfectVoice = false
+
+    var body: some View {
+        Section {
+            Toggle("Simulate a perfect voice", isOn: $simulatesPerfectVoice)
+        } header: {
+            Text("Pitch Track")
+        } footer: {
+            Text("Tracks play with a computer voice that hits every bar exactly; the microphone isn’t used and no session is saved. Scores should be about 100.")
         }
     }
 }

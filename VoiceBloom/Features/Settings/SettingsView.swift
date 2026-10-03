@@ -302,6 +302,11 @@ private struct SettingsForm: View {
                 Text("Split Tracks Storage")
             }
             NavigationLink {
+                PitchTrackLatencyView()
+            } label: {
+                Text("Pitch Track timing")
+            }
+            NavigationLink {
                 BackupRestoreView()
             } label: {
                 Text("Backup & restore")

@@ -403,25 +403,3 @@ nonisolated enum VoiceBloomSchemaV2: VersionedSchema {
         var totalFileSize: Int64 { sourceFileSize + vocalsFileSize + backingFileSize }
     }
 }
-
-/// Plans how to upgrade stored data between schema versions.
-nonisolated enum VoiceBloomMigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] {
-        [VoiceBloomSchemaV1.self, VoiceBloomSchemaV2.self]
-    }
-
-    static var stages: [MigrationStage] {
-        [.lightweight(fromVersion: VoiceBloomSchemaV1.self, toVersion: VoiceBloomSchemaV2.self)]
-    }
-}
-
-// The rest of the app refers to the current schema's models by these names.
-typealias UserProfile = VoiceBloomSchemaV2.UserProfile
-typealias PracticeSession = VoiceBloomSchemaV2.PracticeSession
-typealias Recording = VoiceBloomSchemaV2.Recording
-typealias LessonProgress = VoiceBloomSchemaV2.LessonProgress
-typealias TargetVoiceProfile = VoiceBloomSchemaV2.TargetVoiceProfile
-typealias ScenarioResult = VoiceBloomSchemaV2.ScenarioResult
-typealias Achievement = VoiceBloomSchemaV2.Achievement
-typealias DailyJournalEntry = VoiceBloomSchemaV2.DailyJournalEntry
-typealias SeparatedTrack = VoiceBloomSchemaV2.SeparatedTrack

@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Tools (SPEC sections 7 and 8): Quick Check, the Daily Sentence Journal,
 /// scenarios, the exercise library, the tone generator and mini piano,
-/// Voice Preview, the Vocal Splitter and Discreet Mode.
+/// Pitch Track, Voice Preview, the Vocal Splitter and Discreet Mode.
 struct ToolsView: View {
     @AppStorage(DiscreetMode.key) private var discreetMode = false
 
@@ -40,6 +40,15 @@ struct ToolsView: View {
                         title: "Scenarios",
                         detail: "Order coffee, make a call, give a talk: real-life practice at three levels, scored turn by turn.",
                         systemImage: "theatermasks"
+                    )
+                }
+                NavigationLink {
+                    PitchTrackLibraryView()
+                } label: {
+                    ToolRow(
+                        title: "Pitch Track",
+                        detail: "Match scrolling bars made from any clip, or from built-in sirens, scales and speech patterns.",
+                        systemImage: "chart.bar.xaxis"
                     )
                 }
                 NavigationLink {

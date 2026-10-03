@@ -3,6 +3,8 @@ import SwiftUI
 
 @main
 struct VoiceBloomApp: App {
+    /// Only for the Pitch Track game's landscape support.
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var monitor: LiveVoiceMonitor
     @State private var player: RecordingPlayer
     @State private var appLock = AppLock()

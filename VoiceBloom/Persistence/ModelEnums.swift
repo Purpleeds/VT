@@ -109,6 +109,8 @@ nonisolated enum PracticeSessionKind: String, CaseIterable, Identifiable, Sendab
     case journal
     case baseline
     case placement
+    /// Matching the bars in Pitch Track Mode (SPEC section 22).
+    case pitchTrack
 
     var id: String { rawValue }
 
@@ -121,6 +123,7 @@ nonisolated enum PracticeSessionKind: String, CaseIterable, Identifiable, Sendab
         case .journal: "Daily journal"
         case .baseline: "Baseline"
         case .placement: "Placement test"
+        case .pitchTrack: "Pitch Track"
         }
     }
 }

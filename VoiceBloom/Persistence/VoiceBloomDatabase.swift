@@ -17,7 +17,7 @@ nonisolated enum VoiceBloomDatabase {
             // fresh install; creating it first avoids a failed first attempt.
             _ = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         }
-        let schema = Schema(versionedSchema: VoiceBloomSchemaV2.self)
+        let schema = Schema(versionedSchema: VoiceBloomSchemaV3.self)
         // Local only for now. iCloud sync (private database) is opt-in in a later stage.
         // In-memory stores get their own name so they never share data (tests).
         let configuration = ModelConfiguration(
