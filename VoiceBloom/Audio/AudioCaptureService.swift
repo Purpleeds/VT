@@ -7,6 +7,49 @@ nonisolated struct CaptureFormat: Sendable, Equatable {
     let channelCount: Int
     /// Hardware I/O buffer duration in seconds (how often the mic delivers audio).
     let ioBufferDuration: Double
+    /// iOS voice processing is on (Clear Mic System mode).
+    var isVoiceProcessing = false
+    /// Why voice processing was asked for but isn't on, if it isn't.
+    var voiceProcessingNote: String?
+    /// A Bluetooth mic is recording in iOS 26's high-quality mode, which
+    /// needs the .default session mode instead of .measurement.
+    var isBluetoothHighQuality = false
+
+    init(sampleRate: Double, channelCount: Int, ioBufferDuration: Double, isVoiceProcessing: Bool = false, voiceProcessingNote: String? = nil, isBluetoothHighQuality: Bool = false) {
+        self.sampleRate = sampleRate
+        self.channelCount = channelCount
+        self.ioBufferDuration = ioBufferDuration
+        self.isVoiceProcessing = isVoiceProcessing
+        self.voiceProcessingNote = voiceProcessingNote
+        self.isBluetoothHighQuality = isBluetoothHighQuality
+    }
+}
+
+/// How to set up the microphone (Clear Mic, SPEC section 24).
+nonisolated struct CaptureOptions: Sendable, Equatable {
+    /// iOS voice processing with automatic gain control off (System mode).
+    var voiceProcessing = false
+    /// Lets Bluetooth headset microphones be used for input.
+    var allowsBluetoothInput = false
+    /// The preferred input port (`AVAudioSessionPortDescription.uid`).
+    var preferredInputUID: String?
+
+    init(voiceProcessing: Bool = false, allowsBluetoothInput: Bool = false, preferredInputUID: String? = nil) {
+        self.voiceProcessing = voiceProcessing
+        self.allowsBluetoothInput = allowsBluetoothInput
+        self.preferredInputUID = preferredInputUID
+    }
+}
+
+/// A microphone the user can pick in Mic Check.
+nonisolated struct MicInput: Sendable, Equatable, Identifiable {
+    let uid: String
+    let name: String
+    let kind: AudioInputKind
+    /// iOS 26 high-quality Bluetooth recording is supported.
+    let supportsHighQualityBluetooth: Bool
+
+    var id: String { uid }
 }
 
 /// Things the capture service reports back to its owner.
@@ -62,10 +105,12 @@ actor AudioCaptureService {
     private var format: CaptureFormat?
     /// Plays the soft feedback chimes through the same engine.
     private var cuePlayer: AVAudioPlayerNode?
+    private var bluetoothHighQuality = false
     private var cueFormat: AVAudioFormat?
     private var observers: [any NSObjectProtocol] = []
     private var isCapturing = false
     private var wasInterruptedWhileCapturing = false
+    private var options = CaptureOptions()
 
     init() {
         // ~2.7 s at 48 kHz: plenty of slack if analysis briefly falls behind.
@@ -86,23 +131,71 @@ actor AudioCaptureService {
         AudioRouteInfo(route: AVAudioSession.sharedInstance().currentRoute)
     }
 
+    /// The microphones available right now (Mic Check's picker). Bluetooth
+    /// mics only appear while `allowsBluetoothInput` is on.
+    func availableInputs() -> [MicInput] {
+        let ports = AVAudioSession.sharedInstance().availableInputs ?? []
+        return ports.map { port in
+            MicInput(
+                uid: port.uid,
+                name: port.portName,
+                kind: AudioInputKind(port: port.portType),
+                supportsHighQualityBluetooth: port.bluetoothMicrophoneExtension?.highQualityRecording.isSupported ?? false
+            )
+        }
+    }
+
+    /// The options capture was last started with.
+    var currentOptions: CaptureOptions { options }
+
+    nonisolated private static func categoryOptions(for options: CaptureOptions, highQuality: Bool) -> AVAudioSession.CategoryOptions {
+        var result: AVAudioSession.CategoryOptions = [.defaultToSpeaker, .allowBluetoothA2DP]
+        if options.allowsBluetoothInput {
+            result.insert(.allowBluetoothHFP)
+            if highQuality {
+                result.insert(.bluetoothHighQualityRecording)
+            }
+        }
+        return result
+    }
+
+    nonisolated private static func applyPreferredInput(_ uid: String?, session: AVAudioSession) {
+        guard let uid else {
+            try? session.setPreferredInput(nil)
+            return
+        }
+        if let port = session.availableInputs?.first(where: { $0.uid == uid }) {
+            try? session.setPreferredInput(port)
+        }
+    }
+
+    nonisolated private static func currentInputSupportsHighQualityBluetooth(_ session: AVAudioSession) -> Bool {
+        session.currentRoute.inputs.first?.bluetoothMicrophoneExtension?.highQualityRecording.isSupported ?? false
+    }
+
+    nonisolated private static func currentInputHasHighQualityBluetooth(_ session: AVAudioSession) -> Bool {
+        session.currentRoute.inputs.first?.bluetoothMicrophoneExtension?.highQualityRecording.isEnabled ?? false
+    }
+
     /// Configures the audio session for accurate measurement and starts capture.
-    func start() throws -> CaptureFormat {
+    func start(options newOptions: CaptureOptions = CaptureOptions()) throws -> CaptureFormat {
         beginObservingSystemEvents()
-        if isCapturing, let format {
+        if isCapturing, let format, newOptions == options {
             return format
         }
+        if isCapturing {
+            tearDownEngine()
+            isCapturing = false
+        }
+        options = newOptions
 
         let session = AVAudioSession.sharedInstance()
+        var highQualityBluetooth = false
         do {
             // .measurement turns off automatic gain control and voice processing
             // (echo cancellation, noise suppression), which would distort pitch
             // and resonance readings.
-            try session.setCategory(
-                .playAndRecord,
-                mode: .measurement,
-                options: [.defaultToSpeaker, .allowBluetoothA2DP]
-            )
+            try session.setCategory(.playAndRecord, mode: .measurement, options: Self.categoryOptions(for: newOptions, highQuality: false))
             try session.setPreferredSampleRate(48_000)
             // Small hardware buffers mean fresh audio arrives every ~5 ms.
             try session.setPreferredIOBufferDuration(0.005)
@@ -110,6 +203,18 @@ actor AudioCaptureService {
             // Slip alerts rely on gentle haptics during practice.
             try? session.setAllowHapticsAndSystemSoundsDuringRecording(true)
             try session.setActive(true)
+            Self.applyPreferredInput(newOptions.preferredInputUID, session: session)
+            // iOS 26: a Bluetooth mic that supports it records full-bandwidth
+            // audio instead of the call profile. Apple only allows that in the
+            // .default mode, so this one case leaves .measurement.
+            if newOptions.allowsBluetoothInput, Self.currentInputSupportsHighQualityBluetooth(session) {
+                do {
+                    try session.setCategory(.playAndRecord, mode: .default, options: Self.categoryOptions(for: newOptions, highQuality: true))
+                    highQualityBluetooth = Self.currentInputHasHighQualityBluetooth(session)
+                } catch {
+                    try? session.setCategory(.playAndRecord, mode: .measurement, options: Self.categoryOptions(for: newOptions, highQuality: false))
+                }
+            }
         } catch {
             throw AudioCaptureError.sessionUnavailable(error.localizedDescription)
         }
@@ -118,6 +223,7 @@ actor AudioCaptureService {
             try? session.setActive(false, options: .notifyOthersOnDeactivation)
             throw AudioCaptureError.noInputAvailable
         }
+        bluetoothHighQuality = highQualityBluetooth
 
         do {
             let format = try startEngine(session: session)
@@ -221,6 +327,7 @@ actor AudioCaptureService {
         // A fresh engine each time avoids stale graph state after route changes.
         let engine = AVAudioEngine()
         let input = engine.inputNode
+        let voiceProcessing = Self.configureVoiceProcessing(input, requested: options.voiceProcessing)
         let hardwareFormat = input.outputFormat(forBus: 0)
         guard hardwareFormat.sampleRate > 0, hardwareFormat.channelCount > 0 else {
             throw AudioCaptureError.noInputAvailable
@@ -263,10 +370,37 @@ actor AudioCaptureService {
         let format = CaptureFormat(
             sampleRate: hardwareFormat.sampleRate,
             channelCount: Int(hardwareFormat.channelCount),
-            ioBufferDuration: session.ioBufferDuration
+            ioBufferDuration: session.ioBufferDuration,
+            isVoiceProcessing: voiceProcessing.isOn,
+            voiceProcessingNote: voiceProcessing.note,
+            isBluetoothHighQuality: bluetoothHighQuality
         )
         self.format = format
         return format
+    }
+
+    /// Turns on iOS voice processing with automatic gain control off, and
+    /// turns it off again if it can't start or lowers the format too far.
+    /// Must run before the engine starts.
+    nonisolated private static func configureVoiceProcessing(_ input: AVAudioInputNode, requested: Bool) -> (isOn: Bool, note: String?) {
+        guard requested else { return (false, nil) }
+        do {
+            try input.setVoiceProcessingEnabled(true)
+        } catch {
+            return (false, "iOS voice processing couldn’t start, so Clear Mic Light is used instead.")
+        }
+        // Automatic gain would make loudness and strain readings meaningless.
+        input.isVoiceProcessingAGCEnabled = false
+        input.voiceProcessingOtherAudioDuckingConfiguration = AVAudioVoiceProcessingOtherAudioDuckingConfiguration(
+            enableAdvancedDucking: false,
+            duckingLevel: .min
+        )
+        let format = input.outputFormat(forBus: 0)
+        guard format.sampleRate >= SystemModeCheck.minimumSampleRate, format.commonFormat == .pcmFormatFloat32 else {
+            try? input.setVoiceProcessingEnabled(false)
+            return (false, "iOS voice processing would lower the audio to \(format.sampleRate.roundedInt) Hz, so Clear Mic Light is used instead.")
+        }
+        return (true, nil)
     }
 
     private func tearDownEngine() {

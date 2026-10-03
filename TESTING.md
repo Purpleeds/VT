@@ -27,8 +27,45 @@ Tip: **More ▸ Debug & Tuning** shows raw pitch, formants, the noise floor and 
 - [ ] **Eyes-free practice:** the phone face down turns the screen off and listening continues; haptics only.
 - [ ] **Strain warning:** appears after sustained rough or creaky voicing, with no repeat for 10 minutes.
 - [ ] **Interruptions:** a phone call, Siri, or an alarm pauses listening and it resumes afterwards. Locking the phone pauses.
-- [ ] **AirPods:** the iPhone's own mic is still used and chimes play in the AirPods. A Bluetooth or car mic shows the warning.
+- [ ] **AirPods:** with **Use Bluetooth Microphones** off (the default), the iPhone's own mic is still used and chimes play in the AirPods. A Bluetooth or car mic shows the warning.
 - [ ] **Break banner:** appears after 15 minutes of practice, near 40 minutes for the day, and at 45 minutes, with a gentle tap.
+
+## 2b. Clear Mic and Mic Check (section 24)
+Open **Mic Check** from the mic icon on Practice (or **Settings ▸ Mic Check & Clear Mic**). Do each block in a **quiet room** and in a **noisy one** (TV or music on, a fan, a café, traffic).
+
+- [ ] **Level meter:** moves with your voice, the peak tick holds about 1.5 s. Shout or hold the phone close: the clipping warning appears.
+- [ ] **Background noise:** settles within about 2 seconds of opening.
+  - [ ] Quiet room: *Great*. Noisy room: *OK* or *Too noisy*.
+  - [ ] Talking doesn't push the number up as long as you pause now and then.
+- [ ] **Sample Room Noise:** stay quiet; the bar fills over 2 s and "Room noise saved" appears, with "Last sampled just now".
+- [ ] **Off vs Light vs Strong** (same sentence each time, on Practice):
+  - [ ] **Off:** readings as before Clear Mic.
+  - [ ] **Light:** in the noisy room, the pitch line stops jumping around during pauses and the meters say **No voice** once you've been quiet for a moment. Pitch, resonance and weight while you talk look the same as Off.
+  - [ ] **Strong:** the room is quieter still; the resonance-precision note shows; readings while talking stay close to Light.
+  - [ ] Switching between Light and Strong while listening takes effect at once; turning Clear Mic on or off leaves only a tiny gap in the graph.
+  - [ ] **Live readings from: Raw Mic** shows the old behavior with Clear Mic still selected (for comparing).
+- [ ] **A/B test:** record 5 seconds, then play **Raw** and **Light**/**Strong**.
+  - [ ] Pitch matches within a few Hz (the summary says so), and the background number drops.
+  - [ ] The Clear Mic version sounds cleaner without sounding robotic; Strong may sound a little processed in a loud room.
+  - [ ] Switching Light/Strong after recording remakes the Clear Mic version.
+- [ ] **AirPods vs built-in mic:**
+  - [ ] Built-in mic: the input shows *Built-in mic · 48 kHz*.
+  - [ ] AirPods connected, **Use Bluetooth Microphones** off: the input stays the iPhone mic.
+  - [ ] Turn it on and pick the AirPods in **Use**: the input shows *Bluetooth* with *high-quality mode* (iOS 26 with supporting AirPods) or *call quality*, and the warning explains the accuracy trade-off. Compare the A/B readings with the built-in mic.
+  - [ ] Turn it off again: back to the iPhone mic.
+  - [ ] Wired headphones with a mic (if you have them) show *Wired*.
+- [ ] **iOS Voice Processing:** run **Test System Mode** (hum one steady note twice).
+  - [ ] It reports Passed or Not recommended with a reason, and your strength is unchanged afterwards.
+  - [ ] If it passed, **System** appears in the picker; with System on, Practice still works, the Debug screen shows "Voice processing: On, AGC off", and loudness readings don't creep up or down by themselves.
+- [ ] **Noisy-room banner:** with Clear Mic Off in a noisy room, keep practicing; after about 8 s a banner suggests Clear Mic. **Turn On Clear Mic** switches to Light. It doesn't come back in the same session (Finish starts a new one).
+- [ ] **Recordings stay raw:** save a clip with Clear Mic on, then in Session detail use the clip's **⋯** menu:
+  - [ ] **Play with Clear Mic** sounds cleaner than the normal play button (the original).
+  - [ ] **Share Original** and **Share with Clear Mic** both share an .m4a that plays in Files.
+  - [ ] Journal entries have **Listen with Clear Mic** in their menu.
+- [ ] **Calibration** still measures the real room (it analyzes raw audio) and samples room noise for Clear Mic.
+- [ ] **Pitch Track** timing feels the same with Clear Mic Off and Light (the extra ~11 ms is corrected for).
+- [ ] **Mic Check doesn't count as practice:** talking on the Mic Check screen doesn't add minutes or statistics to the session.
+- [ ] **Delete All Data** resets Clear Mic to Off.
 
 ## 3. Sessions, recordings, check-ins
 - [ ] **Save Clip** keeps the last 30 s; it plays back; it deletes from Session detail.
@@ -182,6 +219,10 @@ Tip: **More ▸ Debug & Tuning** shows raw pitch, formants, the noise floor and 
   - Free signing expires after 7 days.
 - **AI scenario partner:** uses the on-device live transcript (SFSpeechRecognizer), not the newer SpeechAnalyzer API.
 - **Voice Preview** is a rough approximation; large shifts sound processed by design.
+- **Clear Mic:**
+  - System mode depends on the iPhone and microphone, so it's only offered after its check passes.
+  - High-quality Bluetooth recording needs iOS 26 and earbuds that support it; it uses the .default audio mode (Apple's requirement), so iOS may process that mic a little.
+  - The noise profile belongs to the mic it was measured with; a different kind of mic starts learning again.
 - **High Quality splitter model:** not in the repo; the README's "Vocal splitter" section explains how to convert and add it. Without it the splitter uses Basic.
 - **Pitch Track:**
   - Attempts aren't saved yet. Recordings, save/discard, the written review and track history are Stage 16.

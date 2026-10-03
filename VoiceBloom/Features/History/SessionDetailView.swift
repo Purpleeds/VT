@@ -160,7 +160,15 @@ private struct RecordingRow: View {
                     Text(statsLine)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                    if isPlaying, player.isPlayingEnhanced {
+                        Label("Playing with Clear Mic", systemImage: "mic.and.signal.meter")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+                Spacer(minLength: 8)
+                RecordingClearMicMenu(recording: recording)
+                    .buttonStyle(.borderless)
             }
 
             if isPlaying {

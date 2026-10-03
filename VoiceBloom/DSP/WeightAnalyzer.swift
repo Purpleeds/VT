@@ -37,6 +37,10 @@ nonisolated final class WeightAnalyzer {
     private let capacity: Int
     private let windowed: UnsafeMutablePointer<Double>
     private var window: [Double] = []
+    /// A high-pass filter the audio went through before analysis (Clear Mic).
+    /// Its exact gain is added back to every harmonic level, so H1–H2 and the
+    /// tilt read the same as without the filter.
+    var inputFilter: HighPassDesign?
 
     init(sampleRate: Double, maximumFrameLength: Int, maximumTiltFrequency: Double = 3_000) {
         self.sampleRate = sampleRate
@@ -77,8 +81,8 @@ nonisolated final class WeightAnalyzer {
 
         // H1 and H2. A small search (±2%) around k·F0 tolerates slight pitch
         // error and vibrato within the frame.
-        let h1 = harmonicLevel(frame, frequency: fundamental, search: true)
-        let h2 = harmonicLevel(frame, frequency: 2 * fundamental, search: true)
+        let h1 = harmonicLevel(frame, frequency: fundamental, search: true) - filterGain(at: fundamental)
+        let h2 = harmonicLevel(frame, frequency: 2 * fundamental, search: true) - filterGain(at: 2 * fundamental)
         let raw = h1 - h2
 
         var corrected: Double?
@@ -102,7 +106,7 @@ nonisolated final class WeightAnalyzer {
         var harmonic = 1
         while Double(harmonic) * fundamental <= limit {
             let frequency = Double(harmonic) * fundamental
-            let level = harmonicLevel(frame, frequency: frequency, search: harmonic <= 2)
+            let level = harmonicLevel(frame, frequency: frequency, search: harmonic <= 2) - filterGain(at: frequency)
             octaves.append(log2(frequency))
             levels.append(level - formantGain(at: frequency, formants: tiltFormants))
             harmonic += 1
@@ -113,6 +117,11 @@ nonisolated final class WeightAnalyzer {
     }
 
     // MARK: Building blocks
+
+    /// Gain (dB, ≤ 0) of the input filter at `frequency`; 0 without one.
+    private func filterGain(at frequency: Double) -> Double {
+        inputFilter?.gainDb(at: frequency) ?? 0
+    }
 
     /// Level (dB, arbitrary reference) of the harmonic near `frequency`.
     private func harmonicLevel(_ frame: UnsafeBufferPointer<Double>, frequency: Double, search: Bool) -> Double {

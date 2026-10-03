@@ -32,6 +32,8 @@ final class PracticeSessionController {
     private(set) var checkInReminder: CheckInRequest?
     private(set) var toast: SessionToast?
     private(set) var isSavingClip = false
+    /// The recording whose Clear Mic copy is being made.
+    private(set) var preparingEnhancedID: UUID?
     /// True on the day after check-ins suggested resting the voice.
     private(set) var isRestDaySuggested = false
     /// Shown when saved data couldn't be opened and nothing will be kept.
@@ -236,6 +238,43 @@ final class PracticeSessionController {
             return
         }
         player.play(url: url, id: id)
+    }
+
+    /// Plays a recording with Clear Mic (SPEC section 24.7), or stops it. The
+    /// copy is made on the fly from the raw recording, which never changes.
+    func togglePlayback(of recording: Recording, enhanced: Bool) async {
+        guard enhanced else {
+            await togglePlayback(of: recording)
+            return
+        }
+        if player.playingID == recording.id {
+            let wasEnhanced = player.isPlayingEnhanced
+            player.stop()
+            if wasEnhanced {
+                return
+            }
+        }
+        guard preparingEnhancedID == nil else { return }
+        await monitor.pause(.user)
+        guard let url = recording.fileURL,
+              FileManager.default.fileExists(atPath: url.path(percentEncoded: false))
+        else {
+            showToast("This recording’s audio file is missing.", isError: true)
+            return
+        }
+        let id = recording.id
+        let strength = monitor.clearMicSettings.effectiveStrength
+        preparingEnhancedID = id
+        do {
+            let copy = try await Task.detached(priority: .userInitiated) {
+                try EnhancedRecordingCache.enhancedCopy(of: url, id: id, strength: strength)
+            }.value
+            preparingEnhancedID = nil
+            player.play(url: copy, id: id, enhanced: true)
+        } catch {
+            preparingEnhancedID = nil
+            showToast("The Clear Mic version couldn’t be made.", isError: true)
+        }
     }
 
     /// Plays recordings back to back ("Then vs Now"), after pausing listening.

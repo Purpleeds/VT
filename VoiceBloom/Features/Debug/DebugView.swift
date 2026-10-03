@@ -147,6 +147,7 @@ struct DebugView: View {
                 LabeledContent("Dropped samples", value: "\(monitor.droppedSampleCount)")
             }
 
+            ClearMicDebugSection()
             SplitterDebugSection()
             PitchTrackDebugSection()
         }
@@ -329,6 +330,50 @@ private struct LevelMeter: View {
     private static func fraction(_ decibels: Double) -> CGFloat {
         let clamped = min(max(decibels, range.lowerBound), range.upperBound)
         return CGFloat((clamped - range.lowerBound) / (range.upperBound - range.lowerBound))
+    }
+}
+
+/// Clear Mic's live state (SPEC section 24).
+private struct ClearMicDebugSection: View {
+    @Environment(LiveVoiceMonitor.self) private var monitor
+
+    var body: some View {
+        let settings = monitor.clearMicSettings
+        let mic = monitor.micStatus
+        Section {
+            LabeledContent("Strength", value: settingsText(settings))
+            LabeledContent("Analysis hears", value: mic.isEnhancing ? "Enhanced audio" : "Raw audio")
+            LabeledContent("Extra latency", value: "\((monitor.analysisLatency * 1_000).formatted(.number.precision(.fractionLength(1)))) ms")
+            LabeledContent("Raw level / peak", value: "\(mic.inputLevelDb.roundedInt) / \(mic.peakDb.roundedInt) dBFS")
+            LabeledContent("Raw noise floor", value: mic.noiseFloorDb.map { "\($0.formatted(.number.precision(.fractionLength(1)))) dBFS" } ?? "—")
+            LabeledContent("Gate", value: mic.isGateOpen ? "Open" : "Closed")
+            LabeledContent("Meters say “No voice”", value: monitor.isVoiceGated ? "Yes" : "No")
+            LabeledContent("Noise profile", value: mic.isNoiseKnown ? "Known" : "Learning")
+            LabeledContent("Room sampled", value: monitor.noiseSampledAt?.formatted(date: .abbreviated, time: .shortened) ?? "Never")
+            LabeledContent("Voice processing", value: voiceProcessingText)
+            LabeledContent("Bluetooth high quality", value: monitor.captureFormat?.isBluetoothHighQuality == true ? "On" : "Off")
+            LabeledContent("System check", value: settings.systemCheck.map { $0.passed ? "Passed" : "Failed" } ?? "Not run")
+            LabeledContent("Noise suggestion", value: monitor.noiseSuggestion?.title ?? "None")
+        } header: {
+            Text("Clear Mic")
+        } footer: {
+            Text("70 Hz high-pass, spectral subtraction (1024-point frames, 50 % overlap) and a gate, on the analysis thread. Recordings and the transcript always get the raw audio.")
+        }
+    }
+
+    private func settingsText(_ settings: ClearMicSettings) -> String {
+        if settings.effectiveStrength != settings.strength {
+            return "\(settings.effectiveStrength.title) (chose \(settings.strength.title))"
+        }
+        return settings.effectiveStrength.title
+    }
+
+    private var voiceProcessingText: String {
+        guard let format = monitor.captureFormat else { return "—" }
+        if format.isVoiceProcessing {
+            return "On, AGC off"
+        }
+        return format.voiceProcessingNote == nil ? "Off" : "Off (fell back)"
     }
 }
 

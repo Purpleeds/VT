@@ -15,6 +15,8 @@ final class RecordingPlayer {
     /// 0...1 through the current recording.
     private(set) var progress = 0.0
     private(set) var errorMessage: String?
+    /// True while the current recording plays as a Clear Mic copy.
+    private(set) var isPlayingEnhanced = false
 
     @ObservationIgnored private var player: AVAudioPlayer?
     @ObservationIgnored private var progressTask: Task<Void, Never>?
@@ -23,8 +25,10 @@ final class RecordingPlayer {
 
     var isPlaying: Bool { playingID != nil }
 
-    func play(url: URL, id: UUID) {
+    /// - Parameter enhanced: `url` is a Clear Mic copy of the recording `id`.
+    func play(url: URL, id: UUID, enhanced: Bool = false) {
         playSequence([(url: url, id: id)])
+        isPlayingEnhanced = enhanced && playingID == id
     }
 
     /// Plays the recordings one after another.
@@ -84,6 +88,7 @@ final class RecordingPlayer {
         player = nil
         playingID = nil
         progress = 0
+        isPlayingEnhanced = false
         deactivateSession()
     }
 

@@ -170,7 +170,9 @@ final class PitchTrackGameModel {
         // fixed; the user's own lateness comes from Settings or the route.
         let session = AVAudioSession.sharedInstance()
         if let configuration = monitor.analysisConfiguration {
+            // Clear Mic delays the analyzed audio by half an FFT frame.
             fixedDelay = configuration.frameDuration / 2 + 2 * configuration.hopDuration + session.inputLatency + session.ioBufferDuration
+                + monitor.analysisLatency
         }
         let automatic = PitchTrackLatency.automaticSeconds(outputLatency: session.outputLatency, playsSound: audio.hasSound)
         latencyOffset = isSimulated ? 0 : PitchTrackLatency.load().offsetSeconds(automatic: automatic)

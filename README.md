@@ -4,7 +4,7 @@ The app shows as **Chirp** on the Home Screen (light sky blue icon). The code, p
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–15 and 17–18 are done; Stage 16 (Pitch Track recordings, reviews and history) is next:
+**Status:** Stages 1–15 and 17–18 are done, plus Clear Mic (section 24); Stage 16 (Pitch Track recordings, reviews and history) is next:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
@@ -22,6 +22,7 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 15:** Pitch Track Mode: tracks made from any clip (speech or singing, detected automatically), built-in exercises (sirens, scales, arpeggios, held notes, speech intonation patterns), the scrolling-bars game with live scoring, transposition, speed, loops, difficulty, sound modes (including karaoke backing for split songs) and latency calibration.
 - **Stage 17:** the vocal / backing splitter with the Basic engine (center cancellation): splitter screen with progress and cancel, preview mixer, exports (including video with replaced audio), storage screen, Target Voice integration and Record Over Backing.
 - **Stage 18:** the High Quality splitter engine (Open-Unmix converted to Core ML, chunked and crossfaded, Fast/Best), with automatic fallback to Basic. The model isn't in the repo: see [Vocal splitter: the High Quality model](#vocal-splitter-the-high-quality-model).
+- **Clear Mic** (section 24): a microphone enhancer (70 Hz high-pass, noise gate, spectral-subtraction noise reduction with a learned room profile) with Off/Light/Strong (and System after a check), the Mic Check screen (level, clipping, background noise, input picker, Bluetooth options, an A/B test), a noisy-room suggestion, and Clear Mic playback/sharing of saved recordings. Recordings are always saved raw. No new Info.plist keys.
 
 > **Building in Xcode yourself?** Stage 4 added a speech recognition entry and Stage 6 a Face ID entry to Info.plist: see [steps 3.4 and 3.5](#3-target-settings). The GitHub build already includes both.
 
@@ -148,6 +149,17 @@ If the App Group is missing (for example with some sideloading tools), the widge
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Clear Mic** (section 24; no Info.plist changes):
+- **Mic Check:** the mic icon at the top of Practice, or **Settings ▸ Mic Check & Clear Mic**.
+  - Input level with peak hold and a clipping warning; background noise with a *Great / OK / Too noisy* badge; **Sample Room Noise** (stay quiet for 2 seconds).
+  - **Clear Mic:** *Off* (the raw mic, the default), *Light* (removes rumble and hum, quiets the room between words, gentle noise reduction; readings stay as accurate as without it) or *Strong* (for loud places; resonance may be slightly less precise). **Live readings from: Raw Mic** turns it off for the readings only, to compare.
+  - **Microphone:** the current input with its sample rate, a picker for the available inputs, and **Use Bluetooth Microphones** (off by default, so AirPods only play sound). With it on, Bluetooth mics that support iOS 26's high-quality recording use it; others show a call-quality warning.
+  - **A/B Test:** record 5 seconds, then play the raw take and the Clear Mic version side by side with their pitch, steadiness, voiced time, F2, H1–H2 and background level.
+  - **iOS Voice Processing:** hum one note twice to test it; if pitch and voicing come through unchanged, a *System* strength appears (automatic gain stays off).
+- **Practice:** in a noisy room a banner suggests Clear Mic (or Strong, or a quieter spot), at most once per session. With Clear Mic on, the resonance and weight meters say **No voice** while only the room is heard.
+- **Recordings** are always saved raw. Each clip's **⋯** menu in Session detail has **Play with Clear Mic**, **Share Original** and **Share with Clear Mic** (made on the fly from the recording's own quiet parts); journal entries have **Listen with Clear Mic**.
+- **How it works:** after the lock-free ring buffer, on the analysis thread (never the audio thread): a 4th-order 70 Hz high-pass, spectral subtraction on 1024-point vDSP FFTs (50 % overlap, square-root Hann windows, over-subtraction limit, spectral floor, smoothed gains), and a gate with look-ahead, 80 ms hold and a 120 ms release. The noise profile comes from **Sample Room Noise**, mic calibration's quiet step, and slow updates in your pauses; a held vowel is never mistaken for noise. Every buffer is allocated up front. The weight analyzer adds the high-pass filter's exact gain back, so H1–H2 doesn't change.
 
 **Stage 15** (Pitch Track Mode, section 22):
 - **More ▸ Tools ▸ Pitch Track** lists the built-in exercises and your tracks.
@@ -391,9 +403,15 @@ If the model is missing, has the wrong shape, or the iPhone can't load it, split
 ```
 VoiceBloom/
   App/            App entry point and tab bar
-  Audio/          AudioCaptureService (AVAudioSession + AVAudioEngine), lock-free SampleRingBuffer,
+  Audio/          AudioCaptureService (AVAudioSession + AVAudioEngine, input picker, Bluetooth HFP and
+                  high-quality recording, voice processing with AGC off), lock-free SampleRingBuffer,
                   RecentAudioBuffer + AudioTap (last 30 s, transcriber feed), route detection,
                   microphone permission
+    ClearMic/     ClearMicDSP (strengths, 70 Hz high-pass, ClearMicProcessor: spectral subtraction,
+                  noise profile, gate; ClearMicOffline for recordings), ClearMicStage (raw meters,
+                  raw audio to the tap, enhanced audio to the pipeline), ClearMicSettings (settings,
+                  profile store, ClearMicControl, noisy-room suggestion, System Mode Check),
+                  ClearMicComparison (Mic Check A/B readings)
   DSP/            AnalysisConfiguration, PitchAnalyzer (YIN), PitchTracker, VoiceStabilityTracker,
                   Decimator (anti-alias FIR → ~12 kHz), LinearPrediction (Levinson–Durbin),
                   PolynomialRoots (Aberth), FormantAnalyzer (LPC → F1–F3), WeightAnalyzer
@@ -450,7 +468,8 @@ VoiceBloom/
   Sessions/       SessionSnapshot, SessionStore (save/upsert, delete, check-ins), CheckInRules,
                   PracticeSessionController (autosave, finish, discard, clips, playback),
                   ClipStats + FrameLog, RecordingFileStore (.m4a files), RecordingPlayer,
-                  VoiceTakeRecorder (short measured takes), JournalStore, QuickCheckStore
+                  VoiceTakeRecorder (short measured takes), JournalStore, QuickCheckStore,
+                  EnhancedRecordingCache (Clear Mic copies of recordings, made on the fly)
   Transcription/  LiveTranscriber (SFSpeechRecognizer, on-device only), TranscriptAccumulator,
                   TranscriptionService (live transcript state)
   Progress/       ProgressAnalytics (ranges, daily/weekly minutes, heatmap, weekly summary, radar,
@@ -466,7 +485,9 @@ VoiceBloom/
                   Discreet Mode), TargetVoice (list + import, trim editor, profile, Compare to
                   Target, shadowing), Scenarios (list, detail, full-screen practice),
                   Calibration (MicCalibration, MicCalibrationModel, MicCalibrationView), Debug, More,
-                  Health (Vocal Health Center, articles, break banner), Settings ▸ Backup & App Icon
+                  Health (Vocal Health Center, articles, break banner), Settings ▸ Backup & App Icon,
+                  ClearMic (Mic Check with A/B test and System Mode Check, noisy-room banner, level
+                  bar, recording menu)
   DesignSystem/   Theme colors (light/dark, colorblind-safe) and shared components
 VoiceBloomWidget/ WidgetKit extension: streak, today's minutes, quick start (Home and Lock Screen)
 VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic tones and synthetic vowels
@@ -476,16 +497,17 @@ VoiceBloomTests/  Swift Testing unit tests for all DSP code, using synthetic ton
 
 1. The microphone feeds an `AVAudioSinkNode`.
 2. On the real-time thread, the sink node copies samples into a lock-free ring buffer. That thread never locks or allocates.
-3. A background task drains the ring buffer every 5 ms and runs `VoiceAnalysisPipeline` on each 2048-sample frame (512-sample hop):
+3. A background task drains the ring buffer every 5 ms. `ClearMicStage` hands the raw chunk to `AudioTap` (step 8) and the raw level and background-noise meters, then runs `ClearMicProcessor` (preallocated, no locks). The pipeline gets the Clear Mic audio, or the raw audio when Clear Mic is off, set to Raw Mic, or calibrating; its clock starts one processor latency (~10.7 ms) early so frame times stay on the raw audio's timeline.
+4. The pipeline, `VoiceAnalysisPipeline`, works on each 2048-sample frame (512-sample hop):
    - Noise gate, then YIN pitch, then octave-jump, median and smoothing filters.
    - On voiced, stable, clearly audible frames only: decimate to ~12 kHz, then 12-pole LPC for F1–F3, then harmonic levels (Goertzel) for H1–H2 and tilt, corrected for the formants.
    - On every 4th stable frame (no overlap): jitter, shimmer and HNR at the full sample rate.
    - Phrase detection for intonation.
-4. Results arrive on the main actor in batches.
-5. The graph redraws at up to 60 fps (30 in Low Power Mode). The meters take a median over a short window and refresh about 8 times a second.
-6. On the main actor, `SlipDetector` watches pitch and resonance, and `VoiceQualityTracker` compares roughness with the user's normal. Alerts go out through `FeedbackOutput` as Core Haptics patterns and chimes on an `AVAudioPlayerNode` in the same engine. Frames recorded while a cue plays are left out of the analysis.
-7. The same background task hands each chunk of raw samples, with its time on the frame clock, to `AudioTap`. That keeps the last 30 seconds in memory (for **Save Clip**) and, when the transcript is on, feeds `SFSpeechAudioBufferRecognitionRequest`. Recognition requests are rotated every ~55 seconds so transcripts can run for a whole session. Word timings use the same clock, so a saved clip gets exactly the words spoken in it.
+5. Results arrive on the main actor in batches.
+6. The graph redraws at up to 60 fps (30 in Low Power Mode). The meters take a median over a short window and refresh about 8 times a second.
+7. On the main actor, `SlipDetector` watches pitch and resonance, and `VoiceQualityTracker` compares roughness with the user's normal. Alerts go out through `FeedbackOutput` as Core Haptics patterns and chimes on an `AVAudioPlayerNode` in the same engine. Frames recorded while a cue plays are left out of the analysis.
+8. The same background task hands each chunk of raw samples, with its time on the frame clock, to `AudioTap`. That keeps the last 30 seconds in memory (for **Save Clip**) and, when the transcript is on, feeds `SFSpeechAudioBufferRecognitionRequest`. Recognition requests are rotated every ~55 seconds so transcripts can run for a whole session. Word timings use the same clock, so a saved clip gets exactly the words spoken in it.
 
 **Sessions:** `LiveVoiceMonitor.sessionSnapshot()` turns the session's running statistics into plain values. `PracticeSessionController` stores them through `SessionStore` (`PracticeSession` is updated in place by id) every 20 seconds, when the app goes to the background, and on Finish.
 
-**Audio session:** category `.playAndRecord`, mode `.measurement` (no automatic gain control or voice processing), options `.defaultToSpeaker` and `.allowBluetoothA2DP`, preferred 48 kHz with 5 ms I/O buffers. Interruptions, route changes, engine configuration changes and media-services resets are all handled.
+**Audio session:** category `.playAndRecord`, mode `.measurement` (no automatic gain control or voice processing), options `.defaultToSpeaker` and `.allowBluetoothA2DP` (plus `.allowBluetoothHFP` when Bluetooth microphones are allowed), preferred 48 kHz with 5 ms I/O buffers. The one exception is a Bluetooth mic that supports iOS 26's `.bluetoothHighQualityRecording`, which Apple only allows in the `.default` mode. Clear Mic's System strength turns on `setVoiceProcessingEnabled(true)` with `isVoiceProcessingAGCEnabled = false`, and falls back to Light if that fails or drops the format below 32 kHz. Interruptions, route changes, engine configuration changes and media-services resets are all handled.

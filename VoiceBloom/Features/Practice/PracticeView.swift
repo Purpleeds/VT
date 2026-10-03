@@ -15,6 +15,7 @@ struct PracticeView: View {
     @State private var isShowingCalibration = false
     @State private var isShowingFeedbackSettings = false
     @State private var isShowingEyesFree = false
+    @State private var isShowingMicCheck = false
     @State private var isConfirmingDiscard = false
     @State private var isRestBannerDismissed = false
     @State private var breakAdvice = BreakAdvice.none
@@ -76,6 +77,13 @@ struct PracticeView: View {
                             message: warning,
                             systemImage: "exclamationmark.triangle.fill"
                         )
+                    }
+
+                    if let suggestion = monitor.noiseSuggestion {
+                        NoiseSuggestionBanner(suggestion: suggestion) {
+                            monitor.dismissNoiseSuggestion()
+                            isShowingMicCheck = true
+                        }
                     }
 
                     switch monitor.status {
@@ -182,6 +190,13 @@ struct PracticeView: View {
                     ListeningIndicator()
                 }
                 ToolbarItem(placement: .topBarTrailing) {
+                    Button("Mic Check", systemImage: monitor.clearMicSettings.effectiveStrength.systemImage) {
+                        isShowingMicCheck = true
+                    }
+                    .accessibilityValue("Clear Mic \(monitor.clearMicSettings.effectiveStrength.title)")
+                    .accessibilityHint("Check the microphone and background noise, and set Clear Mic")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button("Alerts & Feedback", systemImage: "bell.badge") {
                             isShowingFeedbackSettings = true
@@ -191,6 +206,9 @@ struct PracticeView: View {
                         }
                         Button("Calibrate Microphone", systemImage: "mic.and.signal.meter") {
                             isShowingCalibration = true
+                        }
+                        Button("Mic Check & Clear Mic", systemImage: "mic.circle") {
+                            isShowingMicCheck = true
                         }
                         Button(
                             monitor.transcription.isEnabled ? "Hide Live Transcript" : "Show Live Transcript",
@@ -218,6 +236,9 @@ struct PracticeView: View {
             }
             .sheet(isPresented: $isShowingFeedbackSettings) {
                 FeedbackSettingsView()
+            }
+            .sheet(isPresented: $isShowingMicCheck) {
+                MicCheckSheet()
             }
             .fullScreenCover(isPresented: $isShowingEyesFree) {
                 EyesFreePracticeView()

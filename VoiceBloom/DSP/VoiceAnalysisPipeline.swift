@@ -44,7 +44,8 @@ nonisolated final class VoiceAnalysisPipeline {
         noiseFloor: NoiseFloorEstimator = NoiseFloorEstimator(),
         gateMarginDb: Double = 8,
         analysisMarginDb: Double = 6,
-        trackerConfiguration: PitchTrackerConfiguration = PitchTrackerConfiguration()
+        trackerConfiguration: PitchTrackerConfiguration = PitchTrackerConfiguration(),
+        inputHighPass: HighPassDesign? = nil
     ) {
         let decimator = Decimator(inputSampleRate: configuration.sampleRate)
         let decimatedLength = max(1, decimator.outputLength(forInputLength: configuration.frameSize))
@@ -57,7 +58,9 @@ nonisolated final class VoiceAnalysisPipeline {
         self.decimator = decimator
         pitchAnalyzer = PitchAnalyzer(configuration: configuration)
         formantAnalyzer = FormantAnalyzer(sampleRate: decimator.outputSampleRate, maximumFrameLength: decimatedLength)
-        weightAnalyzer = WeightAnalyzer(sampleRate: decimator.outputSampleRate, maximumFrameLength: decimatedLength)
+        let weight = WeightAnalyzer(sampleRate: decimator.outputSampleRate, maximumFrameLength: decimatedLength)
+        weight.inputFilter = inputHighPass
+        weightAnalyzer = weight
         voiceQualityAnalyzer = VoiceQualityAnalyzer(sampleRate: configuration.sampleRate)
         voiceQualityInterval = max(1, configuration.frameSize / max(1, configuration.hopSize))
         tracker = PitchTracker(frameInterval: configuration.hopDuration, configuration: trackerConfiguration)

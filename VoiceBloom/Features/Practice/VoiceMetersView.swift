@@ -4,6 +4,7 @@ import SwiftUI
 /// Resonance, weight and intonation meters for the practice screen.
 struct VoiceMetersCard: View {
     @Environment(LiveVoiceMonitor.self) private var monitor
+    private static let noVoiceHint = "No voice"
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -14,21 +15,23 @@ struct VoiceMetersCard: View {
                 ResonanceModeMenu()
             }
 
+            // While Clear Mic's gate hears only background, the meters say
+            // "No voice" rather than show readings of the noise.
             VoiceMeterRow(
                 title: "Resonance",
                 systemImage: "speaker.wave.2",
                 lowLabel: "Dark",
                 highLabel: "Bright",
-                display: resonanceDisplay,
-                emptyHint: monitor.resonanceMode.prompt
+                display: monitor.isVoiceGated ? nil : resonanceDisplay,
+                emptyHint: monitor.isVoiceGated ? Self.noVoiceHint : monitor.resonanceMode.prompt
             )
             VoiceMeterRow(
                 title: "Weight",
                 systemImage: "scalemass",
                 lowLabel: "Heavy",
                 highLabel: "Light",
-                display: weightDisplay,
-                emptyHint: "Hold a vowel or talk"
+                display: monitor.isVoiceGated ? nil : weightDisplay,
+                emptyHint: monitor.isVoiceGated ? Self.noVoiceHint : "Hold a vowel or talk"
             )
             VoiceMeterRow(
                 title: "Intonation",

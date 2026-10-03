@@ -40,6 +40,8 @@ final class MicCalibrationModel {
     @ObservationIgnored private var voicePeakDb = SignalLevel.silenceDb
     @ObservationIgnored private var voicedDuration = 0.0
     @ObservationIgnored private var frameCounter = 0
+    /// Clear Mic's room-noise profile is sampled once per calibration.
+    @ObservationIgnored private var hasSampledNoise = false
     /// Whether the user was already listening before calibration started.
     @ObservationIgnored private var wasListeningBefore: Bool?
 
@@ -74,6 +76,8 @@ final class MicCalibrationModel {
             return
         }
 
+        // Calibration measures the real room and mic: raw audio, not Clear Mic's.
+        await monitor.setForcesRawAnalysis(true)
         listenerID = monitor.addFrameListener { [weak self] frame in
             self?.handle(frame)
         }
@@ -127,6 +131,11 @@ final class MicCalibrationModel {
             // Skip the first moments: the tap on "Start" may still be audible.
             if elapsed >= Self.settleDuration {
                 noiseLevels.append(frame.levelDb)
+                if !hasSampledNoise {
+                    // The quiet step also gives Clear Mic its room-noise profile.
+                    hasSampledNoise = true
+                    monitor.sampleRoomNoise(seconds: 2)
+                }
             }
             if shouldPublish {
                 currentLevelDb = frame.levelDb
@@ -201,6 +210,11 @@ final class MicCalibrationModel {
             self.listenerID = nil
         }
         monitor.isCalibrating = false
+        // Back to the usual analysis source, unless a retry has started.
+        Task { [weak self] in
+            guard let self, !self.isMeasuring else { return }
+            await self.monitor.setForcesRawAnalysis(false)
+        }
     }
 
     /// Turns the microphone back off if the user wasn't listening before.
@@ -213,6 +227,7 @@ final class MicCalibrationModel {
     }
 
     private func resetMeasurements() {
+        hasSampledNoise = false
         phaseStart = nil
         noiseLevels.removeAll()
         voiceLevels.removeAll()

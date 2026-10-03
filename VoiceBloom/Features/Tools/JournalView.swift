@@ -367,6 +367,13 @@ private struct JournalEntryDetail: View {
                 }
                 Spacer()
                 Menu {
+                    if let recording = entry.recording {
+                        let isEnhancedPlaying = sessionController.player.playingID == recording.id && sessionController.player.isPlayingEnhanced
+                        Button(isEnhancedPlaying ? "Stop" : "Listen with Clear Mic", systemImage: isEnhancedPlaying ? "stop.fill" : "mic.and.signal.meter") {
+                            Task { await sessionController.togglePlayback(of: recording, enhanced: true) }
+                        }
+                        .disabled(sessionController.preparingEnhancedID != nil)
+                    }
                     Button("Delete Entry", systemImage: "trash", role: .destructive, action: onDelete)
                 } label: {
                     Image(systemName: "ellipsis.circle")

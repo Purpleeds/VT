@@ -80,6 +80,22 @@ final class LiveVoiceMonitor {
     private(set) var sessionStartDate: Date?
     /// The live transcript (when the user turns it on).
     let transcription: TranscriptionService
+    /// Clear Mic (SPEC section 24): strength, analysis source, Bluetooth
+    /// microphones and the preferred input.
+    private(set) var clearMicSettings: ClearMicSettings
+    /// Raw input level, peak, background noise and Clear Mic's state, for
+    /// Mic Check (refreshed with the other readouts).
+    private(set) var micStatus = ClearMicLiveStatus()
+    /// A noisy-room hint, at most once per session (SPEC section 24.6).
+    private(set) var noiseSuggestion: NoiseSuggestion?
+    /// True while Clear Mic's gate hears no voice (meters show "No voice").
+    private(set) var isVoiceGated = false
+    /// Extra delay of the analyzed audio from Clear Mic (seconds).
+    private(set) var analysisLatency = 0.0
+    /// When room noise was last sampled for Clear Mic.
+    private(set) var noiseSampledAt: Date?
+    /// Shared with the analysis thread.
+    @ObservationIgnored let clearMic = ClearMicControl()
     /// Called just before listening starts (e.g. to stop recording playback,
     /// which would otherwise be picked up by the microphone).
     @ObservationIgnored var willStartListening: (() -> Void)?
@@ -108,6 +124,9 @@ final class LiveVoiceMonitor {
     }
     /// While true (during mic calibration), frames don't count toward session statistics.
     var isCalibrating = false
+    /// While true (Mic Check is open), frames don't count toward session
+    /// statistics either. Separate from `isCalibrating`, which takes reset.
+    var isCheckingMic = false
     /// While true (Pitch Track games), slip alerts stay quiet: singing below
     /// the target zone is part of the exercise there.
     var suppressesSlipAlerts = false
@@ -125,6 +144,9 @@ final class LiveVoiceMonitor {
 
     /// False on devices without a Taptic Engine.
     var supportsHaptics: Bool { feedback.supportsHaptics }
+
+    /// Calibration, takes and Mic Check are measured but aren't practice.
+    private var isExcludedFromSession: Bool { isCalibrating || isCheckingMic }
 
     /// Current slip thresholds (debug screen).
     var slipConfiguration: SlipDetectorConfiguration { slipDetector.configuration }
@@ -166,6 +188,11 @@ final class LiveVoiceMonitor {
     @ObservationIgnored private var analysisTasks: (producer: Task<Void, Never>, consumer: Task<Void, Never>)?
     @ObservationIgnored private var eventTask: Task<Void, Never>?
     @ObservationIgnored private var resumesAfterInterruption = false
+    @ObservationIgnored private var noiseTracker = NoiseSuggestionTracker()
+    /// When Clear Mic's gate last closed (for the "No voice" delay).
+    @ObservationIgnored private var gateClosedSince: Date?
+    /// While true (mic calibration), the analysis hears raw audio.
+    @ObservationIgnored private var forcesRawAnalysis = false
     private let capture: AudioCaptureService
     private let feedback: FeedbackOutput
     private let audioTap: AudioTap
@@ -183,6 +210,8 @@ final class LiveVoiceMonitor {
         feedback = FeedbackOutput(capture: capture)
         audioTap = tap
         transcription = TranscriptionService(tap: tap)
+        clearMicSettings = ClearMicSettingsStore.load()
+        noiseSampledAt = ClearMicProfileStore.load()?.date
         feedbackSettings = settings
         slipDetector = SlipDetector(configuration: settings.slipConfiguration(target: .feminine))
         qualityTracker = VoiceQualityTracker(storedNorms: VoiceQualityNormsStore.load())
@@ -221,7 +250,7 @@ final class LiveVoiceMonitor {
         }
 
         do {
-            let format = try await capture.start()
+            let format = try await capture.start(options: clearMicSettings.captureOptions)
             guard status == .starting else {
                 // Paused (or backgrounded) while the microphone was starting.
                 await capture.stop()
@@ -262,6 +291,8 @@ final class LiveVoiceMonitor {
 
     /// Clears the graph, meters and statistics for a fresh session.
     func resetSession() {
+        noiseTracker.reset()
+        noiseSuggestion = nil
         clearLiveReadings()
         liveStats = VoiceSessionStats()
         stats = liveStats
@@ -468,6 +499,98 @@ final class LiveVoiceMonitor {
         }
     }
 
+    // MARK: Clear Mic
+
+    /// Saves new Clear Mic settings and applies them: a different capture
+    /// setup (System mode, Bluetooth mics, the input) restarts the microphone;
+    /// a different analysis source restarts the analysis; a different strength
+    /// takes effect at once.
+    /// - Parameter persist: False for a temporary change (the System Mode
+    ///   Check); the saved settings stay as they were.
+    func updateClearMicSettings(_ newSettings: ClearMicSettings, persist: Bool = true) async {
+        let old = clearMicSettings
+        if persist {
+            ClearMicSettingsStore.save(newSettings)
+        }
+        guard newSettings != old else { return }
+        clearMicSettings = newSettings
+        guard status.isRunning, let format = captureFormat else { return }
+        if newSettings.captureOptions != old.captureOptions {
+            await restartCapture()
+        } else if newSettings.isEnhancing != old.isEnhancing || newSettings.analyzesEnhancedAudio != old.analyzesEnhancedAudio {
+            await restartAnalysisIfRunning()
+        } else {
+            clearMic.setParameters(Self.clearMicParameters(for: newSettings, format: format))
+        }
+    }
+
+    func setClearMicStrength(_ strength: ClearMicStrength) async {
+        var settings = clearMicSettings
+        settings.strength = strength
+        await updateClearMicSettings(settings)
+    }
+
+    /// Averages the next few seconds into Clear Mic's room-noise profile
+    /// (the user stays quiet). Listening must be on.
+    func sampleRoomNoise(seconds: Double = 2) {
+        clearMic.requestNoiseCapture(seconds: seconds)
+    }
+
+    /// Microphones available now (Mic Check's picker).
+    func availableInputs() async -> [MicInput] {
+        await capture.availableInputs()
+    }
+
+    func dismissNoiseSuggestion() {
+        noiseSuggestion = nil
+    }
+
+    /// Back to Clear Mic's defaults, forgetting the room ("Delete All Data").
+    func resetClearMic() async {
+        clearMic.clearProfiles()
+        ClearMicProfileStore.save(nil)
+        noiseSampledAt = nil
+        noiseTracker.reset()
+        noiseSuggestion = nil
+        await updateClearMicSettings(ClearMicSettings())
+    }
+
+    /// Mic calibration measures the real room and mic, so it analyzes raw audio.
+    func setForcesRawAnalysis(_ forcesRaw: Bool) async {
+        guard forcesRawAnalysis != forcesRaw else { return }
+        forcesRawAnalysis = forcesRaw
+        await restartAnalysisIfRunning()
+    }
+
+    /// The processing for these settings on this format (System falls back to
+    /// Light when iOS voice processing isn't actually on).
+    nonisolated static func clearMicParameters(for settings: ClearMicSettings, format: CaptureFormat) -> ClearMicParameters? {
+        switch settings.effectiveStrength {
+        case .off: nil
+        case .light: .light
+        case .strong: .strong
+        case .system: format.isVoiceProcessing ? .system : .light
+        }
+    }
+
+    /// Stops and starts the microphone with the current options, staying in
+    /// the running state.
+    private func restartCapture() async {
+        guard status == .running else { return }
+        await endAnalysis()
+        await capture.stop()
+        do {
+            let format = try await capture.start(options: clearMicSettings.captureOptions)
+            guard status == .running else {
+                await capture.stop()
+                return
+            }
+            await beginAnalysis(format: format)
+        } catch {
+            status = .failed(Self.userMessage(for: error))
+        }
+    }
+
     // MARK: Calibration
 
     /// Saves a calibration and starts using it right away.
@@ -547,6 +670,26 @@ final class LiveVoiceMonitor {
         tap.begin(sampleRate: format.sampleRate, startTime: startTime)
         transcription.startListening(sampleRate: format.sampleRate)
 
+        // Clear Mic (SPEC section 24.2): the processor always runs (it keeps
+        // learning the room); the pipeline hears its output only when
+        // enhancing, and raw audio otherwise.
+        let control = clearMic
+        let parameters = Self.clearMicParameters(for: clearMicSettings, format: format)
+        let analyzesEnhanced = parameters != nil && clearMicSettings.analyzesEnhancedAudio && !forcesRawAnalysis
+        let inputKind = route?.inputKind
+        let fftSize = ClearMicProcessor.fftSize(forSampleRate: format.sampleRate)
+        let profile = ClearMicProfileStore.load(sampleRate: format.sampleRate, fftSize: fftSize, inputKind: inputKind)
+        let highPass = analyzesEnhanced && (parameters?.highPass ?? false) ? HighPassDesign(sampleRate: format.sampleRate) : nil
+        control.setParameters(parameters)
+        let latency = analyzesEnhanced ? Double(fftSize / 2) / format.sampleRate : 0
+        if analysisLatency != latency {
+            analysisLatency = latency
+        }
+        // Enhanced audio lags the raw audio by the processor's latency.
+        // Starting the pipeline's clock that much earlier keeps frame times on
+        // the raw audio's timeline, so frames, recordings and transcripts line up.
+        let pipelineStartTime = startTime - latency
+
         let (stream, continuation) = AsyncStream.makeStream(
             of: [VoiceFrame].self,
             bufferingPolicy: .bufferingNewest(128)
@@ -556,17 +699,26 @@ final class LiveVoiceMonitor {
         let producer = Task.detached(priority: .userInitiated) {
             let pipeline = VoiceAnalysisPipeline(
                 configuration: configuration,
-                startTime: startTime,
-                noiseFloor: noiseFloor
+                startTime: pipelineStartTime,
+                noiseFloor: noiseFloor,
+                inputHighPass: highPass
+            )
+            let stage = ClearMicStage(
+                sampleRate: configuration.sampleRate,
+                parameters: parameters,
+                analyzesEnhanced: analyzesEnhanced,
+                profile: profile,
+                inputKind: inputKind,
+                control: control,
+                hopHint: configuration.hopSize
             )
             ring.discardAll()
             while !Task.isCancelled {
-                // Raw audio also goes to the recent-audio buffer and transcriber.
-                let frames = pipeline.drain(ring) { samples, time in
-                    tap.consume(samples, startTime: time)
-                }
+                // Raw audio goes to the recent-audio buffer and transcriber;
+                // the pipeline hears enhanced (or raw) audio.
+                let frames = stage.drain(ring, pipeline: pipeline, tap: tap, rawStartTime: startTime)
                 if !frames.isEmpty {
-                    continuation.yield(frames)
+                    _ = continuation.yield(frames)
                 }
                 try? await Task.sleep(for: .milliseconds(5))
             }
@@ -594,6 +746,10 @@ final class LiveVoiceMonitor {
         // buffer at once (it supports exactly one reader).
         await tasks.producer.value
         await tasks.consumer.value
+        // Keep what Clear Mic learned about the room for next time.
+        if let learned = clearMic.latestProfile {
+            ClearMicProfileStore.save(learned)
+        }
     }
 
     private func ingest(_ frames: [VoiceFrame]) {
@@ -601,10 +757,10 @@ final class LiveVoiceMonitor {
         let now = Date()
         // Frames that may contain our own chime or vibration are skipped.
         let isHearingFeedback = now < feedbackQuietUntil
-        let isPractice = !isCalibrating && !isHearingFeedback
+        let isPractice = !isExcludedFromSession && !isHearingFeedback
         let watchesSlips = isPractice && status == .running && !suppressesSlipAlerts
         let interval = frameInterval
-        if !isCalibrating, sessionStartDate == nil {
+        if !isExcludedFromSession, sessionStartDate == nil {
             sessionStartDate = now
         }
 
@@ -616,7 +772,7 @@ final class LiveVoiceMonitor {
             if frame.status == .voiced {
                 lastVoicedFrame = frame
             }
-            if !isCalibrating {
+            if !isExcludedFromSession {
                 // Practice time includes moments when an alert was playing.
                 activeDuration += interval
             }
@@ -726,6 +882,7 @@ final class LiveVoiceMonitor {
         if dropped != droppedSampleCount {
             droppedSampleCount = dropped
         }
+        publishClearMic(now: now)
 
         // Meters are judged against audio time, so they go stale in silence
         // but keep their last value while paused.
@@ -758,7 +915,7 @@ final class LiveVoiceMonitor {
         if voiceQuality != quality {
             voiceQuality = quality
         }
-        if evaluation.shouldWarn, feedbackSettings.strainWarnings, !isCalibrating,
+        if evaluation.shouldWarn, feedbackSettings.strainWarnings, !isExcludedFromSession,
            let assessment = evaluation.assessment {
             strainWarning = StrainWarning(roughnessRatio: assessment.roughnessRatio, date: now)
             strainWarningCount += 1
@@ -786,6 +943,44 @@ final class LiveVoiceMonitor {
         }
     }
 
+    /// Seconds the gate stays shut before the meters say "No voice".
+    private static let noVoiceDelay = 0.4
+
+    /// Clear Mic's status, the "No voice" state, sampled noise profiles and
+    /// the noisy-room suggestion.
+    private func publishClearMic(now: Date) {
+        let mic = clearMic.status
+        if micStatus != mic {
+            micStatus = mic
+        }
+        // "No voice" only after the gate has stayed shut for a moment, so
+        // the meters don't flicker between words.
+        let isShut = status == .running && mic.isEnhancing && !mic.isGateOpen
+        if isShut {
+            gateClosedSince = gateClosedSince ?? now
+        } else {
+            gateClosedSince = nil
+        }
+        let gated = gateClosedSince.map { now.timeIntervalSince($0) >= Self.noVoiceDelay } ?? false
+        if isVoiceGated != gated {
+            isVoiceGated = gated
+        }
+        if let captured = clearMic.takeCapturedProfile() {
+            ClearMicProfileStore.save(captured)
+            noiseSampledAt = captured.date
+        }
+        // Only free practice counts (Pitch Track plays music on purpose);
+        // anything else restarts the wait.
+        let watchesNoise = status == .running && !isExcludedFromSession && !suppressesSlipAlerts && noiseSuggestion == nil
+        if let suggestion = noiseTracker.update(
+            noiseFloorDb: watchesNoise ? mic.noiseFloorDb : nil,
+            strength: clearMicSettings.effectiveStrength,
+            time: now.timeIntervalSinceReferenceDate
+        ) {
+            noiseSuggestion = suggestion
+        }
+    }
+
     // MARK: System events
 
     private func handle(_ event: CaptureEvent) async {
@@ -793,9 +988,15 @@ final class LiveVoiceMonitor {
         case .routeChanged(let info):
             guard route != info else { return }
             let calibrationWasInUse = isCalibrationInUse
+            let oldKind = route?.inputKind
             route = info
-            // A different kind of mic needs a different noise-floor model.
-            if calibrationWasInUse != isCalibrationInUse {
+            if clearMicSettings.allowsBluetoothInput, status == .running, oldKind != nil, oldKind != info.inputKind,
+               oldKind == .bluetooth || info.inputKind == .bluetooth {
+                // A Bluetooth mic came or went: re-check its high-quality mode
+                // (and return to the .measurement mode without it).
+                await restartCapture()
+            } else if calibrationWasInUse != isCalibrationInUse {
+                // A different kind of mic needs a different noise-floor model.
                 await restartAnalysisIfRunning()
             }
         case .interruptionBegan:

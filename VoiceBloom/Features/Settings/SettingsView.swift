@@ -186,6 +186,11 @@ private struct SettingsForm: View {
 
     private var microphoneSection: some View {
         Section {
+            NavigationLink {
+                MicCheckView()
+            } label: {
+                LabeledContent("Mic Check & Clear Mic", value: "Clear Mic \(monitor.clearMicSettings.effectiveStrength.title)")
+            }
             Button("Re-run Mic Calibration") { isShowingCalibration = true }
             Button("Re-run Placement Test") { isShowingPlacement = true }
             Button(profile.hasBaseline ? "Re-record Baseline" : "Record Baseline") { isShowingBaseline = true }
@@ -401,6 +406,7 @@ private struct SettingsForm: View {
         do {
             try DataEraser.eraseEverything(context: modelContext)
             await monitor.clearCalibration()
+            await monitor.resetClearMic()
             monitor.resetSession()
             monitor.applyReferences(.none)
             sessionController.dismissCheckInReminder()

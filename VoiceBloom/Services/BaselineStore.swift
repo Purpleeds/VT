@@ -114,6 +114,7 @@ enum DataEraser {
 
         SeparationFiles.deleteAll()
         PitchTrackFiles.deleteAll()
+        EnhancedRecordingCache.removeAll()
         if let folder = try? RecordingFileStore.directory() {
             try? FileManager.default.removeItem(at: folder)
         }

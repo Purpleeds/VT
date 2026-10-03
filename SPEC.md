@@ -314,6 +314,7 @@ Build ONE stage at a time. Each stage must compile and run on a real iPhone befo
 (Section 22's optional Stage 17, on-device vocal isolation for clips with background music, is covered by section 23's splitter: Stages 17 and 18 below.)
 17. Splitter with the BASIC engine: SeparationService protocol, splitter screen, preview mixer, save/export/discard (including video audio replacement), storage screen, and all integrations from 23.4
 18. HIGH QUALITY engine: convert and add the ML model, chunked processing, Fast/Best settings, automatic fallback
+19. Clear Mic microphone enhancer (section 24): processor, strength setting, Mic Check screen, noisy-room suggestion, enhanced playback/export of recordings
 
 Start with Stage 1 now.
 
@@ -532,3 +533,104 @@ PREVIEW AND MIXER
 - Test chunk crossfading produces no clicks at chunk boundaries.
 - Test mono detection, cancel mid-process, and low-storage handling.
 - Debug screen showing processing time per chunk and memory use.
+
+==================================================
+24. CLEAR MIC (MICROPHONE ENHANCER)
+==================================================
+Cleans up the microphone input so pitch, resonance and strain readings stay accurate in noisy places, and recordings sound clearer, without ever distorting what the app measures.
+
+--------------------------------------------------
+24.1 CORE RULES
+--------------------------------------------------
+- Enhancement must never distort the measurements. Processing is conservative by default: nothing shifts pitch, nothing alters formants, and nothing heavily EQs the voice band (the processor only ever reduces noise, and it never boosts).
+- A raw path always exists. Live analysis can run on raw or enhanced audio (a setting, for comparing), and every recording is saved raw.
+- No automatic gain control anywhere: custom modes use the .measurement session mode, voice processing runs with AGC off, and Record Over Backing also uses .measurement.
+- Real-time safety: the audio I/O thread only copies samples into the lock-free ring buffer (unchanged). The processor runs on the analysis thread right after the ring buffer, with every buffer and the FFT setup allocated once up front; processing a block never allocates, locks or waits.
+
+--------------------------------------------------
+24.2 SIGNAL FLOW
+--------------------------------------------------
+mic → AVAudioSinkNode (real-time thread) → ring buffer → analysis thread:
+- the raw chunk goes to the recent-audio buffer (recordings, transcript) and to the raw level, peak and background-noise meters;
+- the ClearMicProcessor then turns the raw chunk into enhanced audio (it keeps running, as a pass-through, even when Clear Mic is Off, so it keeps learning the room);
+- VoiceAnalysisPipeline gets the enhanced audio, or the raw audio when "Live readings from" is set to Raw Mic, when Clear Mic is Off, or during mic calibration (which measures the real room and mic).
+- Frame timestamps stay on the raw audio's timeline: enhanced audio lags the raw audio by the processor latency (half an FFT frame, about 10.7 ms at 48 kHz), so the pipeline's clock starts that much earlier. Frames, recordings and transcripts line up, and Pitch Track adds the latency to its timing correction because frames arrive that much later.
+
+--------------------------------------------------
+24.3 THE PROCESSOR (ClearMicProcessor)
+--------------------------------------------------
+- HIGH-PASS: 4th-order Butterworth (two biquads, double-precision state) at a constant 70 Hz. It removes rumble, handling noise and hum (−6.5 dB at 60 Hz, −12 dB at 50 Hz, about −20 dB below 40 Hz) while leaving the voice alone (−0.24 dB at 100 Hz, −0.06 dB at 120 Hz). The weight analyzer adds the filter's exact gain back to H1, H2 and the tilt harmonics, so H1–H2 doesn't change even for deep voices (an 85 Hz voice would otherwise read about 0.8 dB heavier).
+- SPECTRAL SUBTRACTION with vDSP real FFTs: 1024-point frames (512 below 32 kHz) with a 50 % hop, square-root periodic Hann analysis and synthesis windows (perfect reconstruction). Per bin: gain = √max(0, 1 − α·N/P) with the frame power P lightly smoothed over time, an over-subtraction factor α capped per strength, a spectral floor β (the gain never goes below it), instant gain rises and slow falls. Phase is untouched. Together these avoid "musical noise".
+- NOISE PROFILE: per-bin noise power.
+  - "Sample Room Noise" averages 2 seconds of silence (mic calibration's quiet step does this too).
+  - While listening, the profile falls quickly whenever a bin is quieter than it, and rises slowly only on frames within 3 dB of the room's noise floor.
+  - Without a saved profile, nothing is learned (and no noise is removed) until a quiet gap at least 10 dB below the recent loudest frame proves which frames are background. That way a long held vowel at the start can never be mistaken for noise.
+- NOISE GATE: per hop, the frame level (after the high-pass filter) is compared with a broadband noise-floor tracker (falls fast, rises 2 dB/s). It opens when the level is at least a margin above the floor. It holds 80 ms, then closes with a smooth 120 ms release (3 ms attack), attenuating by the strength's range. It sees one hop ahead, so word onsets aren't clipped. While closed, the pipeline's own voice-activity gate rejects the frames, and once the gate has stayed closed for 0.4 s the resonance and weight meters show "No voice" instead of junk readings (the delay stops them flickering between words).
+
+--------------------------------------------------
+24.4 STRENGTH SETTING
+--------------------------------------------------
+| Strength | High-pass | Noise reduction | Gate |
+|---|---|---|---|
+| Off | – | – | – (the raw signal) |
+| Light (default when turned on) | 70 Hz | α 1.3, floor −8 dB | open at +6 dB, closes by 12 dB |
+| Strong (loud places) | 70 Hz | α 2.2, floor −16.5 dB | open at +4 dB, closes by 24 dB |
+| System (experimental) | 70 Hz | iOS voice processing | open at +6 dB, closes by 12 dB |
+
+- Strong shows a note: "Resonance readings may be slightly less precise."
+- System uses AVAudioInputNode.setVoiceProcessingEnabled(true) with isVoiceProcessingAGCEnabled = false and minimal ducking.
+  - It's only offered after the System Mode Check in Mic Check passes on this iPhone: the voice-processed format must be at least 32 kHz float.
+  - The check records the same steady 4-second hum with System and with the plain microphone (Clear Mic Off), and compares them. The median pitch must match within 15 cents, the voiced time may drop no more than 20 %, and the pitch may be no more than 1.5× less steady. The settings used during the check are temporary; the user's own settings come back afterwards, with the result.
+  - If voice processing changes the format badly or fails to start, capture falls back to Light automatically and says why.
+- In System mode the "raw" audio has already been processed by iOS, and the Mic Check A/B test says so.
+
+--------------------------------------------------
+24.5 MIC CHECK SCREEN
+--------------------------------------------------
+Opened from Settings and from a mic icon on the Practice screen.
+- Listening runs while the screen is open, and nothing heard there counts toward practice statistics.
+- Input level meter with peak hold and a clipping warning (peak at or above −1 dBFS).
+- Background noise level (the quietest 100 ms of the last 2 seconds of raw audio, so it settles quickly and ignores speech) with a badge: Great (≤ −60 dBFS), OK (≤ −48), Too noisy. Plus the Sample Room Noise button.
+- Clear Mic strength picker, and a "Live readings from" picker (Clear Mic / Raw Mic) for comparing.
+- Current input (built-in, wired, Bluetooth, USB) and its sample rate, with a picker for the available inputs.
+  - "Use Bluetooth Microphones" is opt-in; by default AirPods only play sound and the iPhone mic records.
+  - When a Bluetooth mic is active, a warning says the call-quality profile hurts accuracy.
+  - On iOS 26, if the Bluetooth mic supports high-quality recording (bluetoothMicrophoneExtension.highQualityRecording), Chirp turns on .bluetoothHighQualityRecording. Apple only allows that option in the .default mode, so this one case trades .measurement for full-bandwidth audio, and the screen says so.
+- A/B test: record 5 seconds, then play Raw and Clear Mic (Light or Strong), each with its readings: median pitch, pitch steadiness, voiced time, F2, H1–H2 and background level. Both are analyzed offline the same way; the Clear Mic version uses the room's live noise profile when there is one.
+- System Mode Check (see 24.4).
+
+--------------------------------------------------
+24.6 SMART SUGGESTION
+--------------------------------------------------
+- If the raw background noise stays high for 8 seconds in free practice (not during calibration, takes, Mic Check or Pitch Track, which plays music on purpose), show a small banner on the Practice screen, at most once per session. A quieter moment restarts the 8 seconds. The banner can switch Clear Mic on (or to Strong), open Mic Check, or be dismissed:
+  - with Clear Mic Off, above −50 dBFS: suggest turning it on (Light), or a quieter spot;
+  - with Light, above −42 dBFS: suggest Strong;
+  - with Strong, above −38 dBFS: suggest a quieter spot.
+
+--------------------------------------------------
+24.7 RECORDINGS
+--------------------------------------------------
+- Raw audio is always the master file; processing is never baked in.
+- Enhanced playback and export process the file on the fly with the current strength (Light when Off). The noise profile is estimated from the recording's own quietest 15 % of frames.
+- The result is played from, or shared as, a temporary file ("Recording with Clear Mic.m4a" in the temporary folder), made once per recording and strength.
+- Each saved recording's menu (session detail) has Play with Clear Mic, Share Original and Share with Clear Mic; journal entries have Listen with Clear Mic.
+
+--------------------------------------------------
+24.8 PERSISTENCE
+--------------------------------------------------
+- In UserDefaults, like the mic calibration (they belong to this iPhone's mic): strength, Analyze source, Bluetooth opt-in, preferred input, System Mode Check result, and the noise profile.
+- The noise profile is stored with its sample rate, FFT size and input kind, and is only reused when they match. The learned profile is saved whenever listening stops.
+- None of it goes into backups (it belongs to this iPhone). Delete All Data resets Clear Mic and deletes the temporary Clear Mic copies.
+
+--------------------------------------------------
+24.9 TESTING
+--------------------------------------------------
+- Perfect reconstruction when all processing is off: the output equals the input delayed by the latency.
+- On synthetic vowels with added noise (20 dB SNR), Light and Strong must:
+  - leave the pitch within 1 Hz of the raw reading, F2 within 8 % and H1–H2 within 2 dB;
+  - reduce noise-only stretches by at least 10 dB (Light) or 18 dB (Strong).
+- The high-pass filter's response at the constant cutoff, its compensation in the weight analyzer, and hum removal at 50/60 Hz.
+- A held vowel from the very first frame is never learned as noise.
+- Noise profile sampling and the offline enhancement of a recording (same length, quiet parts reduced).
+- Gate attack/hold/release behavior and the noisy-room suggestion rules.
+

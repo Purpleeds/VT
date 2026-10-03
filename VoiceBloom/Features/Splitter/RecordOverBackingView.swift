@@ -52,7 +52,9 @@ final class OverBackingSession {
         }
         let session = AVAudioSession.sharedInstance()
         do {
-            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothA2DP])
+            // .measurement keeps automatic gain control off, so the take's
+            // loudness is real (SPEC section 24.1).
+            try session.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetoothA2DP])
             try session.setActive(true)
         } catch {
             phase = .failed("The microphone can’t start right now. Another app may be using audio.")
