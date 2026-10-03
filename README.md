@@ -4,7 +4,7 @@ The app shows as **Chirp** on the Home Screen (light sky blue icon). The code, p
 
 An iPhone app for voice training toward a more feminine (or androgynous) voice. Pitch, resonance, vocal weight and intonation are all measured on the device, and recordings never leave the phone. The full spec is in [SPEC.md](SPEC.md).
 
-**Status:** Stages 1–14 and 17–18 are done (Stages 15–16 and section 22, Pitch Track Mode, aren't in the spec yet):
+**Status:** Stages 1–15 and 17–18 are done; Stage 16 (Pitch Track recordings, reviews and history) is next:
 - **Stage 1:** project setup, the audio engine, the live pitch graph, a debug screen, and pitch tests.
 - **Stage 2:** resonance, weight and intonation meters, plus microphone calibration.
 - **Stage 3:** slip alerts (haptic, sound, visual), eyes-free practice, the "% in target" display, and voice-quality and strain monitoring.
@@ -19,6 +19,7 @@ An iPhone app for voice training toward a more feminine (or androgynous) voice. 
 - **Stage 12:** motivation: streaks with a weekly streak freeze, achievements, a daily challenge, the balloon pitch game, an evening nudge, Home Screen and Lock Screen widgets, and Siri shortcuts.
 - **Stage 13:** privacy (app lock, app-switcher cover, a neutral app icon, neutral notification wording, backup/restore to a file, delete all data), the Vocal Health Center (articles, a 45-minute daily soft limit with break suggestions, rest suggestions) and an accessibility pass. iCloud sync is left out: it needs a paid Apple Developer account.
 - **Stage 14:** Voice Preview (a rough pitch and resonance preview of your own recording, clearly labelled as an approximation) and a final polish pass: consistent button titles, dark-mode fixes, a lighter live graph, and crash-proof number formatting.
+- **Stage 15:** Pitch Track Mode: tracks made from any clip (speech or singing, detected automatically), built-in exercises (sirens, scales, arpeggios, held notes, speech intonation patterns), the scrolling-bars game with live scoring, transposition, speed, loops, difficulty, sound modes (including karaoke backing for split songs) and latency calibration.
 - **Stage 17:** the vocal / backing splitter with the Basic engine (center cancellation): splitter screen with progress and cancel, preview mixer, exports (including video with replaced audio), storage screen, Target Voice integration and Record Over Backing.
 - **Stage 18:** the High Quality splitter engine (Open-Unmix converted to Core ML, chunked and crossfaded, Fast/Best), with automatic fallback to Basic. The model isn't in the repo: see [Vocal splitter: the High Quality model](#vocal-splitter-the-high-quality-model).
 
@@ -93,6 +94,8 @@ Select the blue **VoiceBloom** project in the navigator.
    - Key: **Privacy - Face ID Usage Description** (`NSFaceIDUsageDescription`)
    - Value: `VoiceBloom can lock with Face ID so your practice stays private.`
 
+6. Still on **General**, under **Deployment Info**, tick **Portrait**, **Landscape Left** and **Landscape Right**. Every screen stays portrait except the Pitch Track game, which turns sideways with the phone (Stage 15; the GitHub build sets this in `project.yml`).
+
 No capabilities are needed: SwiftData is set up in code, data stays on the device (iCloud sync is a later, optional stage), and reminders are local notifications.
 
 ### 4. Run on your iPhone
@@ -145,6 +148,36 @@ If the App Group is missing (for example with some sideloading tools), the widge
 ## What to try on the device
 
 Stages 2 and 3 need no extra Xcode setup. Stage 4 needs the speech recognition entry from step 3.4.
+
+**Stage 15** (Pitch Track Mode, section 22):
+- **More ▸ Tools ▸ Pitch Track** lists the built-in exercises and your tracks.
+  - **Pitch exercises:** Siren, Slides, 5-Note Scale, Arpeggio, Held Notes.
+  - **Speech patterns:** Questions Rise, Statements Fall, Excited Speech (curved bars with words).
+  - All of them are built around your target zone, so they move when your targets change.
+- **Make a track:** import audio or video (Files or Photos), trim up to 2 minutes, then **Make Track**.
+  - Progress shows *Detecting pitch… Measuring resonance… Building track… Finding the words…*, with Cancel (or **Skip Words** for the last step).
+  - The result says whether it sounds like **speech** or **singing**, and you can switch:
+    - singing gives flat bars snapped to semitones (in the clip's own tuning);
+    - speech keeps the natural curves.
+  - Warnings appear for background music (with **Split First for Best Results**, which makes the bars from the isolated vocals) and for more than one voice.
+  - The Target Voice editor has a **Make a Pitch Track** button, and the track builder has **Use as Target Voice**.
+- **Before playing** (the track's screen):
+  - **Transpose** (±12 semitones), with **Auto-Fit to My Range** and a warning when the track sits outside the range you reach comfortably in practice.
+  - **Speed** 50–100 % (the pitch stays the same).
+  - **Difficulty** Easy/Medium/Hard (±100/50/25 cents) and **Score resonance and weight**.
+  - **Sound**: Original, Vocals Only, Backing Only (karaoke; the default for split songs), Guide Tones or Silent.
+  - **Loop a section**, and a haptic tap on perfect notes.
+- **Playing:**
+  - Headphones are recommended (without them you can **Play Silently Instead**). The game starts after a 3-second countdown.
+  - Bars scroll toward the line at 25 %. Your voice is the glowing dot with a trail. Bars fill as you hit them.
+  - Green/yellow/red always come with words and arrows ("Go higher"). There's also a combo counter, plus resonance and weight meters when they're scored.
+  - **Pause** freezes everything. **End** shows the score so far.
+  - Turn the phone sideways for landscape.
+- **Score:** overall 0–100 with 1–5 stars, pitch accuracy, stability, timing, resonance and weight match, bars hit, longest combo, and the notes you reached comfortably. Loops show each pass and keep the best.
+  - Saving attempts, the written review and history come in Stage 16.
+- **Timing:** Bluetooth headphones add delay. **Settings ▸ Pitch Track timing** (also in the Pitch Track list) uses the delay your headphones report, a tap-along calibration (tap on 12 clicks), or a manual offset.
+- **Debug & Tuning ▸ Simulate a perfect voice** plays tracks with a computer voice that hits every bar; scores should be about 100.
+- Tracks and their clips are stored on the iPhone (Application Support/PitchTracks), aren't in backups, and are removed by Delete All Data.
 
 **Stage 14** (Voice Preview and polish):
 - **More ▸ Tools ▸ Voice Preview:** record 8 seconds in your current voice (or pick a saved recording), then move the **Pitch** (−6 to +12 semitones) and **Resonance** (−10 to +20 %) sliders, or tap **Toward My Target**. Play **Original** and **Preview** back to back (headphones recommended; Discreet Mode applies). It's a rough approximation made with simple signal processing and is never saved.
@@ -390,6 +423,14 @@ VoiceBloom/
                   PitchGameEngine + scores, MotivationCenter (refresh achievements, widgets, nudge)
   Health/         BreakAdvisor (soft limit, breaks), VocalHealthSummary (week of check-ins/strain),
                   HealthLibrary (Vocal Health Center articles)
+  PitchTrack/     PitchTrackModels (bars, settings, sound modes), TrackSegmentation (10 ms PitchGrid,
+                  NoteSegmenter, SpeechSegmenter, ClipTypeDetector, BackgroundMusicCheck),
+                  PitchTrackBuilder (offline analysis → bars + features, words), TrackTranscriber
+                  (SpeechAnalyzer, SFSpeechRecognizer fallback), TrackRange/ComfortRange (transpose
+                  advice), BuiltInTracks, PitchTrackScoring (scorer, perfect voice), TrackTiming
+                  (host clock, TrackClock, FrameTimeAligner, latency calibration), PitchTrackAudio
+                  (guide tones, loader, TrackAudioPlayer with AVAudioUnitTimePitch),
+                  PitchTrackStore + PitchTrackFiles, PitchTrackGameModel
   Splitter/       SeparationService protocol, ChunkedRunner (10 s chunks, 1 s crossfades),
                   SpectralTransform (vDSP STFT), BasicSeparationEngine (center cancellation),
                   SpectrogramMaskEngine + CoreMLMagnitudePredictor (High Quality), VocalCleanup,
@@ -403,8 +444,9 @@ VoiceBloom/
                   TrimSelection, WaveformSummary, TargetComparison (% match), TargetSuggestion
                   (automatic targets), ContourComparison, TargetVoiceStore
   Persistence/    SwiftData schema (VoiceBloomSchemaV1: UserProfile, PracticeSession, Recording,
-                  LessonProgress, TargetVoiceProfile, ScenarioResult, Achievement, DailyJournalEntry),
-                  migration plan, enums stored as raw strings, VoiceBloomDatabase (opens the store)
+                  LessonProgress, TargetVoiceProfile, ScenarioResult, Achievement, DailyJournalEntry;
+                  V2 adds SeparatedTrack; V3 adds PitchTrack and TrackSegment), lightweight migration
+                  plan, enums stored as raw strings, VoiceBloomDatabase (opens the store)
   Sessions/       SessionSnapshot, SessionStore (save/upsert, delete, check-ins), CheckInRules,
                   PracticeSessionController (autosave, finish, discard, clips, playback),
                   ClipStats + FrameLog, RecordingFileStore (.m4a files), RecordingPlayer,

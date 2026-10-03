@@ -87,6 +87,36 @@ Tip: **More ▸ Debug & Tuning** shows raw pitch, formants, the noise floor and 
   - [ ] **Best** takes about twice as long.
   - [ ] Debug & Tuning shows per-chunk time and free memory.
 
+## 5c. Pitch Track (More › Tools › Pitch Track)
+- [ ] **Built-in tracks:**
+  - [ ] Each one plays. The bars sit around your target zone.
+  - [ ] The speech patterns show words under curved bars.
+- [ ] **Make a track:**
+  - [ ] From a clip of someone talking: detected as speech, curved bars, words under them.
+  - [ ] From a sung clip: detected as singing, flat bars on the right notes.
+  - [ ] Switching the type redraws the bars.
+  - [ ] Cancel works during the analysis, and Skip Words during the word search.
+  - [ ] A song with music shows the music warning; Split First rebuilds the bars from the vocals.
+  - [ ] Target Voice ▸ Make a Pitch Track, and the builder's Use as Target Voice, both open.
+- [ ] **Settings:**
+  - [ ] Transpose and Auto-Fit shift the bars. The out-of-range advice appears for a high song.
+  - [ ] 50 % speed plays slower at the same pitch.
+  - [ ] A loop repeats its section, and the results list the passes.
+  - [ ] Each sound mode plays the right thing: Original, Vocals Only, Backing Only (split songs), Guide Tones (they follow the bars), Silent.
+- [ ] **Game:**
+  - [ ] Countdown; the bars and the sound stay in step.
+  - [ ] The dot follows your voice. Bars fill and change colour, the hint says higher/lower, and the combo counts.
+  - [ ] Pause freezes the bars and the sound; Resume continues; End shows the score.
+  - [ ] Without headphones there's a warning and Play Silently Instead.
+  - [ ] The game turns to landscape; every other screen stays portrait.
+  - [ ] A perfect note gives a light tap (when enabled). No slip alerts sound during the game.
+  - [ ] The session appears in Progress as Pitch Track, and the check-in follows.
+- [ ] **Timing:**
+  - [ ] With AirPods, sing a built-in scale on the beat. Timing should score well after the tap-along calibration and noticeably worse with the offset set to 0.
+  - [ ] The manual slider and Automatic both save.
+- [ ] Debug & Tuning ▸ Simulate a perfect voice: built-in and uploaded tracks score about 100.
+- [ ] Delete a track (it leaves the screen first). Delete All Data removes tracks.
+
 ## 6. Target Voice
 - [ ] Import an MP3/M4A from Files, and a video from Photos.
 - [ ] A file longer than 3 minutes loads its first 3 minutes.
@@ -153,4 +183,8 @@ Tip: **More ▸ Debug & Tuning** shows raw pitch, formants, the noise floor and 
 - **AI scenario partner:** uses the on-device live transcript (SFSpeechRecognizer), not the newer SpeechAnalyzer API.
 - **Voice Preview** is a rough approximation; large shifts sound processed by design.
 - **High Quality splitter model:** not in the repo; the README's "Vocal splitter" section explains how to convert and add it. Without it the splitter uses Basic.
-- **Pitch Track Mode** (section 22) doesn't exist yet, so its splitter integrations (karaoke backing option, split-first prompt there) wait for it.
+- **Pitch Track:**
+  - Attempts aren't saved yet. Recordings, save/discard, the written review and track history are Stage 16.
+  - Tracks aren't included in backups (like splits).
+  - Word timestamps need the system's on-device speech model. Without it, tracks have no words.
+  - The background-music check is a heuristic: a cappella singing with no pauses can be flagged.
