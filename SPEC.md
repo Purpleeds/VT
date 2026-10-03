@@ -309,11 +309,150 @@ Build ONE stage at a time. Each stage must compile and run on a real iPhone befo
 12. Motivation: streaks, achievements, pitch game, notifications, widgets, Siri Shortcuts
 13. Privacy features, iCloud sync, backup/restore, accessibility pass
 14. Voice Preview (advanced) and final polish
-(Stages 15–16 and section 22, Pitch Track Mode, are not in this copy of the spec yet.)
+15. Pitch Track generation (22.1) + gameplay screen (22.2) + scoring (22.4) + built-in tracks
+16. Recording with save/discard (22.3), review (22.5), track library and history (22.6), data model (22.8)
+(Section 22's optional Stage 17, on-device vocal isolation for clips with background music, is covered by section 23's splitter: Stages 17 and 18 below.)
 17. Splitter with the BASIC engine: SeparationService protocol, splitter screen, preview mixer, save/export/discard (including video audio replacement), storage screen, and all integrations from 23.4
 18. HIGH QUALITY engine: convert and add the ML model, chunked processing, Fast/Best settings, automatic fallback
 
 Start with Stage 1 now.
+
+==================================================
+22. PITCH TRACK MODE (MATCH THE BARS)
+==================================================
+A game-style practice mode where bars scroll across the screen and the user must match their pitch (and resonance and weight) to them, like a karaoke singing game. Tracks can be generated automatically from any uploaded audio or video.
+
+--------------------------------------------------
+22.1 AUTO TRACK GENERATION FROM UPLOADS
+--------------------------------------------------
+- Import MP3, M4A, WAV, MP4, MOV from Files or Photos. Extract audio from videos with AVAssetReader.
+- Reuse the import/trim UI from section 9. Any clip imported in the Target Voice tab gets a "Make a Pitch Track" button, and vice versa.
+- Show a progress screen while processing ("Detecting pitch… Measuring resonance… Building track…") with a cancel button. Process off the main thread.
+
+AUTO-DETECTION
+- Detect clip type automatically: SPEECH or SINGING, based on pitch stability, how well pitches snap to musical semitones, and voiced-to-unvoiced ratio. Show the result with a manual override.
+- Detect background music. If found:
+  - Optional on-device vocal isolation using an open-source source-separation model (e.g. Demucs, MIT licensed) converted to Core ML. Mark this ADVANCED/OPTIONAL and build it last; the app must work without it.
+  - Otherwise warn that music will reduce accuracy and recommend clips with clear solo voice.
+- Detect multiple speakers and warn.
+
+ANALYSIS (reuse analyzers from section 2)
+- Full pitch contour (10 ms frames).
+- SINGING clips: segment into notes (stable pitch regions longer than ~80 ms), snap each to the nearest semitone, and merge tiny gaps.
+- SPEECH clips: keep the natural pitch contour, grouped into syllable/word segments, drawn as curved bars instead of flat ones.
+- For each segment, store: start time, duration, pitch (Hz and note), resonance (F1/F2/F3 and score), weight score, loudness.
+- Transcribe with SpeechAnalyzer (word timestamps) and show words under the bars (for speech especially; for songs, show if transcription confidence is good enough).
+- Detect the track's overall pitch range and compare it to the user's comfortable range (from their history). If it's outside, suggest transposing.
+
+TRACK SETTINGS (editable before playing)
+- Transpose: −12 to +12 semitones, plus an "Auto-fit to my range" button.
+- Speed: 50%–100% (time-stretch with AVAudioUnitTimePitch, pitch unchanged).
+- Loop a section: drag to select start/end.
+- Difficulty (pitch tolerance): Easy ±100 cents, Medium ±50 cents, Hard ±25 cents.
+- Score resonance and weight: on/off (on by default for speech tracks).
+- Audio during play: Original audio, Guide tones only (synthesized notes), or Silent (bars only).
+- Saved as a Track the user can rename, replay, and delete.
+
+BUILT-IN TRACKS (so the mode works without uploads)
+- Generated exercises: sirens, slides, 5-note scales, arpeggios, held notes in the target zone, and speech intonation patterns (questions rising, statements falling, excited speech) built around the user's current target zone.
+
+--------------------------------------------------
+22.2 GAMEPLAY SCREEN
+--------------------------------------------------
+- Landscape and portrait supported.
+- Vertical axis = pitch (semitone grid lines with note names). Horizontal = time, scrolling right to left.
+- Fixed "now" line at about 25% from the left.
+- Target bars: pitch shown by vertical position, length by duration. Bar outline color shows its resonance target (darker to brighter), and a thin inner line shows weight target.
+- User's live pitch is a glowing dot with a short trail.
+- Feedback while playing:
+  - Bar fills in as the user hits it (fill amount = accuracy)
+  - Color: green (on), yellow (close), red (off), with an arrow hinting "go higher / go lower"
+  - Small resonance and weight meters at the side
+  - Combo counter for consecutive hits
+  - Optional haptic tap on a perfect hit
+- 3-second countdown before starting. Pause button (pause freezes the track and the recording).
+- REQUIRED: recommend headphones before starting when audio is set to Original or Guide tones, so the mic doesn't pick up the track. If no headphones are connected, warn and offer Silent mode.
+- LATENCY: Bluetooth headphones add delay. Add a latency calibration (tap along to a beat, or auto-measure) and a manual offset slider in Settings; apply the offset to scoring.
+
+--------------------------------------------------
+22.3 RECORDING, SAVE OR DISCARD
+--------------------------------------------------
+- Record the user's microphone input during every attempt (voice only, separate from the backing audio).
+- On completion (or if the user stops early), show the Results screen with:
+  - Play my take / Play my take with the original / Play original only
+  - SAVE button: saves the recording, scores, and review as an Attempt, linked to a Session so it appears in Progress graphs (section 11)
+  - DISCARD button: asks "Discard this attempt?" then deletes the recording. Scores are not saved.
+  - RETRY button: discards and restarts immediately (with confirmation)
+- If the app is closed during the results screen, keep the attempt as an unsaved draft and ask again next time it opens.
+
+--------------------------------------------------
+22.4 SCORING
+--------------------------------------------------
+Per bar and overall (0–100):
+- Pitch accuracy: average cents off, within the difficulty tolerance
+- Pitch stability: how steady the pitch is on held notes
+- Timing: how close the start of each note is to the bar start (after latency offset)
+- Resonance match (if enabled): user F2/F3 vs bar target
+- Weight match (if enabled): user weight score vs bar target
+- Overall score = weighted average, plus a 1–5 star rating
+- Also track: % bars hit, longest combo, highest and lowest notes reached comfortably
+
+--------------------------------------------------
+22.5 REVIEW AFTER COMPLETION
+--------------------------------------------------
+The Results screen includes a full review:
+
+VISUAL BREAKDOWN
+- Graph of target pitch vs the user's pitch over the whole track, with misses highlighted.
+- Section-by-section breakdown (split the track into ~5–10 second sections) with a score for each.
+- Tap any section to replay that part of the take, or jump straight into a loop practice of that section.
+
+WRITTEN REVIEW
+Structure every review as:
+1. Overall summary (1–2 sentences)
+2. What went well (1–3 specific points with timestamps)
+3. What to improve: the top 3 issues, each with:
+   - WHAT happened, with specific numbers and timestamps (e.g. "From 0:32 to 0:41 you were about 40 cents flat on the high notes")
+   - WHY it probably happened (e.g. "pitch tends to drop when resonance darkens")
+   - HOW to fix it: a specific technique, plus a button linking to a matching exercise from the exercise library (section 8)
+4. Next step: recommended settings for the next attempt (e.g. "Try 75% speed on section 3" or "Transpose down 2 semitones")
+5. Comparison with the previous attempts on this track ("Pitch accuracy up 12 points since last time")
+6. Health note if strain indicators (section 4) rose during the attempt
+
+HOW THE REVIEW IS GENERATED
+- Use the AICoachService from section 10 (Foundation Models → Gemini free tier → rule-based).
+- Send only the numbers: per-section scores, problem timestamps, pitch/resonance/weight errors, track type, difficulty, and previous attempt scores. Never send audio.
+- Use a @Generable struct for the review so it always has the same sections.
+- Rule-based fallback must produce the same structure from preset rules (e.g. consistently flat on high notes → suggest slides and resonance brightening; late timing → suggest slower speed; weight too heavy → suggest light onset exercises).
+- Keep the tone encouraging and specific. Never encourage pushing through strain.
+
+--------------------------------------------------
+22.6 TRACK LIBRARY AND HISTORY
+--------------------------------------------------
+- Track library: built-in and uploaded tracks, with best score, last played, and number of attempts.
+- Each track has an attempts list (saved attempts only): date, score, stars, play the recording, view the review.
+- Graph of scores over time for each track.
+- Pitch Track scores also feed the main Progress tab.
+
+--------------------------------------------------
+22.7 SPEECH vs SINGING NOTE
+--------------------------------------------------
+- Show a short in-app note: singing and speaking use the voice differently, and singing high does not automatically make the speaking voice sound more feminine. Speech tracks are the most useful for everyday voice goals; singing tracks are great for pitch control and range.
+
+--------------------------------------------------
+22.8 DATA MODEL ADDITIONS (SwiftData)
+--------------------------------------------------
+- PitchTrack: id, name, source file URL, type (speech/singing/built-in), duration, transpose, speed, difficulty, scoring options, audio mode, detected range, created date
+- TrackSegment: track id, start, duration, pitch Hz, note, resonance target, weight target, loudness, word text
+- TrackAttempt: id, track id, session id, date, recording URL, per-section scores, overall scores, stars, review (structured), saved flag
+
+--------------------------------------------------
+22.9 TESTING
+--------------------------------------------------
+- Unit tests for note segmentation using generated audio with known notes and gaps.
+- Unit tests for speech/singing detection using synthetic examples.
+- Unit tests for scoring with fake pitch data (perfect, flat, late, off-key).
+- Debug option to play a track with a simulated "perfect" voice to check scoring gives ~100.
 
 ==================================================
 23. VOCAL / BACKING SPLITTER

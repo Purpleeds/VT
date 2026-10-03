@@ -10,7 +10,7 @@ iOS 26+ SwiftUI app. The full spec is in SPEC.md. Read it before starting any wo
 - After each stage, update the Progress section below.
 
 ## Progress
-- Current stage: Stages 1–14 and 17–18 done (Stages 15–16 and section 22 Pitch Track Mode not in SPEC.md yet). On-device checklist in TESTING.md.
+- Current stage: Stages 1–14 and 17–18 done; next are Stages 15–16 (section 22 Pitch Track Mode, now in SPEC.md, together with the Pitch Track parts of 23.4). On-device checklist in TESTING.md.
 - Completed:
   - Stage 1: project setup, audio engine (AVAudioSinkNode → lock-free ring buffer → background YIN pipeline), live pitch graph, debug screen, pitch/DSP unit tests. Xcode setup steps are in README.md.
   - Stage 2: FormantAnalyzer (decimate to ~12 kHz, pre-emphasis, Hamming, order-12 LPC via Levinson–Durbin, Aberth roots → F1–F3), WeightAnalyzer (Goertzel H1–H2, Iseli–Alwan formant correction, spectral tilt), IntonationAnalyzer (phrases split at 0.35 s pauses, semitone SD, rises/falls), and resonance/weight/intonation meters on Practice. Also: mic calibration flow (5 s noise floor + "aah" level check, saved in UserDefaults), formant/weight/intonation/calibration sections on the debug screen, and tests with synthetic vowels. No extra Xcode setup needed.
