@@ -23,3 +23,10 @@ DerivedData/
 
 # Compiled Core ML models (built from Models/*.mlpackage in CI)
 Models/*.mlmodelc/
+
+# Web (Mafia)
+node_modules/
+client/dist/
+server/dist/
+*.tsbuildinfo
+.env
